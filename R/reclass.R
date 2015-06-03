@@ -134,15 +134,23 @@ reclass <- function(list,formula,newdata,time,cause,cuts=seq(0,100,25),digits=1)
                 reclassification.table=retab,
                 eventtable=eventtable,
                 eventfreetable=eventfreetable,
-                cuts=cuts)
+                cuts=cuts,model=model.type)
     class(out) <- "riskReclassification"
     out
 }
 
 ##' @S3method print riskReclassification
 print.riskReclassification <- function(x,...){
-    print(x$table)
-    print(x$etable)
+    cat("Re-classification table:\n\n")
+    print(x$reclassification.table)
+    cat("\nExpected number of reclassifications among subjects with event:\n\n")
+    if (x$model=="competing.risks"){
+        print.listof(x$eventtable)}
+    else{
+        print(x$eventtable)
+    }
+    cat("\nExpected number of reclassifications among event-free subjects:\n\n")
+    print(x$eventfreetable)    
 }
 
 ##' @S3method plot riskReclassification
