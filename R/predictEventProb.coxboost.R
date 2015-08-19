@@ -33,7 +33,7 @@ coxboost <- function(formula,data,cv=TRUE,cause=1,penalty,...){
   if (!(formula.names[2]=="Hist")) stop("The left hand side of formula look like this: Hist(time,event).")
   actual.terms <- terms(formula,data=data)
   formula <- eval(call$formula)
-  response <- model.response(model.frame(formula,data))
+  response <- model.response(stats::model.frame(formula,data))
   Time <- as.numeric(response[,"time"])
   if (attr(response,"model")=="competing.risks"){
     ## adapt the event variable
@@ -77,9 +77,9 @@ coxboost <- function(formula,data,cv=TRUE,cause=1,penalty,...){
 ##' @S3method predictSurvProb coxboost
 predictSurvProb.coxboost <- function(object,newdata,times,...) {
   newcova <- model.matrix(terms(object$formula,data=newdata),
-                          data=model.frame(object$formula,data=newdata,na.action=na.fail))[,-c(1)]
+                          data=stats::model.frame(object$formula,data=newdata,na.action=na.fail))[,-c(1)]
   newcova <- newcova[,object$coxboost$xnames]
-  p <- predict(object$coxboost,newcova,type="risk",times=times)
+  p <- stats::predict(object$coxboost,newcova,type="risk",times=times)
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
     stop("Prediction failed")
   p
@@ -90,9 +90,9 @@ predictEventProb.coxboost <- function(object,newdata,times,cause,...){
   if (missing(cause)) stop("missing cause")
   if (attr(object$response,"model")!="competing.risks") stop("Not a competing risk object")
   newcova <- model.matrix(terms(object$formula,data=newdata),
-                          data=model.frame(object$formula,data=newdata,na.action=na.fail))[,-c(1)]
+                          data=stats::model.frame(object$formula,data=newdata,na.action=na.fail))[,-c(1)]
   newcova <- newcova[,object$coxboost$xnames]
-  p <- predict(object$coxboost,newdata=newcova,type="CIF",times=times)
+  p <- stats::predict(object$coxboost,newdata=newcova,type="CIF",times=times)
   if (is.null(dim(p))) {
     if (length(p)!=length(times))
       stop("Prediction failed (wrong number of times)")
@@ -110,9 +110,9 @@ predictLifeYearsLost.coxboost <- function(object,newdata,times,cause,...){
     ## if (cause!=1) stop("CoxBoost can only predict cause 1")
     if (attr(object$response,"model")!="competing.risks") stop("Not a competing risk object")
     newcova <- model.matrix(terms(object$formula,data=newdata),
-                            data=model.frame(object$formula,data=newdata))[,-c(1)]
+                            data=stats::model.frame(object$formula,data=newdata))[,-c(1)]
     time.interest <- sort(unique(object$coxboost$time))
-    cif <- predict(object$coxboost,newdata=newcova,type="CIF",times=time.interest)
+    cif <- stats::predict(object$coxboost,newdata=newcova,type="CIF",times=time.interest)
     pos <- prodlim::sindex(jump.times=time.interest,eval.times=times)
     lyl <- matrix(unlist(lapply(1:length(pos), function(j) {
         pos.j <- 1:(pos[j]+1)

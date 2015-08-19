@@ -222,14 +222,14 @@ ipcw.forest <- function(formula,data,method,args,times,subjectTimes,subjectTimes
     ## print(fit)
     fit$call <- NULL
     # forest weights
-    FW <- predict(fit,newdata=wdata,forest.wt=TRUE)$forest.wt
+    FW <- stats::predict(fit,newdata=wdata,forest.wt=TRUE)$forest.wt
     #  weigths at requested times
     #  predicted survival probabilities for all training subjects are in object$survival
     #  out-of-bag prediction in object$survival.oob
     if (match("IPCW.times",what,nomatch=FALSE)){
         # reverse Kaplan-Meier with forest weigths
         IPCW.times <- apply(data,1,function(i){
-            predict(prodlim::prodlim(Hist(time,status)~1,data=wdata,reverse=TRUE,caseweights=FW[i,]),times=times)
+            stats::predict(prodlim::prodlim(Hist(time,status)~1,data=wdata,reverse=TRUE,caseweights=FW[i,]),times=times)
         })
     }
     else
@@ -263,7 +263,7 @@ ipcw.marginal <- function(formula,data,method,args,times,subjectTimes,subjectTim
     fit <- prodlim::prodlim(formula,data=data,reverse=TRUE)
     #  weigths at requested times
     if (match("IPCW.times",what,nomatch=FALSE)){
-        IPCW.times <- predict(fit,newdata=data,times=times,level.chaos=1,mode="matrix",type="surv")
+        IPCW.times <- stats::predict(fit,newdata=data,times=times,level.chaos=1,mode="matrix",type="surv")
     }
     else
         IPCW.times <- NULL
@@ -296,7 +296,7 @@ ipcw.nonpar <- function(formula,data,method,args,times,subjectTimes,subjectTimes
     fit <- prodlim::prodlim(formula,data=data,reverse=TRUE,bandwidth="smooth")
     #  weigths at requested times
     if (match("IPCW.times",what,nomatch=FALSE)){
-        IPCW.times <- predict(fit,newdata=data,times=times,level.chaos=1,mode="matrix",type="surv")
+        IPCW.times <- stats::predict(fit,newdata=data,times=times,level.chaos=1,mode="matrix",type="surv")
     }
     else
         IPCW.times <- NULL

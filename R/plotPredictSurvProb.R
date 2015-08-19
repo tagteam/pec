@@ -99,7 +99,7 @@ plotPredictSurvProb <- function(x,
     # find data
     data <- eval(x$call$data)
     # extract response
-    m <- model.frame(formula,data,na.action=na.fail)
+    m <- stats::model.frame(formula,data,na.action=na.fail)
     response <- model.response(m)
     # ordering time 
     neworder <- order(response[,"time"],-response[,"status"])
@@ -224,9 +224,9 @@ plotPredictSurvProb <- function(x,
   # {{{ legend
 
   if(legend==TRUE && !add && !is.null(rownames(y))){
-    save.xpd <- par()$xpd
+    save.xpd <- graphics::par()$xpd
     do.call("legend",smartA$legend)
-    par(xpd=save.xpd)
+    graphics::par(xpd=save.xpd)
   }
   
   # }}}

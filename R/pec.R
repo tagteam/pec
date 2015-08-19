@@ -55,8 +55,9 @@
 #' examples), (3) a matrix with predicted probabilities having as many rows as
 #' \code{data} and as many columns as \code{times}. For cross-validation all
 #' objects in this list must include their \code{call}.
-#' @param formula A survival formula. The left hand side is used to find the
-#' status response variable in \code{data}. For right censored data, the right
+#' @param formula A survival formula as obtained either
+#' with \code{prodlim::Hist} or \code{survival::Surv}.
+#' The left hand side is used to find the status response variable in \code{data}. For right censored data, the right
 #' hand side of the formula is used to specify conditional censoring models.
 #' For example, set \code{Surv(time,status)~x1+x2} and \code{cens.model="cox"}.
 #' Then the weights are based on a Cox regression model for the censoring times
@@ -473,8 +474,8 @@ pec <- function(object,
   if (histformula[[2]][[1]]==as.name("Surv")){
       histformula[[2]][[1]] <- as.name("Hist")
   }
-  ## m <- model.frame(histformula,data,na.action=na.fail)
-  m <- model.frame(histformula,data,na.action=na.action)
+  ## m <- stats::model.frame(histformula,data,na.action=na.fail)
+  m <- stats::model.frame(histformula,data,na.action=na.action)
   response <- model.response(m)
   if (match("Surv",class(response),nomatch=0)!=0){
       attr(response,"model") <- "survival"

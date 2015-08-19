@@ -88,7 +88,7 @@ pseudoPec <- function(object,
   }
   # }}}
   # {{{ response
-  m <- model.frame(formula,data,na.action=na.fail)
+  m <- stats::model.frame(formula,data,na.action=na.fail)
   response <- model.response(m)
   if (match("Surv",class(response),nomatch=0)!=0){
     attr(response,"model") <- "survival"

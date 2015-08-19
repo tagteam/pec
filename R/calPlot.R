@@ -204,7 +204,7 @@ calPlot <- function(object,
         }
     }
     
-    m <- model.frame(formula,data,na.action=na.action)
+    m <- stats::model.frame(formula,data,na.action=na.action)
     response <- model.response(m)
     if (match("Surv",class(response),nomatch=FALSE))
         model.type <- "survival"
@@ -397,7 +397,7 @@ calPlot <- function(object,
                    else{
                        pcut <- cut(p,groups,include.lowest=TRUE)
                        form.pcut <- reformulate("pcut",response=formula[[2]])
-                       y <- unlist(predict(prodlim::prodlim(form.pcut,data=cbind(data,p=pcut)),
+                       y <- unlist(stats::predict(prodlim::prodlim(form.pcut,data=cbind(data,p=pcut)),
                                            cause=cause,
                                            newdata=data.frame(pcut=levels(pcut)),
                                            times=time,
@@ -441,7 +441,7 @@ calPlot <- function(object,
                        plotFrame
                    }else{
                        form.p <- reformulate("p",response=formula[[2]])
-                       y <- unlist(predict(prodlim::prodlim(form.p,data=cbind(data,p=p)),
+                       y <- unlist(stats::predict(prodlim::prodlim(form.p,data=cbind(data,p=p)),
                                            cause=cause,
                                            newdata=data.frame(p=sort(p)),
                                            times=time,
@@ -465,15 +465,15 @@ calPlot <- function(object,
             do.call("axis",smartA$axis1)
             mgp2 <- smartA$axis2$mgp
             if (length(mgp2)>0){
-                oldmgp <- par()$mgp
-                par(mgp=mgp2)
+                oldmgp <- graphics::par()$mgp
+                graphics::par(mgp=mgp2)
                 smartA$axis2 <- smartA$axis2[-match("mgp",names(smartA$axis2),nomatch=0)]
                 title(ylab=ylab)
             }
-            ## print(par()$mgp)
+            ## print(graphics::par()$mgp)
             do.call("axis",smartA$axis2)
             if (length(mgp2)>0){
-                par(mgp=oldmgp)
+                graphics::par(mgp=oldmgp)
             }
         }
     }

@@ -106,7 +106,7 @@ predictSurvProb.penfitS3 <- function(object,
     penfit <- object$fit
     pCovaNames <- names(penfit@penalized)
     newPen <- newdata[,pCovaNames]
-    ptemp <- predict(penfit,penalized=newPen,data=newdata)
+    ptemp <- stats::predict(penfit,penalized=newPen,data=newdata)
     ## require(prodlim)
     pos <- prodlim::sindex(jump.times=ptemp@time,eval.times=times)
     ## Remark: currently it is possible, but theoretically

@@ -24,8 +24,8 @@ A=pec(f,B=30,splitMethod="bootcv")
 set.seed(18)
 A1=pec(f,B=30,ipcw.refit=T,splitMethod="bootcv")
 cbind(A$BootCvErr$CoxModel,A1$BootCvErr$CoxModel)
-## plot(A,xlim=c(0,100))
-## plot(A1,add=TRUE,lty=3)
+## graphics::plot(A,xlim=c(0,100))
+## graphics::plot(A1,add=TRUE,lty=3)
 B=pec(f,cens.model="cox")
 
 # }}}
@@ -80,17 +80,17 @@ set.seed(17)
 b632 <- pec.list(object=list(RSF),formula=Surv(time,status)~1,data=GBSG2,cens.model="marginal",splitMethod="boot632plus",B=10,M=500)
 set.seed(17)
 b632a <- pec.list(object=list(RSF),noinf.permute=T,formula=Surv(time,status)~1,data=GBSG2,cens.model="marginal",splitMethod="boot632plus",B=10,M=500)
-plot(b632a$NoInfErr[[2]],b632$NoInfErr[[2]])
+graphics::plot(b632a$NoInfErr[[2]],b632$NoInfErr[[2]])
 
 f3 <- rfsrc(Surv(time,status)~X1+X2,data=d)
 set.seed(17)
 b632 <- pec.list(object=list(f3),formula=Surv(time,status)~1,data=d,cens.model="marginal",splitMethod="boot632plus",B=10)
 set.seed(17)
 b632a <- pec.list(object=list(f3),noinf.permute=T,formula=Surv(time,status)~1,data=d,cens.model="marginal",splitMethod="boot632plus",B=10)
-plot(b632a$NoInfErr[[1]],b632$NoInfErr[[1]])
-plot(b632a$NoInfErr[[2]],b632$NoInfErr[[2]])
-## plot(b632,xlim=c(0,100))
-## plot(b632a,add=T,lty=3)
+graphics::plot(b632a$NoInfErr[[1]],b632$NoInfErr[[1]])
+graphics::plot(b632a$NoInfErr[[2]],b632$NoInfErr[[2]])
+## graphics::plot(b632,xlim=c(0,100))
+## graphics::plot(b632a,add=T,lty=3)
 # }}}
 
 

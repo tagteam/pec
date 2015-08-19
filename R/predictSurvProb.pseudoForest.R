@@ -28,7 +28,7 @@ predictSurvProb.pseudoForest <- function(object,
     getForest <- forestList[[t]]
     ## print(names(newdata))
     ## print(str(getForest))
-    p.t <- predict(getForest,newdata=newdata)
+    p.t <- stats::predict(getForest,newdata=newdata)
     p.t <- round(p.t,digits=digits)
   }))
   # }}}
