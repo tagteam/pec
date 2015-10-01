@@ -299,7 +299,7 @@ wallyPlot <- function(object,
             px$control$barplot$legend.text=c("Predicted risk","Observed frequency")
             ## px$control$barplot$args.legend <- list(x="top",cex=2)
             px$control$legend$x <- "top"
-            px$control$legend$cex <- 2
+            px$control$legend$cex <- 1
             px$control$legend$legend <- c("Predicted risk","Observed frequency")
             ## px$control$barplot$args.legend$cex <- 2
         }
@@ -332,11 +332,11 @@ wallyPlot <- function(object,
     # }}}
     # {{{ show the actual plot by adding a red box
     if (xx==figpos) {
-        mtext("Correct: real data!",col="green",cex=2,line=-3,xpd=NA)
+        mtext("Correct: real data!",col="green",cex=1.2,line=-3,xpd=NA)
     }else{
-         mtext("Not correct!",col="red",cex=2,line=-3,xpd=NA)
+         mtext("Not correct!",col="red",cex=1.2,line=-3,xpd=NA)
          par(mfg = c(figpos%/%3.1 + 1, figpos - (figpos%/%3.1) * 3))
-         mtext("Real data",col="red",cex=2,line=-3,side=3,xpd=NA)
+         mtext("Real data",col="red",cex=1.2,line=-3,side=3,xpd=NA)
          box(col = colbox, lwd = 5)
      }
     # }}}
