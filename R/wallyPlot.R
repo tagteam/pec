@@ -126,7 +126,7 @@ wallyPlot <- function(object,
                                 q=10,
                                 ylab="",
                                 xlab="")
-    superuser.defaults <- list(hide=TRUE,choice=6)
+    superuser.defaults <- list(hide=TRUE,choice=6,zoom=FALSE)
     smartA <- prodlim::SmartControl(call= list(...),
                                     keys=c("calPlot","superuser"),
                                     ignore=NULL,
@@ -342,27 +342,28 @@ wallyPlot <- function(object,
     # }}}
     # {{{ ask to press a key to zoom in on the actual plot
     ## readline("Hit <Enter> to better show the original plot. ")
-    if (smartA$superuser$hide!=FALSE){
+    if (smartA$superuser$zoom==FALSE && smartA$superuser$hide!=FALSE){
         zoom <- select.list(c("yes","no"),title="Zoom in on real data calibration plot? ")
         par(oldpar)
-        # }}}
-        # {{{ show the actual plot
-        if(zoom=="yes"){
-            par(mfrow=c(1,1))
-            px <- TabList[[9]]
-            px$control$barplot$ylim <- c(minY,maxY)
-            px$control$axis2$at <- seq(minY,maxY,maxY/4)
-            px$legend=TRUE
-            px$control$barplot$legend.text=c("Predicted risk","Observed frequency")
-            px$control$legend$x <- "top"
-            px$control$legend$cex <- 2
-            px$control$legend$legend <- c("Predicted risk","Observed frequency")
-            px$showFrequencies <- TRUE
-            qq <- attr(px$plotFrames[[1]],"quantiles")
-            px$names <- paste0(sprintf("%1.1f",100*qq[-length(qq)])," - ",
-                               sprintf("%1.1f",100*qq[-1]))
-            plot(px)
-        }
+    }
+    # }}}
+    # {{{ show the actual plot
+    if((smartA$superuser$zoom==TRUE) || (zoom=="yes")){
+        par(mfrow=c(1,1))
+        px <- TabList[[9]]
+        px$control$barplot$ylim <- c(minY,maxY)
+        px$control$axis2$at <- seq(minY,maxY,maxY/4)
+        px$legend=TRUE
+        px$control$barplot$legend.text=c("Predicted risk","Observed frequency")
+        px$control$legend$x <- "top"
+        px$control$legend$cex <- 2
+        px$control$legend$legend <- c("Predicted risk","Observed frequency")
+        px$showFrequencies <- TRUE
+        qq <- attr(px$plotFrames[[1]],"quantiles")
+        px$names <- paste0(sprintf("%1.1f",100*qq[-length(qq)])," - ",
+                           sprintf("%1.1f",100*qq[-1]))
+        px$control$barplot$xlab <- "Risk groups"
+        plot(px)
     }
     # }}}
     invisible(list(tableList=TabList[order(pos)]))

@@ -3,9 +3,9 @@
 ## author: Thomas Alexander Gerds
 ## created: Sep 28 2015 (17:32) 
 ## Version: 
-## last-updated: Oct  1 2015 (14:17) 
+## last-updated: Oct  1 2015 (15:24) 
 ##           By: Thomas Alexander Gerds
-##     Update #: 77
+##     Update #: 78
 #----------------------------------------------------------------------
 ## 
 ### Commentary: 
@@ -58,7 +58,7 @@ plot.calibrationPlot <- function(x,...){
         if (length(x$names)>0 && (x$names[[1]]!=FALSE) && is.character(x$names)){
             if (length(x$names)==(length(control$barplot$height)/2)){
                 ## colnames(control$barplot$height) <- x$names
-                control$barplot$names.arg <- c(rbind(rep("",10),x$names))
+                control$barplot$names.arg <- c(x$names,rbind(rep("",10)))
             }else{
                  if (x$names[[1]]==FALSE){
                      control$barplot$names.arg <- NULL
