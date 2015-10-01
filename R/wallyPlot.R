@@ -36,8 +36,7 @@
 ##' library(survival)
 ##' d = SimSurv(180)
 ##' f = coxph(Surv(time,status)~X1+X2,data=d)
-##' calPlot(f,time=3)
-##' wallyPlot(f,time=4)
+##' \dontrun{wallyPlot(f,time=2,q=4,data=d,formula=Surv(time,status)~1)}
 ##' 
 ##' @export 
 ##' @author Paul F. Blanche <paul.blanche@@univ-ubs.fr> and Thomas A. Gerds <tag@@biostat.ku.dk>
@@ -52,8 +51,9 @@ wallyPlot <- function(object,
                       seed=NULL,
                       mar=c(4.1,4.1, 2, 2),
                       colbox="red",
-                      identify="select from list",
+                      ## identify="select from list",
                       verbose=TRUE,...){
+    identify="select from list"
     # {{{ data & formula
     if (missing(data)){
         trydata <- try(data <- eval(object$call$data),silent=TRUE)
@@ -165,7 +165,7 @@ wallyPlot <- function(object,
     form.pcut <- update(formula,paste(".~Pred.cut"))
     if (model.type=="competing.risks"){
         # estimate the cumulative incidence of the competing event at time t in each subgroup
-        crFit <- prodlim(form.pcut,data=MyData)
+        crFit <- prodlim::prodlim(form.pcut,data=MyData)
         # create the vector of prediction for cause 2, based on the sub-group specific cumulative incidence
         MyData$pred2 <- unlist(predict(crFit,cause=2,times=time,newdata=data.frame(Pred.cut=Pred.cut),type="cuminc"))
     }
@@ -182,13 +182,13 @@ wallyPlot <- function(object,
             # uniform numbers
             U <- runif(length(times),0,1)
             # fit marginal KM for censoring
-            fitcens <- prodlim(Hist(time,status)~1,data=data.frame(time=times,status=status),reverse=TRUE)
+            fitcens <- prodlim::prodlim(Hist(time,status)~1,data=data.frame(time=times,status=status),reverse=TRUE)
             # max time in data
             tau <- max(fitcens$time)
-            c(fitcens$time,tau)[sindex(jump.times=c(0,1-fitcens$surv),eval.times=U)]
+            c(fitcens$time,tau)[prodlim::sindex(jump.times=c(0,1-fitcens$surv),eval.times=U)]
         } else{
               # fit stratified KM for censoring
-              fitcens <- prodlim(Hist(time,status)~groups,data=data.frame(time=times,status=status,groups=groups),reverse=TRUE)
+              fitcens <- prodlim::prodlim(Hist(time,status)~groups,data=data.frame(time=times,status=status,groups=groups),reverse=TRUE)
               ## fit.list <- split(data.frame(time=fitcens$time,surv=fitcens$surv,groups=rep(fitcens$X$groups,fitcens$size.strata))
               n.groups <- table(groups)
               C <- unlist(lapply(1:length(n.groups),function(g){
@@ -199,7 +199,7 @@ wallyPlot <- function(object,
                                              g.time <- fitcens$time[strata.g]
                                              tau.g <- max(g.time)
                                              g.surv <- fitcens$surv[strata.g]
-                                             c(g.time,tau.g)[sindex(jump.times=c(0,1-g.surv),eval.times=U.g)]
+                                             c(g.time,tau.g)[prodlim::sindex(jump.times=c(0,1-g.surv),eval.times=U.g)]
                                              ## rep(g,n.groups[g])
                                          }))
               C[order(order(groups))]
@@ -278,11 +278,11 @@ wallyPlot <- function(object,
     if (hanging){
         rangeY <- range(sapply(TabList,function(x){
                                    c(min(x$plotFrame[[1]]$Pred-x$plotFrame[[1]]$Obs),max(x$plotFrame[[1]]$Pred))}))
-        minY <- seq(-1,1,0.05)[sindex(eval.times=rangeY[1],jump.times=seq(-1,1,0.05))]
+        minY <- seq(-1,1,0.05)[prodlim::sindex(eval.times=rangeY[1],jump.times=seq(-1,1,0.05))]
     } else{
           rangeY <- range(sapply(TabList,function(x){range(c(x$plotFrame[[1]]))}))
-          minY <- seq(0,1,0.05)[sindex(eval.times=rangeY[1],jump.times=seq(0,1,0.05))]}
-    maxY <- c(seq(0,1,0.05),1)[1+sindex(eval.times=rangeY[2],jump.times=seq(0,1,0.05))]
+          minY <- seq(0,1,0.05)[prodlim::sindex(eval.times=rangeY[1],jump.times=seq(0,1,0.05))]}
+    maxY <- c(seq(0,1,0.05),1)[1+prodlim::sindex(eval.times=rangeY[2],jump.times=seq(0,1,0.05))]
     if (!missing(ylim)){
         minY <- min(ylim,minY)
         maxY <- max(ylim,maxY)
@@ -314,11 +314,11 @@ wallyPlot <- function(object,
     # {{{ ask to show the actual plot
     if (smartA$superuser$hide!=FALSE){
         if (identify=="click"){
-            error("Does not work yet")
-            par(mfg = c(1,1))
-            ans <- identify(x=c(0,1),y=NULL)
-            usr <- par("usr")
-            xx <- 1
+            stop("Does not work yet")
+            ## par(mfg = c(1,1))
+            ## ans <- identify(x=c(0,1),y=NULL)
+            ## usr <- par("usr")
+            ## xx <- 1
             ## number <- par$
             ## identify(x
         }else{

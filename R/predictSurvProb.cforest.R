@@ -17,7 +17,7 @@
 #' @keywords survival
 #' @export pecCforest
 pecCforest <- function(formula,data,...){
-    require(party)
+    requireNamespace("party")
     out <- list(forest=party::cforest(formula,data,...))
     class(out) <- "pecCforest"
     out$call <- match.call()
@@ -27,7 +27,7 @@ pecCforest <- function(formula,data,...){
 
 ##' @export 
 predictSurvProb.pecCforest <- function (object, newdata, times, ...) {
-    require(party)
+    requireNamespace("party")
     survObj <- party::treeresponse(object$forest,newdata=newdata)
     p <- do.call("rbind",lapply(survObj,function(x){
         predictSurvProb(x,newdata=newdata[1,,drop=FALSE],times=times)

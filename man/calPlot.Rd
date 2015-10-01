@@ -141,9 +141,9 @@ value of argument \code{mc.cores} to \code{\link{mclapply}}.}
 \item{verbose}{if \code{TRUE} report details of the progress,
 e.g. count the steps in cross-validation.}
 
-\item{cex}{}
+\item{cex}{Default cex used for legend and labels.}
 
-\item{...}{Used to control the subroutines: plot, axis, lines,
+\item{...}{Used to control the subroutines: plot, axis, lines, barplot,
 legend. See \code{\link{SmartControl}}.}
 }
 \value{

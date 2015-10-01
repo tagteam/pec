@@ -14,9 +14,6 @@
 \item{progrec}{progesterone receptor (in fmol).} \item{estrec}{estrogen
 receptor (in fmol).} \item{time}{recurrence free survival time (in days).}
 \item{cens}{censoring indicator (0- censored, 1- event).} }}
-\source{
-\url{http://www.blackwellpublishers.com/rss/Volumes/A162p1.htm}
-}
 \description{
 A data frame containing the observations from the GBSG2 study.
 }

@@ -3,9 +3,9 @@
 ## author: Thomas Alexander Gerds
 ## created: Sep 28 2015 (17:32) 
 ## Version: 
-## last-updated: Oct  1 2015 (15:24) 
+## last-updated: Oct  1 2015 (19:45) 
 ##           By: Thomas Alexander Gerds
-##     Update #: 78
+##     Update #: 79
 #----------------------------------------------------------------------
 ## 
 ### Commentary: 
@@ -50,7 +50,7 @@ plot.calibrationPlot <- function(x,...){
               }
          }
         if (is.null(control$barplot$space))
-            control$barplot$space <- rep(c(1,0),l(Pred))
+            control$barplot$space <- rep(c(1,0),length(Pred))
         PredObs <- c(rbind(Pred,Obs))
         control$barplot$height <- PredObs
         if (x$hanging)

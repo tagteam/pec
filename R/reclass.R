@@ -2,10 +2,14 @@
 ##'
 ##' All risks are multiplied by 100 before 
 ##' @title Retrospective risk reclassification table
-##' @param list A list with two elements. Each element should either
+##' @param object Either a 
+##' list with two elements. Each element should either
 ##' be a vector with probabilities, or an object for which
-##' \code{predictStatusProb} can extract predicted risk based on data.
-##' @param formula
+##' \code{predictSurvProb} or \code{predictEventProb} can extract predicted risk based on data.
+##' @param reference Reference prediction model.
+##' @param formula A survival formula as obtained either with
+##' \code{prodlim::Hist} or \code{survival::Surv} which defines the
+##' response in the \code{data}.
 ##' @param data Used to extract the response from the data and passed
 ##' on to \code{predictEventProb} to extract predicted event
 ##' probabilities.
@@ -13,14 +17,11 @@
 ##' @param cause For competing risk models the cause of
 ##' interest. Defaults to all available causes.
 ##' @param cuts Risk quantiles to group risks.
-##' @param #'formula A survival formula as obtained either #' with
-##' \code{prodlim::Hist} or \code{survival::Surv} which defines the
-##' response #' in the \code{data}.
 ##' @param digits Number of digits to show for the predicted risks
 ##' @return reclassification tables: overall table and one conditional table for each cause and for subjects event free at time interest.
 ##' @seealso predictStatusProb
 ##' @examples
-##' library(survival)
+##' \dontrun{library(survival)
 #' set.seed(40)
 #' d <- prodlim::SimSurv(400)
 #' nd <- prodlim::SimSurv(400)
@@ -41,11 +42,15 @@
 #' print(rc)
 #' 
 #' reclass(crPred5,Hist(time,event)~1,data=ndcr,time=5,cuts=100*c(0,0.05,0.1,0.2,1))
-#'
-##' 
-##' @export 
+#'}
 ##' @author Thomas A. Gerds <tag@@biostat.ku.dk>
-reclass <- function(object, reference, formula,data,time,cause,cuts=seq(0,100,25)){
+reclass <- function(object,
+                    reference,
+                    formula,
+                    data,
+                    time,
+                    cause,
+                    cuts=seq(0,100,25),digits=2){
     if (missing(reference)){
         stopifnot(length(object)==2)
     } else{
@@ -231,8 +236,8 @@ reclass <- function(object, reference, formula,data,time,cause,cuts=seq(0,100,25
                                  if (NROW(x)>0){
                                      ## warn if too short followup
                                      if (all(x$time<time)) {
-                                         warning(call.=FALSE,paste0("pec::reclass: Cell row ",
-                                                     sub("\\."," column ",cc),
+                                         warning(call.=FALSE,paste0("pec::reclass: ",
+                                                     ## sub("\\."," column ",cc),
                                                      " no subject was followed until time ",
                                                      time,
                                                      ". Result is NA (not available)."))
@@ -247,7 +252,6 @@ reclass <- function(object, reference, formula,data,time,cause,cuts=seq(0,100,25
                              })
           surv <- 1-cuminc
           surv.x <- 1-cuminc.x
-          browser()
           dimnames=dimnames(retab)
           event.retab <- list("event"=matrix(cuminc.x*Hx/surv,ncol=NR),
                               "eventfree"=matrix(surv.x * Hx / surv,ncol=NR,dimnames=dimnames(retab)))

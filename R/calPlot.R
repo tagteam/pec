@@ -92,8 +92,8 @@
 #' value of argument \code{mc.cores} to \code{\link{mclapply}}.
 #' @param verbose if \code{TRUE} report details of the progress,
 #' e.g. count the steps in cross-validation.
-#' @param cex
-#' @param ... Used to control the subroutines: plot, axis, lines,
+#' @param cex Default cex used for legend and labels.
+#' @param ... Used to control the subroutines: plot, axis, lines, barplot,
 #' legend. See \code{\link{SmartControl}}.
 #' @return list with elements: time, pseudoFrame and bandwidth (NULL for method
 #' quantile).
@@ -409,6 +409,7 @@ calPlot <- function(object,
                               val.k <- data[id,,drop=FALSE]
                               model.pred <- lapply(1:NF,function(f){
                                                        extraArgs <- giveToModel[[f]]
+                                                       fit <- object[[f]]
                                                        fit.k <- internalReevalFit(object=fit,data=train.k,step=paste("CV group=",k),silent=FALSE,verbose=verbose)
                                                        switch(model.type,
                                                               "competing.risks"={do.call(predictHandlerFun,list(object=fit.k,newdata=val.k,times=time,cause=cause))},
@@ -460,6 +461,7 @@ calPlot <- function(object,
                                             train.b <- data[ResampleIndex[,b],,drop=FALSE]
                                             frame.b <- data.frame(jack=jack.b)
                                             bootpred <- do.call("cbind",lapply(1:NF,function(f){
+                                                                                   fit <- object[[f]]
                                                                                    fit.b <- internalReevalFit(object=fit,data=train.b,step=b,silent=FALSE,verbose=verbose)
                                                                                    extraArgs <- giveToModel[[f]]
                                                                                    try2predict <- try(pred.b <- switch(model.type,

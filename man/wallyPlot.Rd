@@ -6,7 +6,7 @@
 \usage{
 wallyPlot(object, time, formula, data, cause = 1, q = 10, ylim,
   hanging = FALSE, seed = NULL, mar = c(4.1, 4.1, 2, 2), colbox = "red",
-  identify = "select from list", verbose = TRUE, ...)
+  verbose = TRUE, ...)
 }
 \arguments{
 \item{object}{Risk or survival prediction. Either a numeric vector
@@ -59,8 +59,7 @@ library(prodlim)
 library(survival)
 d = SimSurv(180)
 f = coxph(Surv(time,status)~X1+X2,data=d)
-calPlot(f,time=3)
-wallyPlot(f,time=4)
+\dontrun{wallyPlot(f,time=2,q=4,data=d,formula=Surv(time,status)~1)}
 }
 \author{
 Paul F. Blanche <paul.blanche@univ-ubs.fr> and Thomas A. Gerds <tag@biostat.ku.dk>
