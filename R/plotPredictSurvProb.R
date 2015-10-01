@@ -67,7 +67,7 @@
 #' rsfmodel <- rfsrc(Surv(time,status)~X1+X2,data=d)
 #' plotPredictSurvProb(rsfmodel,newdata=ndat,times=ttt)
 #' 
-#' @export plotPredictSurvProb
+#' @export
 plotPredictSurvProb <- function(x,
                                 newdata,
                                 times,
@@ -100,7 +100,7 @@ plotPredictSurvProb <- function(x,
     data <- eval(x$call$data)
     # extract response
     m <- stats::model.frame(formula,data,na.action=na.fail)
-    response <- model.response(m)
+    response <- stats::model.response(m)
     # ordering time 
     neworder <- order(response[,"time"],-response[,"status"])
     response <- response[neworder,,drop=FALSE]

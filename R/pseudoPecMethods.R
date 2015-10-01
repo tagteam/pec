@@ -89,7 +89,7 @@ pseudoPec <- function(object,
   # }}}
   # {{{ response
   m <- stats::model.frame(formula,data,na.action=na.fail)
-  response <- model.response(m)
+  response <- stats::model.response(m)
   if (match("Surv",class(response),nomatch=0)!=0){
     attr(response,"model") <- "survival"
     attr(response,"cens.type") <- "rightCensored"
@@ -109,7 +109,7 @@ pseudoPec <- function(object,
   # }}}
   # {{{ prediction models
   if (reference==TRUE) {
-    ProdLimform <- reformulate("1",response=formula[[2]])
+    ProdLimform <- update(formula,".~1")
     ProdLimfit <- prodlim::prodlim(ProdLimform,data)
     ProdLimfit$call$data <- NULL
     ProdLimfit$formula <- NULL
@@ -227,11 +227,11 @@ pseudoPec <- function(object,
 
     if (predictHandlerFun=="predictEventProb"){
       pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,cause=cause),extraArgs))
-      if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,]
+      if (class(fit)[[1]]%in% c("matrix","numeric")) pred <- pred[neworder,]
     }
     else{
       pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times),extraArgs))
-      if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,]
+      if (class(fit)[[1]]%in% c("matrix","numeric")) pred <- pred[neworder,]
     }
     if (NCOL(pred)==1) pred <- matrix(rep(pred,N),byrow=TRUE,ncol=NT,nrow=N)
     pec <- colMeans(pred^2) + colMeans((1-2*pred) * YY)
@@ -413,16 +413,13 @@ pseudoPec <- function(object,
 
   # }}}    
   # {{{ put out
-  if(keep.models==TRUE)
-    outmodels <- object
-  else if (keep.models=="Call"){
-    outmodels <- lapply(object,function(o)o$call)
-    names(outmodels) <- names(object)
-  }
-  else{
-    outmodels <- names(object)
-    names(outmodels) <- names(object)
-  }
+  
+  if(keep.models==TRUE){
+      outmodels <- object
+  } else{
+        outmodels <- names(object)
+        names(outmodels) <- names(object)
+    }
   out <- c(out,
            list(call=theCall,
                 time=times,

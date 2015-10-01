@@ -8,7 +8,7 @@ cindex(object, formula, data, eval.times, pred.times, cause, lyl = FALSE,
   cens.model = "marginal", ipcw.refit = FALSE, ipcw.args = NULL,
   ipcw.limit, tiedPredictionsIn = TRUE, tiedOutcomeIn = TRUE,
   tiedMatchIn = TRUE, splitMethod = "noPlan", B, M, model.args = NULL,
-  model.parms = NULL, keep.models = "Call", keep.residuals = FALSE,
+  model.parms = NULL, keep.models = FALSE, keep.residuals = FALSE,
   keep.pvalues = FALSE, keep.weights = FALSE, keep.index = FALSE,
   keep.matrix = FALSE, multiSplitTest = FALSE, testTimes, confInt = FALSE,
   confLevel = 0.95, verbose = TRUE, savePath = NULL, slaveseed = NULL,
@@ -127,8 +127,8 @@ in \code{object}.}
 entry in \code{object}.  Each entry names parts of the value of the fitted
 models that should be extracted and added to the value.}
 
-\item{keep.models}{Logical. If \code{TRUE} keep the models in object. If
-\code{"Call"} keep only the \code{call} of these models.}
+\item{keep.models}{Logical. If \code{TRUE} keep the models in object. Since
+fitted models can be large objects the default is \code{FALSE}.}
 
 \item{keep.residuals}{Experimental.}
 

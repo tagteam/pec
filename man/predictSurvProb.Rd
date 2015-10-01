@@ -91,7 +91,7 @@ d <- SimSurv(100)
 library(rms)
 coxmodel <- cph(Surv(time,status)~X1+X2,data=d,surv=TRUE)
 
-# predicted survival probabilities can be extracted
+# Extract predicted survival probabilities
 # at selected time-points:
 ttt <- quantile(d$time)
 # for selected predictor values:
@@ -117,12 +117,10 @@ psurv <- predictSurvProb(fitCox,newdata=valdat,times=seq(0,60,12))
 ## one column for each of the 5 time points
 ## one row for each validation set individual
 
-# the same can be done e.g. for a randomSurvivalForest model
+# Do the same for a randomSurvivalForest model
 library(randomForestSRC)
 rsfmodel <- rfsrc(Surv(time,status)~X1+X2,data=d)
 predictSurvProb(rsfmodel,newdata=ndat,times=ttt)
-
-predictSurvProb.R
 
 ## Cox with ridge option
 f1 <- coxph(Surv(time,status)~X1+X2,data=learndat)

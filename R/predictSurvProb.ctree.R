@@ -23,7 +23,7 @@ pecCtree <- function(...){
  out  
 }
 
-##' @S3method predictSurvProb pecCtree
+##' @export 
 predictSurvProb.pecCtree <- function (object, newdata, times, ...) {
     require(party)
     N <- NROW(newdata)

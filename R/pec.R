@@ -169,8 +169,8 @@
 #' the splitMethod part of the output list.
 #' @param keep.matrix Logical. If \code{TRUE} add all \code{B} prediction error
 #' curves from bootstrapping or cross-validation to the output.
-#' @param keep.models Logical. If \code{TRUE} keep the models in object. If
-#' \code{"Call"} keep only the \code{call} of these models.
+#' @param keep.models Logical. If \code{TRUE} keep the models in object. Since
+#' fitted models can be large objects the default is \code{FALSE}.
 #' @param keep.residuals Logical. If \code{TRUE} keep the patient individual
 #' residuals at \code{testTimes}.
 #' @param keep.pvalues For \code{multiSplitTest}. If \code{TRUE} keep the
@@ -390,7 +390,7 @@ pec <- function(object,
                 model.parms=NULL,
                 keep.index=FALSE,
                 keep.matrix=FALSE,
-                keep.models="Call",
+                keep.models=FALSE,
                 keep.residuals=FALSE,
                 keep.pvalues=FALSE,
                 noinf.permute=FALSE,
@@ -476,7 +476,7 @@ pec <- function(object,
   }
   ## m <- stats::model.frame(histformula,data,na.action=na.fail)
   m <- stats::model.frame(histformula,data,na.action=na.action)
-  response <- model.response(m)
+  response <- stats::model.response(m)
   if (match("Surv",class(response),nomatch=0)!=0){
       attr(response,"model") <- "survival"
       attr(response,"cens.type") <- "rightCensored"
@@ -670,12 +670,12 @@ if (missing(maxtime) || is.null(maxtime))
       extraArgs <- model.args[[f]]
       if (predictHandlerFun=="predictEventProb"){ # competing risks
           pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,cause=cause),extraArgs))
-      if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,,drop=FALSE]
+      if (class(fit)[[1]]%in% c("matrix","numeric")) pred <- pred[neworder,,drop=FALSE]
       .C("pecCR",pec=double(NT),as.double(Y),as.double(status),as.double(event),as.double(times),as.double(pred),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(is.null(dim(pred))),NAOK=TRUE,PACKAGE="pec")$pec
     }
     else{  # survival
       pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times),extraArgs))
-      if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,,drop=FALSE]
+      if (class(fit)[[1]]%in% c("matrix","numeric")) pred <- pred[neworder,,drop=FALSE]
       .C("pec",pec=double(NT),as.double(Y),as.double(status),as.double(times),as.double(pred),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(is.null(dim(pred))),NAOK=TRUE,PACKAGE="pec")$pec
     }
   })
@@ -687,7 +687,7 @@ if (missing(maxtime) || is.null(maxtime))
   ## extraArgs <- model.args[[f]]
   ## if (predictHandlerFun=="predictEventProb"){ # competing risks
   ## pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,cause=cause),extraArgs))
-  ## if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,,drop=FALSE]
+  ## if (class(object[[f]])[[1]]%in% c("matrix","numeric")) pred <- pred[neworder,,drop=FALSE]
   ## Paulo(as.double(Y),
   ## as.double(status),
   ## as.double(event),
@@ -698,7 +698,7 @@ if (missing(maxtime) || is.null(maxtime))
   ## }
   ## else{  # survival
   ## pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times),extraArgs))
-  ## if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,,drop=FALSE]
+  ## if (class(object[[f]])[[1]]%in% c("matrix","numeric")) pred <- pred[neworder,,drop=FALSE]
   ## Paulo(as.double(Y),
   ## as.double(status),
   ## as.double(times),
@@ -922,27 +922,15 @@ if (!is.null(model.parms))
   n.risk <- N - prodlim::sindex(Y,times)
   # }}}
   # {{{ put out
-  if(keep.models==TRUE)
+  if(keep.models==TRUE){
       outmodels <- object
-  else if (keep.models=="Call"){
-      outmodels <- lapply(object,function(o){
-          cc <- try(as.character(o$call),silent=TRUE)
-          if(class(cc)=="try-error")
-              class(object)
-          else{
-              names(cc) <- names(o$call)
-              cc
-          }
-      })
-      names(outmodels) <- names(object)
-  }
-  else{
-      outmodels <- names(object)
-      names(outmodels) <- names(object)
-  }
+  } else{
+        outmodels <- names(object)
+        names(outmodels) <- names(object)
+    }
   out <- c(out,
            list(call=theCall,
-                response=model.response(m),
+                response=stats::model.response(m),
                 time=times,
                 ## ipcw.fit=as.character(ipcw$fit$call),
                 n.risk=n.risk,

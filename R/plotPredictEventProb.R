@@ -52,7 +52,7 @@
 #' 
 #' # generate some competing risk data
 #' 
-#' @export plotPredictEventProb
+#' @export
 plotPredictEventProb <- function(x,
                                  newdata,
                                  times,
@@ -85,7 +85,7 @@ plotPredictEventProb <- function(x,
     data <- eval(x$call$data)
     # extract response
     m <- stats::model.frame(formula,data,na.action=na.fail)
-    response <- model.response(m)
+    response <- stats::model.response(m)
     # ordering time
     neworder <- order(response[,"time"],-response[,"status"])
     response <- response[neworder,,drop=FALSE]

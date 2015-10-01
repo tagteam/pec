@@ -15,7 +15,7 @@
 #' predictRestrictedMeanTime.riskRegression predictRestrictedMeanTime.cox.aalen
 #' predictRestrictedMeanTime.coxph predictRestrictedMeanTime.cph predictRestrictedMeanTime.default
 #' predictRestrictedMeanTime.rfsrc predictRestrictedMeanTime.matrix predictRestrictedMeanTime.pecCtree
-#' predictRestrictedMeanTime.pecCforest predictRestrictedMeanTime.prodlim predictRestrictedMeanTime.psm
+#' predictRestrictedMeanTime.prodlim predictRestrictedMeanTime.psm
 #' predictRestrictedMeanTime.selectCox predictRestrictedMeanTime.survfit 
 #' predictRestrictedMeanTime.pecRpart
 #' @usage
@@ -26,7 +26,6 @@
 #' \method{predictRestrictedMeanTime}{coxph}(object,newdata,times,...)
 #' \method{predictRestrictedMeanTime}{matrix}(object,newdata,times,...)
 #' \method{predictRestrictedMeanTime}{selectCox}(object,newdata,times,...)
-#' \method{predictRestrictedMeanTime}{pecCforest}(object,newdata,times,...)
 #' \method{predictRestrictedMeanTime}{prodlim}(object,newdata,times,...)
 #' \method{predictRestrictedMeanTime}{psm}(object,newdata,times,...)
 #' \method{predictRestrictedMeanTime}{survfit}(object,newdata,times,...)
@@ -100,25 +99,25 @@
 ##' rsfmodel <- rfsrc(Surv(time,status)~X1+X2,data=d)
 ##' predictRestrictedMeanTime(rsfmodel,newdata=ndat,times=ttt)
  
-#' @export predictRestrictedMeanTime
+#' @export 
 predictRestrictedMeanTime <- function(object,newdata,times,...){
     UseMethod("predictRestrictedMeanTime",object)
 }
 
-##' @S3method predictRestrictedMeanTime default
+##' @export
 predictRestrictedMeanTime.default <- function(object,newdata,times,...){
   stop("No method for evaluating predicted probabilities from objects in class: ",class(object),call.=FALSE)
 }
 
 
-##' @S3method predictRestrictedMeanTime numeric
+##' @export
 predictRestrictedMeanTime.numeric <- function(object,newdata,times,...){
   if (NROW(object) != NROW(newdata) || NCOL(object) != length(times))
       stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(object)," x ",NCOL(object),"\n\n",sep=""))
   object
 }
 
-##' @S3method predictRestrictedMeanTime matrix
+##' @export
 predictRestrictedMeanTime.matrix <- function(object,newdata,times,...){
     if (NROW(object) != NROW(newdata) || NCOL(object) != length(times)){
         stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(object)," x ",NCOL(object),"\n\n",sep=""))
@@ -127,7 +126,7 @@ predictRestrictedMeanTime.matrix <- function(object,newdata,times,...){
     object
 }
 
-##' @S3method predictRestrictedMeanTime aalen
+##' @export
 predictRestrictedMeanTime.aalen <- function(object,newdata,times,...){
     ## require(timereg)
     time.coef <- data.frame(object$cum)
@@ -160,7 +159,7 @@ predictRestrictedMeanTime.aalen <- function(object,newdata,times,...){
     p
 }
 
-##' @S3method predictRestrictedMeanTime cox.aalen
+##' @export
 predictRestrictedMeanTime.cox.aalen <- function(object,newdata,times,...){
     #  require(timereg)
     ##  The time-constant effects first
@@ -186,36 +185,7 @@ predictRestrictedMeanTime.cox.aalen <- function(object,newdata,times,...){
     p
 }
 
-#' Combines the rpart result with a stratified Kaplan-Meier (prodlim) to predict survival
-#'
-#' 
-#' @title Predict survival based on rpart tree object
-#' @param formula passed to rpart
-#' @param data passed to rpart
-#' @param ... passed to rpart
-#' @return list with three elements: ctree and call
-#' @examples
-#' library(prodlim)
-#' library(rpart)
-#' library(survival)
-#' set.seed(50)
-#' d <- SimSurv(50)
-#' nd <- data.frame(X1=c(0,1,0),X2=c(-1,0,1))
-#' f <- pecRpart(Surv(time,status)~X1+X2,data=d)
-#' predictRestrictedMeanTime(f,newdata=nd,times=c(3,8))
-#' @export 
-pecRpart <- function(formula,data,...){
-    robj <- rpart::rpart(formula=formula,data=data,...)
-    nclass <- length(unique(robj$where))
-    data$rpartFactor <- factor(stats::predict(robj,newdata=data,...))
-    form <- update(formula,paste(".~","rpartFactor",sep=""))
-    survfit <- prodlim::prodlim(form,data=data)
-    out <- list(rpart=robj,survfit=survfit,levels=levels(data$rpartFactor))
-    class(out) <- "pecRpart"
-    out
-}
-
-##' @S3method predictRestrictedMeanTime pecRpart
+##' @export
 predictRestrictedMeanTime.pecRpart <- function(object,newdata,times,...){
     newdata$rpartFactor <- factor(stats::predict(object$rpart,newdata=newdata),
                                   levels=object$levels)
@@ -223,7 +193,7 @@ predictRestrictedMeanTime.pecRpart <- function(object,newdata,times,...){
     p
 }
     
-##' @S3method predictRestrictedMeanTime coxph
+##' @export
 predictRestrictedMeanTime.coxph <- function(object,newdata,times,...){
     ## baselineHazard.coxph(object,times)
     ## require(survival)
@@ -237,19 +207,28 @@ predictRestrictedMeanTime.coxph <- function(object,newdata,times,...){
     pos <- prodlim::sindex(jump.times=eTimes,eval.times=times)
     surv <- predictSurvProb(object,newdata=newdata,times=eTimes)
     rmt <- matrix(unlist(lapply(1:length(pos), function(j) {
-        pos.j <- 1:(pos[j]+1)
-        p <- cbind(1,surv)[,pos.j,drop=FALSE]
-        time.diff <- diff(c(0, eTimes)[pos.j])
-        apply(p, 1, function(x) {sum(x[-length(x)] * time.diff)})
-    })), ncol = length(pos))
+                                            pos.j <- 1:(pos[j]+1)
+                                            p <- cbind(1,surv)[,pos.j,drop=FALSE]
+                                            time.diff <- diff(c(0, eTimes)[pos.j])
+                                            apply(p, 1, function(x) {sum(x[-length(x)] * time.diff)})
+                                        })), ncol = length(pos))
     if ((miss.time <- (length(times) - NCOL(rmt)))>0)
-        rmt <- cbind(p,matrix(rep(NA,miss.time*NROW(rmt)),nrow=NROW(rmt)))
+        rmt <- cbind(rmt,matrix(rep(NA,miss.time*NROW(rmt)),nrow=NROW(rmt)))
     if (NROW(rmt) != NROW(newdata) || NCOL(rmt) != length(times))
-        stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
+        stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",
+                   NROW(newdata),
+                   " x ",
+                   length(times),
+                   "\nProvided prediction matrix: ",
+                   NROW(rmt),
+                   " x ",
+                   NCOL(rmt),
+                   "\n\n",
+                   sep=""))
     rmt
 }
 
-##' @S3method predictRestrictedMeanTime coxph.penal
+##' @export
 predictRestrictedMeanTime.coxph.penal <- function(object,newdata,times,...){
   ## require(survival)
   frailhistory <- object$history$'frailty(cluster)'$history
@@ -273,7 +252,7 @@ predictRestrictedMeanTime.coxph.penal <- function(object,newdata,times,...){
 
 
 
-##' @S3method predictRestrictedMeanTime cph
+##' @export
 predictRestrictedMeanTime.cph <- function(object,newdata,times,...){
     if (!match("surv",names(object),nomatch=0)) stop("Argument missing: set surv=TRUE in the call to cph!")
     p <- rms::survest(object,times=times,newdata=newdata,se.fit=FALSE,what="survival")$surv
@@ -283,12 +262,12 @@ predictRestrictedMeanTime.cph <- function(object,newdata,times,...){
     p
 }
 
-##' @S3method predictRestrictedMeanTime selectCox
+##' @export
 predictRestrictedMeanTime.selectCox <- function(object,newdata,times,...){
     predictRestrictedMeanTime(object[[1]],newdata=newdata,times=times,...)
 }
 
-##' @S3method predictRestrictedMeanTime prodlim
+##' @export
 predictRestrictedMeanTime.prodlim <- function(object,newdata,times,...){
     ## require(prodlim)
     p <- stats::predict(object=object,
@@ -374,7 +353,7 @@ predict.survfit <- function(object,newdata,times,bytimes=TRUE,fill="last",...){
     p
 }
 
-##' @S3method predictRestrictedMeanTime survfit
+##' @export
 predictRestrictedMeanTime.survfit <- function(object,newdata,times,...){
     p <- predict.survfit(object,newdata=newdata,times=times,bytimes=TRUE,fill="last")
     if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
@@ -392,7 +371,7 @@ predictRestrictedMeanTime.survfit <- function(object,newdata,times,...){
 ## }
 
 
-##' @S3method predictRestrictedMeanTime psm
+##' @export
 predictRestrictedMeanTime.psm <- function(object,newdata,times,...){
     if (length(times)==1){
         p <- rms::survest(object,times=c(0,times),newdata=newdata,what="survival",conf.int=FALSE)[,2]
@@ -405,7 +384,7 @@ predictRestrictedMeanTime.psm <- function(object,newdata,times,...){
 }
 
 
-##' @S3method predictRestrictedMeanTime riskRegression
+##' @export
 predictRestrictedMeanTime.riskRegression <- function(object,newdata,times,...){
     if (missing(times))stop("Argument times is missing")
     temp <- stats::predict(object,newdata=newdata)
@@ -416,7 +395,7 @@ predictRestrictedMeanTime.riskRegression <- function(object,newdata,times,...){
     p
 }
 
-##' @S3method predictRestrictedMeanTime rfsrc
+##' @export
 predictRestrictedMeanTime.rfsrc <- function(object, newdata, times, ...){
     ptemp <- stats::predict(object,newdata=newdata,importance="none",...)$survival
     pos <- prodlim::sindex(jump.times=object$time.interest,eval.times=times)
@@ -434,7 +413,7 @@ predictProb <- function(object,newdata,times,...){
   UseMethod("predictProb",object)
 }
 
-##' @S3method predictProb glm
+##' @export
 predictProb.glm <- function(object,newdata,times,...){
   ## no censoring -- only normal family with mu=0 and sd=sd(y)
   N <- NROW(newdata)
@@ -451,7 +430,7 @@ predictProb.glm <- function(object,newdata,times,...){
 }
 
 
-##' @S3method predictProb ols
+##' @export
 predictProb.ols <- function(object,newdata,times,...){
     ## no censoring -- only normal family with mu=0 and sd=sd(y)
     N <- NROW(newdata)
@@ -467,7 +446,7 @@ predictProb.ols <- function(object,newdata,times,...){
     p
 }
 
-##' @S3method predictProb randomForest
+##' @export
 predictProb.randomForest <- function(object,newdata,times,...){
   ## no censoring -- only normal family with mu=0 and sd=sd(y)
   N <- NROW(newdata)

@@ -1,4 +1,4 @@
-##' @S3method predictSurvProb pseudoForest
+##' @export
 predictSurvProb.pseudoForest <- function(object,
                                          newdata,
                                          times,

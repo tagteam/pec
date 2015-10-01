@@ -96,7 +96,7 @@ selectFGR <- function(formula,
     if (match("subset",names(call),nomatch=FALSE))
         stop("Subsetting of data is not possible.")
     m <- stats::model.frame(formula,data)
-    response <- model.response(m)
+    response <- stats::model.response(m)
     cens.code <- as.numeric(attr(response,"cens.code"))
     timevar <- colnames(response)[1]
     if (attr(response,"model")=="competing.risks"){
@@ -130,7 +130,7 @@ selectFGR <- function(formula,
     out
 }
 
-##' @S3method predictEventProb selectFGR
+##' @export 
 predictEventProb.selectFGR <- function(object,newdata,times,...){
     predictEventProb(object[[1]],newdata=newdata,times=times,...)
 }

@@ -8,7 +8,6 @@
 \alias{predictRestrictedMeanTime.cph}
 \alias{predictRestrictedMeanTime.default}
 \alias{predictRestrictedMeanTime.matrix}
-\alias{predictRestrictedMeanTime.pecCforest}
 \alias{predictRestrictedMeanTime.pecCtree}
 \alias{predictRestrictedMeanTime.pecRpart}
 \alias{predictRestrictedMeanTime.prodlim}
@@ -26,7 +25,6 @@
 \method{predictRestrictedMeanTime}{coxph}(object,newdata,times,...)
 \method{predictRestrictedMeanTime}{matrix}(object,newdata,times,...)
 \method{predictRestrictedMeanTime}{selectCox}(object,newdata,times,...)
-\method{predictRestrictedMeanTime}{pecCforest}(object,newdata,times,...)
 \method{predictRestrictedMeanTime}{prodlim}(object,newdata,times,...)
 \method{predictRestrictedMeanTime}{psm}(object,newdata,times,...)
 \method{predictRestrictedMeanTime}{survfit}(object,newdata,times,...)

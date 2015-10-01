@@ -8,7 +8,7 @@ pec(object, formula, data, traindata, times, cause, start, maxtime,
   exact = TRUE, exactness = 100, fillChar = NA, cens.model = "cox",
   ipcw.refit = FALSE, ipcw.args = NULL, splitMethod = "none", B, M,
   reference = TRUE, model.args = NULL, model.parms = NULL,
-  keep.index = FALSE, keep.matrix = FALSE, keep.models = "Call",
+  keep.index = FALSE, keep.matrix = FALSE, keep.models = FALSE,
   keep.residuals = FALSE, keep.pvalues = FALSE, noinf.permute = FALSE,
   multiSplitTest = FALSE, testIBS, testTimes, confInt = FALSE,
   confLevel = 0.95, verbose = TRUE, savePath = NULL, slaveseed = NULL,
@@ -22,8 +22,9 @@ examples), (3) a matrix with predicted probabilities having as many rows as
 \code{data} and as many columns as \code{times}. For cross-validation all
 objects in this list must include their \code{call}.}
 
-\item{formula}{A survival formula. The left hand side is used to find the
-status response variable in \code{data}. For right censored data, the right
+\item{formula}{A survival formula as obtained either
+with \code{prodlim::Hist} or \code{survival::Surv}.
+The left hand side is used to find the status response variable in \code{data}. For right censored data, the right
 hand side of the formula is used to specify conditional censoring models.
 For example, set \code{Surv(time,status)~x1+x2} and \code{cens.model="cox"}.
 Then the weights are based on a Cox regression model for the censoring times
@@ -156,8 +157,8 @@ the splitMethod part of the output list.}
 \item{keep.matrix}{Logical. If \code{TRUE} add all \code{B} prediction error
 curves from bootstrapping or cross-validation to the output.}
 
-\item{keep.models}{Logical. If \code{TRUE} keep the models in object. If
-\code{"Call"} keep only the \code{call} of these models.}
+\item{keep.models}{Logical. If \code{TRUE} keep the models in object. Since
+fitted models can be large objects the default is \code{FALSE}.}
 
 \item{keep.residuals}{Logical. If \code{TRUE} keep the patient individual
 residuals at \code{testTimes}.}

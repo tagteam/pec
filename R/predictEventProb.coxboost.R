@@ -26,14 +26,14 @@
 #' @seealso See \code{CoxBoost}.
 #' @references See \code{CoxBoost}.
 #' @keywords survival
-#' @export coxboost
+#' @export
 coxboost <- function(formula,data,cv=TRUE,cause=1,penalty,...){
   call <- match.call(expand.dots=TRUE)
   formula.names <- try(all.names(formula),silent=TRUE)
   if (!(formula.names[2]=="Hist")) stop("The left hand side of formula look like this: Hist(time,event).")
   actual.terms <- terms(formula,data=data)
   formula <- eval(call$formula)
-  response <- model.response(stats::model.frame(formula,data))
+  response <- stats::model.response(stats::model.frame(formula,data))
   Time <- as.numeric(response[,"time"])
   if (attr(response,"model")=="competing.risks"){
     ## adapt the event variable
@@ -74,7 +74,7 @@ coxboost <- function(formula,data,cv=TRUE,cause=1,penalty,...){
   out
 }
 
-##' @S3method predictSurvProb coxboost
+##' @export
 predictSurvProb.coxboost <- function(object,newdata,times,...) {
   newcova <- model.matrix(terms(object$formula,data=newdata),
                           data=stats::model.frame(object$formula,data=newdata,na.action=na.fail))[,-c(1)]
@@ -85,7 +85,7 @@ predictSurvProb.coxboost <- function(object,newdata,times,...) {
   p
 }
 
-##' @S3method predictEventProb coxboost
+##' @export
 predictEventProb.coxboost <- function(object,newdata,times,cause,...){
   if (missing(cause)) stop("missing cause")
   if (attr(object$response,"model")!="competing.risks") stop("Not a competing risk object")
@@ -104,7 +104,7 @@ predictEventProb.coxboost <- function(object,newdata,times,cause,...){
   p
 }
 
-##' @S3method predictLifeYearsLost coxboost
+##' @export
 predictLifeYearsLost.coxboost <- function(object,newdata,times,cause,...){
     if (missing(cause)) stop("missing cause")
     ## if (cause!=1) stop("CoxBoost can only predict cause 1")

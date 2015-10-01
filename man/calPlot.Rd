@@ -5,14 +5,15 @@
 \title{Calibration plots for right censored data}
 \usage{
 calPlot(object, time, formula, data, splitMethod = "none", B = 1, M,
-  outcome = c("pseudo", "prodlim"), showPseudo, pseudo.col = NULL,
-  pseudo.pch = NULL, method = "nne", round = TRUE, bandwidth = NULL,
-  q = 10, jack.density = 55, add = FALSE, diag = !add, legend = !add,
-  axes = !add, xlim = c(0, 1), ylim = c(0, 1),
-  xlab = "Predicted event probability",
-  ylab = "Pseudo-observed event status", col, lwd, lty, pch, cause = 1,
-  percent = TRUE, giveToModel = NULL, na.action = na.fail, cores = 1,
-  verbose = FALSE, ...)
+  outcome = c("pseudo", "prodlim"), type = "risk", showPseudo,
+  pseudo.col = NULL, pseudo.pch = NULL, method = "nne", round = TRUE,
+  bandwidth = NULL, q = 10, bars = FALSE, hanging = FALSE,
+  names = FALSE, showFrequencies = FALSE, jack.density = 55,
+  plot = TRUE, add = FALSE, diag = !add, legend = !add, axes = !add,
+  xlim = c(0, 1), ylim = c(0, 1), xlab, ylab = ifelse(type == "survival",
+  "Pseudo-observed survival status", "Pseudo-observed event status"), col, lwd,
+  lty, pch, cause = 1, percent = TRUE, giveToModel = NULL,
+  na.action = na.fail, cores = 1, verbose = FALSE, cex = 1, ...)
 }
 \arguments{
 \item{object}{A named list of prediction models, where allowed
@@ -57,6 +58,8 @@ the product-limit estimate, i.e., apply the Kaplan-Meier method for
 right censored survival and the Aalen-Johansen method for right
 censored competing risks data.}
 
+\item{type}{Either "risk" or "survival".}
+
 \item{showPseudo}{If \code{TRUE} and \code{outcome=="pseudo"} the
 pseudo-values are shown as dots on the plot.}
 
@@ -78,9 +81,19 @@ computing efficiency in large data sets.}
 
 \item{bandwidth}{The bandwidth for \code{method="nne"}}
 
-\item{q}{The number of quantiles for \code{method="quantile"}.}
+\item{q}{The number of quantiles for \code{method="quantile"} and \code{bars=TRUE}.}
+
+\item{bars}{If \code{TRUE}, use barplots to show calibration.}
+
+\item{hanging}{Barplots only. If \code{TRUE}, hang bars corresponding to observed frequencies at the value of the corresponding prediction.}
+
+\item{names}{Barplots only. Names argument passed to \code{names.arg} of \code{barplot}.}
+
+\item{showFrequencies}{Barplots only. If \code{TRUE}, show frequencies above the bars.}
 
 \item{jack.density}{Gray scale for pseudo-observations.}
+
+\item{plot}{If \code{FALSE}, do not plot the results, just return a plottable object.}
 
 \item{add}{If \code{TRUE} the line(s) are added to an existing
 plot.}
@@ -127,6 +140,8 @@ value of argument \code{mc.cores} to \code{\link{mclapply}}.}
 
 \item{verbose}{if \code{TRUE} report details of the progress,
 e.g. count the steps in cross-validation.}
+
+\item{cex}{}
 
 \item{...}{Used to control the subroutines: plot, axis, lines,
 legend. See \code{\link{SmartControl}}.}

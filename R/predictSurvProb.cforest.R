@@ -25,7 +25,7 @@ pecCforest <- function(formula,data,...){
 }
 
 
-##' @S3method predictSurvProb pecCforest
+##' @export 
 predictSurvProb.pecCforest <- function (object, newdata, times, ...) {
     require(party)
     survObj <- party::treeresponse(object$forest,newdata=newdata)

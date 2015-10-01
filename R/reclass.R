@@ -45,8 +45,12 @@
 ##' 
 ##' @export 
 ##' @author Thomas A. Gerds <tag@@biostat.ku.dk>
-reclass <- function(list,formula,data,time,cause,cuts=seq(0,100,25)){
-    stopifnot(length(list)==2)
+reclass <- function(object, reference, formula,data,time,cause,cuts=seq(0,100,25)){
+    if (missing(reference)){
+        stopifnot(length(object)==2)
+    } else{
+          object <- list(object,reference)
+      }
     NC <- length(cuts)
     NR <- NC-1 ## dimension of reclassification tables is NR x NR
     # {{{ response
@@ -58,7 +62,7 @@ reclass <- function(list,formula,data,time,cause,cuts=seq(0,100,25)){
     ## print(histformula)
     ## m <- stats::model.frame(histformula,data,na.action=na.fail)
     m <- stats::model.frame(formula,data,na.action=na.omit)
-    response <- model.response(m)
+    response <- stats::model.response(m)
     if (match("Surv",class(response),nomatch=0)!=0){
         attr(response,"model") <- "survival"
         attr(response,"cens.type") <- "rightCensored"
@@ -68,38 +72,48 @@ reclass <- function(list,formula,data,time,cause,cuts=seq(0,100,25)){
     if (model.type=="competing.risks"){
         predictHandlerFun <- "predictEventProb"
         availableCauses <- attr(response,"states")
+        ncauses <- length(availableCauses)
         if (missing(cause))
-            cause <- availableCauses
+            cause <- availableCauses[[1]]
+        else
+            if (match(cause, availableCauses,nomatch=FALSE)==0)
+                stop("Cause ",cause," is not among the available causes: ",paste(availableCauses,collapse=", "))
     }
     else{
         predictHandlerFun <- "predictSurvProb"
     }
     # }}}
     ## for competing risks find the cause of interest.
-    if (predictHandlerFun=="predictEventProb"){
-        ncauses <- length(availableCauses)
-        if (!all(thecauses <- match(cause, availableCauses,nomatch=FALSE)))
-            stop("Cause ",cause," is not among the available causes: ",paste(availableCauses,collapse=", "))
+    parseObject <- function(x){
+        if (any(is.na(x))) stop("Missing values in object.")
+        cutP <- function(P,cuts){
+            if (min(P)<min(cuts))
+                stop("Smallest predicted risk is smaller than first cut.")
+            if (max(P)>max(cuts))
+                stop("Largest predicted risk is larger than last cut.")
+            cut(P,cuts,
+                include.lowest=TRUE,
+                labels=paste(paste(cuts[-NC],cuts[-1],sep="-"),"%",sep=""))
+        }
+        P <- switch(class(x)[[1]],
+                    "factor"={x},
+                    "numeric"={
+                        if (all(x<1)){
+                            warning("Assumed that predictions are given on the scale [0,1] and multiplied by 100.")
+                            cutP(x*100,cuts=cuts)
+                        } else{
+                              cutP(x,cuts=cuts)
+                          }
+                    },{
+                    if (predictHandlerFun=="predictEventProb"){
+                        P <- 100*do.call(predictHandlerFun,list(x,newdata=data,times=time,cause=cause))
+                    } else {
+                          P <- 100*do.call(predictHandlerFun,list(x,newdata=data,times=time))
+                      }
+                    cutP(P,cuts=cuts)})
     }
-    predrisk <- lapply(list,function(x){
-                           if (class(x)[[1]]=="numeric")
-                               x
-                           else{
-                               if (predictHandlerFun=="predictEventProb"){
-                                   do.call(predictHandlerFun,list(x,newdata=data,times=time,cause=cause))
-                               } else{
-                                     do.call(predictHandlerFun,list(x,newdata=data,times=time))
-                                 }
-                           }
-                       })
+    predriskCut <- lapply(object,parseObject)
     ## overall reclassification table
-    predriskCut <- lapply(predrisk,function(p){
-                              stopifnot(min(p)>=min(cuts))
-                              stopifnot(max(p)<=max(cuts))
-                              cut(100*p,cuts,
-                                  include.lowest=TRUE,
-                                  labels=paste(paste(cuts[-NC],cuts[-1],sep="-"),"%",sep=""))
-                          })
     retab <- table(predriskCut[[1]],predriskCut[[2]])
     ## reclassification frequencies conditional on outcome
     edat <- data.frame(cbind(do.call("cbind",predriskCut),response))
@@ -108,7 +122,7 @@ reclass <- function(list,formula,data,time,cause,cuts=seq(0,100,25)){
     names(edat)[1:2] <- c("P1","P2")
     cells <- split(edat,list(factor(edat$P1,levels=1:NR),factor(edat$P2,levels=1:NR)))
     all.comb <- apply(expand.grid(1:(NR),1:(NR)),1,paste,collapse=".")
-    nn <- names(list)
+    nn <- names(object)
     if (!is.null(nn) & length(nn)==2){
         names(dimnames(retab)) <- nn
     }
@@ -142,12 +156,12 @@ reclass <- function(list,formula,data,time,cause,cuts=seq(0,100,25)){
                                                            " no subject was followed until time ",
                                                            time,
                                                            ". Result is NA (not available)."))
-                                               rep(NA,length(thecauses))
+                                               rep(NA,length(availableCauses))
                                            } else{
                                                  fit.x <- prodlim::prodlim(eformula,data=x)
                                                  fitted.causes <- attr(fit.x$model.response,"states")
                                                  nstates <- length(fitted.causes)
-                                                 sapply(thecauses,function(j){
+                                                 sapply(availableCauses,function(j){
                                                             ## it may happen that cause j
                                                             ## does not occur in this cell
                                                             if (sum(x$event==j)>0){
@@ -184,12 +198,12 @@ reclass <- function(list,formula,data,time,cause,cuts=seq(0,100,25)){
                                              }
                                        } else{
                                              ## empty cell
-                                             rep(0,length(thecauses))
+                                             rep(0,length(availableCauses))
                                          }}))
         fit <- prodlim::prodlim(eformula,data=edat)
-        cuminc <- unlist(lapply(thecauses,function(j){stats::predict(fit,times=time,cause=j,type="cuminc")}))
+        cuminc <- unlist(lapply(availableCauses,function(j){stats::predict(fit,times=time,cause=j,type="cuminc")}))
         Px <- apply(cuminc.x * Hx,1,function(p){p/ cuminc})
-        ## rownames(Px) <- paste("cause",thecauses,sep=":")
+        ## rownames(Px) <- paste("cause",availableCauses,sep=":")
         efreesurv <- 1-sum(cuminc)
         efreesurv.x <- 1-rowSums(cuminc.x,na.rm=TRUE)
         Px <- rbind(Px,"eventfree"=efreesurv.x * Hx / efreesurv)
@@ -233,11 +247,13 @@ reclass <- function(list,formula,data,time,cause,cuts=seq(0,100,25)){
                              })
           surv <- 1-cuminc
           surv.x <- 1-cuminc.x
-          event.retab <- list("event"=matrix(cuminc.x*Hx/surv,ncol=NR,dimnames=dimnames(retab)),
+          browser()
+          dimnames=dimnames(retab)
+          event.retab <- list("event"=matrix(cuminc.x*Hx/surv,ncol=NR),
                               "eventfree"=matrix(surv.x * Hx / surv,ncol=NR,dimnames=dimnames(retab)))
       }
     out <- list(time=time,
-                predRisk=predrisk,
+                ## predRisk=predrisk,
                 reclassification=retab,
                 event.reclassification=event.retab,
                 cuts=cuts,
@@ -246,7 +262,7 @@ reclass <- function(list,formula,data,time,cause,cuts=seq(0,100,25)){
     out
 }
 
-##' @S3method print riskReclassification
+##' @export 
 print.riskReclassification <- function(x,percent=TRUE,digits=ifelse(percent,1,2),...){
     cat("Observed overall re-classification table:\n\n")
     print(x$reclassification)
@@ -272,13 +288,4 @@ print.riskReclassification <- function(x,percent=TRUE,digits=ifelse(percent,1,2)
     print.listof(rlist[length(rlist)],quote=FALSE)
 }
 
-##' @S3method plot riskReclassification
-plot.riskReclassification <- function(x,xlim=c(0,100),ylim=c(0,100),xlab,ylab,grid=TRUE,grid.col=gray(0.9),...){
-    if (missing(xlab)) xlab <- paste("Risk (%):",names(dimnames(x$table))[[1]])
-    if (missing(ylab)) ylab <- paste("Risk (%):",names(dimnames(x$table))[[2]])
-    plot(x$predRisk[[1]],x$predRisk[[2]],axes=FALSE,xlim=xlim,ylim=ylim,xlab=xlab,ylab=ylab,...)
-    axis(1,at=x$cuts)
-    axis(2,at=x$cuts)
-    if (grid==TRUE)
-        abline(h = x$cuts, v = x$cuts, col = gray(0.9))
-}
+

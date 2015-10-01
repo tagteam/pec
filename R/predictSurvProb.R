@@ -76,7 +76,7 @@
 ##' library(rms)
 ##' coxmodel <- cph(Surv(time,status)~X1+X2,data=d,surv=TRUE)
 ##' 
-##' # predicted survival probabilities can be extracted
+##' # Extract predicted survival probabilities 
 ##' # at selected time-points:
 ##' ttt <- quantile(d$time)
 ##' # for selected predictor values:
@@ -102,12 +102,10 @@
 ##' ## one column for each of the 5 time points
 ##' ## one row for each validation set individual
 ##' 
-##' # the same can be done e.g. for a randomSurvivalForest model
+##' # Do the same for a randomSurvivalForest model
 ##' library(randomForestSRC)
 ##' rsfmodel <- rfsrc(Surv(time,status)~X1+X2,data=d)
 ##' predictSurvProb(rsfmodel,newdata=ndat,times=ttt)
-##' 
-##' predictSurvProb.R
 ##' 
 ##' ## Cox with ridge option
 ##' f1 <- coxph(Surv(time,status)~X1+X2,data=learndat)
@@ -120,18 +118,18 @@
 ##'      ylab="Ridge predicted survival chance at 10")
 ##'
 ##' 
-#' @export predictSurvProb
+#' @export 
 predictSurvProb <- function(object,newdata,times,...){
     UseMethod("predictSurvProb",object)
 }
 
-##' @S3method predictSurvProb default
+##' @export 
 predictSurvProb.default <- function(object,newdata,times,...){
   stop("No method for evaluating predicted probabilities from objects in class: ",class(object),call.=FALSE)
 }
 
 
-##' @S3method predictSurvProb numeric
+##' @export 
 predictSurvProb.numeric <- function(object,newdata,times,...){
     if (NROW(object) != NROW(newdata))
         ## || NCOL(object) != length(times))
@@ -139,7 +137,7 @@ predictSurvProb.numeric <- function(object,newdata,times,...){
   object
 }
 
-##' @S3method predictSurvProb matrix
+##' @export 
 predictSurvProb.matrix <- function(object,newdata,times,...){
     if (NROW(object) != NROW(newdata) || NCOL(object) != length(times)){
         stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(object)," x ",NCOL(object),"\n\n",sep=""))
@@ -148,7 +146,7 @@ predictSurvProb.matrix <- function(object,newdata,times,...){
     object
 }
 
-##' @S3method predictSurvProb aalen
+##' @export 
 predictSurvProb.aalen <- function(object,newdata,times,...){
     ## require(timereg)
     time.coef <- data.frame(object$cum)
@@ -181,7 +179,7 @@ predictSurvProb.aalen <- function(object,newdata,times,...){
     p
 }
 
-##' @S3method predictSurvProb cox.aalen
+##' @export 
 predictSurvProb.cox.aalen <- function(object,newdata,times,...){
     #  require(timereg)
     ##  The time-constant effects first
@@ -236,7 +234,7 @@ pecRpart <- function(formula,data,...){
     out
 }
 
-##' @S3method predictSurvProb pecRpart
+##' @export
 predictSurvProb.pecRpart <- function(object,newdata,times,...){
     newdata$rpartFactor <- factor(stats::predict(object$rpart,newdata=newdata),
                                   levels=object$levels)
@@ -244,7 +242,7 @@ predictSurvProb.pecRpart <- function(object,newdata,times,...){
     p
 }
     
-##' @S3method predictSurvProb coxph
+##' @export 
 predictSurvProb.coxph <- function(object,newdata,times,...){
     ## baselineHazard.coxph(object,times)
     ## require(survival)
@@ -276,7 +274,7 @@ predictSurvProb.coxph <- function(object,newdata,times,...){
     p
 }
 
-##' @S3method predictSurvProb coxph.penal
+##' @export
 predictSurvProb.coxph.penal <- function(object,newdata,times,...){
   ## require(survival)
   frailhistory <- object$history$'frailty(cluster)'$history
@@ -300,7 +298,7 @@ predictSurvProb.coxph.penal <- function(object,newdata,times,...){
 
 
 
-##' @S3method predictSurvProb cph
+##' @export 
 predictSurvProb.cph <- function(object,newdata,times,...){
     if (!match("surv",names(object),nomatch=0)) stop("Argument missing: set surv=TRUE in the call to cph!")
     p <- rms::survest(object,times=times,newdata=newdata,se.fit=FALSE,what="survival")$surv
@@ -310,12 +308,12 @@ predictSurvProb.cph <- function(object,newdata,times,...){
     p
 }
 
-##' @S3method predictSurvProb selectCox
+##' @export
 predictSurvProb.selectCox <- function(object,newdata,times,...){
     predictSurvProb(object[[1]],newdata=newdata,times=times,...)
 }
 
-##' @S3method predictSurvProb prodlim
+##' @export
 predictSurvProb.prodlim <- function(object,newdata,times,...){
     ## require(prodlim)
     p <- stats::predict(object=object,
@@ -401,7 +399,7 @@ predict.survfit <- function(object,newdata,times,bytimes=TRUE,fill="last",...){
     p
 }
 
-##' @S3method predictSurvProb survfit
+##' @export
 predictSurvProb.survfit <- function(object,newdata,times,...){
     p <- predict.survfit(object,newdata=newdata,times=times,bytimes=TRUE,fill="last")
     if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
@@ -419,7 +417,7 @@ predictSurvProb.survfit <- function(object,newdata,times,...){
 ## }
 
 
-##' @S3method predictSurvProb psm
+##' @export
 predictSurvProb.psm <- function(object,newdata,times,...){
     if (length(times)==1){
         p <- rms::survest(object,times=c(0,times),newdata=newdata,what="survival",conf.int=FALSE)[,2]
@@ -432,7 +430,7 @@ predictSurvProb.psm <- function(object,newdata,times,...){
 }
 
 
-##' @S3method predictSurvProb riskRegression
+##' @export
 predictSurvProb.riskRegression <- function(object,newdata,times,...){
     if (missing(times))stop("Argument times is missing")
     temp <- stats::predict(object,newdata=newdata)
@@ -443,7 +441,7 @@ predictSurvProb.riskRegression <- function(object,newdata,times,...){
     p
 }
 
-##' @S3method predictSurvProb rfsrc
+##' @export
 predictSurvProb.rfsrc <- function(object, newdata, times, ...){
     ptemp <- stats::predict(object,newdata=newdata,importance="none",...)$survival
     pos <- prodlim::sindex(jump.times=object$time.interest,eval.times=times)
@@ -461,7 +459,7 @@ predictProb <- function(object,newdata,times,...){
   UseMethod("predictProb",object)
 }
 
-##' @S3method predictProb glm
+##' @export
 predictProb.glm <- function(object,newdata,times,...){
   ## no censoring -- only normal family with mu=0 and sd=sd(y)
   N <- NROW(newdata)
@@ -478,7 +476,7 @@ predictProb.glm <- function(object,newdata,times,...){
 }
 
 
-##' @S3method predictProb ols
+##' @export
 predictProb.ols <- function(object,newdata,times,...){
     ## no censoring -- only normal family with mu=0 and sd=sd(y)
     N <- NROW(newdata)
@@ -494,7 +492,7 @@ predictProb.ols <- function(object,newdata,times,...){
     p
 }
 
-##' @S3method predictProb randomForest
+##' @export
 predictProb.randomForest <- function(object,newdata,times,...){
   ## no censoring -- only normal family with mu=0 and sd=sd(y)
   N <- NROW(newdata)
@@ -514,7 +512,7 @@ predictProb.randomForest <- function(object,newdata,times,...){
 ## class(update) <- "dynamicCox"
 ## update
 ## }
-##' @S3method predictProb dynamicCox
+##' @export
 ## predictProb.dynamicCox <- function(object,newdata,cutpoints,learn.data,...){
 ## p <- matrix(1,nrow=NROW(newdata),ncol=length(cutpoints))
 ## p
