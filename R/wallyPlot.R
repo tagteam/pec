@@ -345,7 +345,7 @@ wallyPlot <- function(object,
     if (smartA$superuser$zoom==FALSE && smartA$superuser$hide!=FALSE){
         zoom <- select.list(c("yes","no"),title="Zoom in on real data calibration plot? ")
         par(oldpar)
-    }
+    }else zoom <- "no"
     # }}}
     # {{{ show the actual plot
     if((smartA$superuser$zoom==TRUE) || (zoom=="yes")){
