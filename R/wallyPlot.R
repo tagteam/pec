@@ -126,7 +126,7 @@ wallyPlot <- function(object,
                                 q=10,
                                 ylab="",
                                 xlab="")
-    superuser.defaults <- list(hide=TRUE,id=6)
+    superuser.defaults <- list(hide=TRUE,choice=6)
     smartA <- prodlim::SmartControl(call= list(...),
                                     keys=c("calPlot","superuser"),
                                     ignore=NULL,
@@ -326,7 +326,7 @@ wallyPlot <- function(object,
                                 multiple=FALSE,
                                 title="Where are the real data? Select an orange number: ")
          }
-    }else xx <- smartA$superuser$id
+    }else xx <- smartA$superuser$choice
     par(mfg = c(xx%/%3.1 + 1, xx - (xx%/%3.1) * 3))
     box(col = "green", lwd = 3)
     # }}}
