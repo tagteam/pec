@@ -474,9 +474,9 @@ pec <- function(object,
   if (histformula[[2]][[1]]==as.name("Surv")){
       histformula[[2]][[1]] <- as.name("Hist")
   }
-  ## m <- stats::model.frame(histformula,data,na.action=na.fail)
-  m <- stats::model.frame(histformula,data,na.action=na.action)
-  response <- stats::model.response(m)
+  ## m <- model.frame(histformula,data,na.action=na.fail)
+  m <- model.frame(histformula,data,na.action=na.action)
+  response <- model.response(m)
   if (match("Surv",class(response),nomatch=0)!=0){
       attr(response,"model") <- "survival"
       attr(response,"cens.type") <- "rightCensored"
@@ -930,7 +930,7 @@ if (!is.null(model.parms))
     }
   out <- c(out,
            list(call=theCall,
-                response=stats::model.response(m),
+                response=model.response(m),
                 time=times,
                 ## ipcw.fit=as.character(ipcw$fit$call),
                 n.risk=n.risk,

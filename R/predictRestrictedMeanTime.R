@@ -187,7 +187,7 @@ predictRestrictedMeanTime.cox.aalen <- function(object,newdata,times,...){
 
 ##' @export
 predictRestrictedMeanTime.pecRpart <- function(object,newdata,times,...){
-    newdata$rpartFactor <- factor(stats::predict(object$rpart,newdata=newdata),
+    newdata$rpartFactor <- factor(predict(object$rpart,newdata=newdata),
                                   levels=object$levels)
     p <- predictRestrictedMeanTime(object$survfit,newdata=newdata,times=times)
     p
@@ -234,7 +234,7 @@ predictRestrictedMeanTime.coxph.penal <- function(object,newdata,times,...){
   frailhistory <- object$history$'frailty(cluster)'$history
   frailVar <- frailhistory[NROW(frailhistory),1]
   ## survfit.object <- survival.survfit.coxph(object,newdata=newdata,se.fit=FALSE,conf.int=FALSE)
-  linearPred <- stats::predict(object,newdata=newdata,se.fit=FALSE,conf.int=FALSE)
+  linearPred <- predict(object,newdata=newdata,se.fit=FALSE,conf.int=FALSE)
   basehaz <- basehaz(object)
   bhTimes <- basehaz[,2]
   bhValues <- basehaz[,1]
@@ -270,7 +270,7 @@ predictRestrictedMeanTime.selectCox <- function(object,newdata,times,...){
 ##' @export
 predictRestrictedMeanTime.prodlim <- function(object,newdata,times,...){
     ## require(prodlim)
-    p <- stats::predict(object=object,
+    p <- predict(object=object,
                  type="surv",
                  newdata=newdata,
                  times=times,
@@ -387,7 +387,7 @@ predictRestrictedMeanTime.psm <- function(object,newdata,times,...){
 ##' @export
 predictRestrictedMeanTime.riskRegression <- function(object,newdata,times,...){
     if (missing(times))stop("Argument times is missing")
-    temp <- stats::predict(object,newdata=newdata)
+    temp <- predict(object,newdata=newdata)
     pos <- prodlim::sindex(jump.times=temp$time,eval.times=times)
     p <- cbind(1,1-temp$cuminc)[,pos+1,drop=FALSE]
     if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
@@ -397,7 +397,7 @@ predictRestrictedMeanTime.riskRegression <- function(object,newdata,times,...){
 
 ##' @export
 predictRestrictedMeanTime.rfsrc <- function(object, newdata, times, ...){
-    ptemp <- stats::predict(object,newdata=newdata,importance="none",...)$survival
+    ptemp <- predict(object,newdata=newdata,importance="none",...)$survival
     pos <- prodlim::sindex(jump.times=object$time.interest,eval.times=times)
     p <- cbind(1,ptemp)[,pos+1,drop=FALSE]
     if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
@@ -420,7 +420,7 @@ predictProb.glm <- function(object,newdata,times,...){
   NT <- length(times)
   if (!(unclass(family(object))$family=="gaussian"))
     stop("Currently only gaussian family implemented for glm.")
-  betax <- stats::predict(object,newdata=newdata,se.fit=FALSE)
+  betax <- predict(object,newdata=newdata,se.fit=FALSE)
   ##   print(betax[1:10])
   pred.matrix <- matrix(rep(times,N),byrow=TRUE,ncol=NT,nrow=N)
   p <- 1-pnorm(pred.matrix - betax,mean=0,sd=sqrt(var(object$y)))
@@ -437,7 +437,7 @@ predictProb.ols <- function(object,newdata,times,...){
     NT <- length(times)
     if (!(unclass(family(object))$family=="gaussian"))
         stop("Currently only gaussian family implemented.")
-    betax <- stats::predict(object,newdata=newdata,type="lp",se.fit=FALSE)
+    betax <- predict(object,newdata=newdata,type="lp",se.fit=FALSE)
     ##   print(betax[1:10])
     pred.matrix <- matrix(rep(times,N),byrow=TRUE,ncol=NT,nrow=N)
     p <- 1-pnorm(pred.matrix - betax,mean=0,sd=sqrt(var(object$y)))
@@ -451,7 +451,7 @@ predictProb.randomForest <- function(object,newdata,times,...){
   ## no censoring -- only normal family with mu=0 and sd=sd(y)
   N <- NROW(newdata)
   NT <- length(times)
-  predMean <- stats::predict(object,newdata=newdata,se.fit=FALSE)
+  predMean <- predict(object,newdata=newdata,se.fit=FALSE)
   pred.matrix <- matrix(rep(times,N),byrow=TRUE,ncol=NT,nrow=N)
   p <- 1-pnorm(pred.matrix - predMean,mean=0,sd=sqrt(var(object$y)))
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))

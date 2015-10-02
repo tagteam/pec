@@ -77,8 +77,8 @@ wallyPlot <- function(object,
               formula <- update.formula(formula,".~1")
           }
     }
-    m <- stats::model.frame(formula,data,na.action=na.fail)
-    response <- stats::model.response(m)
+    m <- model.frame(formula,data,na.action=na.fail)
+    response <- model.response(m)
     if (match("Surv",class(response),nomatch=FALSE))
         model.type <- "survival"
     else

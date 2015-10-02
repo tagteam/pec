@@ -27,7 +27,7 @@
 #' nd <- prodlim::SimSurv(400)
 #' Models <- list("Cox.X2"=coxph(Surv(time,status)~X2,data=d),
 #'                "Cox.X1.X2"=coxph(Surv(time,status)~X1+X2,data=d))
-#' rc <- reclass(Models,Surv(time,status)~1,data=nd,time=5)
+#' rc <- pec:::reclass(Models,Surv(time,status)~1,data=nd,time=5)
 #' print(rc)
 #' plot(rc)
 #'
@@ -65,9 +65,9 @@ reclass <- function(object,
     ## histformula[[2]][[1]] <- as.name("prodlim::Hist")
     ## }
     ## print(histformula)
-    ## m <- stats::model.frame(histformula,data,na.action=na.fail)
-    m <- stats::model.frame(formula,data,na.action=na.omit)
-    response <- stats::model.response(m)
+    ## m <- model.frame(histformula,data,na.action=na.fail)
+    m <- model.frame(formula,data,na.action=na.omit)
+    response <- model.response(m)
     if (match("Surv",class(response),nomatch=0)!=0){
         attr(response,"model") <- "survival"
         attr(response,"cens.type") <- "rightCensored"
@@ -174,7 +174,7 @@ reclass <- function(object,
                                                                 if (nstates<length(availableCauses)){
                                                                     if (nstates==1){
                                                                         ## only one cause
-                                                                        stats::predict(fit.x,times=time,type="cuminc")
+                                                                        predict(fit.x,times=time,type="cuminc")
                                                                     } else{
                                                                           ## competing causes but less than all causes
                                                                           ## need to change the value of cause
@@ -182,11 +182,11 @@ reclass <- function(object,
                                                                           if (xj.cause==0)
                                                                               stop(paste0("Cause ",j,"does not appear in fit. Fitted are causes: ",fitted.causes))
                                                                           else{
-                                                                              stats::predict(fit.x,times=time,cause=xj.cause,type="cuminc")
+                                                                              predict(fit.x,times=time,cause=xj.cause,type="cuminc")
                                                                           }
                                                                       }
                                                                 }else{
-                                                                     stats::predict(fit.x,times=time,cause=j,type="cuminc")
+                                                                     predict(fit.x,times=time,cause=j,type="cuminc")
                                                                  }
                                                             } else {
                                                                   ## warn if no event of type j
@@ -206,7 +206,7 @@ reclass <- function(object,
                                              rep(0,length(availableCauses))
                                          }}))
         fit <- prodlim::prodlim(eformula,data=edat)
-        cuminc <- unlist(lapply(availableCauses,function(j){stats::predict(fit,times=time,cause=j,type="cuminc")}))
+        cuminc <- unlist(lapply(availableCauses,function(j){predict(fit,times=time,cause=j,type="cuminc")}))
         Px <- apply(cuminc.x * Hx,1,function(p){p/ cuminc})
         ## rownames(Px) <- paste("cause",availableCauses,sep=":")
         efreesurv <- 1-sum(cuminc)
@@ -231,7 +231,7 @@ reclass <- function(object,
           ## --------------------------------------------------------------------------------------
           eformula <- Hist(time,status)~1
           Hx <- unlist(lapply(cells,NROW))/N
-          cuminc <- stats::predict(prodlim::prodlim(eformula,data=edat),times=time,type="cuminc")
+          cuminc <- predict(prodlim::prodlim(eformula,data=edat),times=time,type="cuminc")
           cuminc.x <- sapply(cells,function(x){
                                  if (NROW(x)>0){
                                      ## warn if too short followup
@@ -243,7 +243,7 @@ reclass <- function(object,
                                                      ". Result is NA (not available)."))
                                          NA
                                      }else{
-                                          stats::predict(prodlim::prodlim(eformula,data=x),times=time)
+                                          predict(prodlim::prodlim(eformula,data=x),times=time)
                                       }
                                  } else {
                                        ## empty cell
@@ -266,7 +266,6 @@ reclass <- function(object,
     out
 }
 
-##' @export 
 print.riskReclassification <- function(x,percent=TRUE,digits=ifelse(percent,1,2),...){
     cat("Observed overall re-classification table:\n\n")
     print(x$reclassification)

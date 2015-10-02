@@ -3,9 +3,9 @@
 ## author: Thomas Alexander Gerds
 ## created: Sep 28 2015 (17:32) 
 ## Version: 
-## last-updated: Oct  1 2015 (19:45) 
+## last-updated: Oct  2 2015 (08:16) 
 ##           By: Thomas Alexander Gerds
-##     Update #: 79
+##     Update #: 80
 #----------------------------------------------------------------------
 ## 
 ### Commentary: 
@@ -130,14 +130,14 @@ plot.calibrationPlot <- function(x,...){
             do.call("axis",control$axis1)
         mgp2 <- control$axis2$mgp
         if (length(mgp2)>0){
-            oldmgp <- graphics::par()$mgp
-            graphics::par(mgp=mgp2)
+            oldmgp <- par()$mgp
+            par(mgp=mgp2)
             control$axis2 <- control$axis2[-match("mgp",names(control$axis2),nomatch=0)]
             title(ylab=x$ylab)
         }
         do.call("axis",control$axis2)
         if (length(mgp2)>0){
-            graphics::par(mgp=oldmgp)
+            par(mgp=oldmgp)
         }
     }
     invisible(NULL)

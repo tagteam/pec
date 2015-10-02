@@ -88,8 +88,8 @@ pseudoPec <- function(object,
   }
   # }}}
   # {{{ response
-  m <- stats::model.frame(formula,data,na.action=na.fail)
-  response <- stats::model.response(m)
+  m <- model.frame(formula,data,na.action=na.fail)
+  response <- model.response(m)
   if (match("Surv",class(response),nomatch=0)!=0){
     attr(response,"model") <- "survival"
     attr(response,"cens.type") <- "rightCensored"

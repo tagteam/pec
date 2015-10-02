@@ -289,8 +289,8 @@ plot.pec <- function(x,
 # {{{ legend - crappy solution to legend to the option special (but works)
 
 if(legend==TRUE && !add && !is.null(names(x$models)[models])){
-     save.xpd <- graphics::par()$xpd
-     graphics::par(xpd=TRUE)
+     save.xpd <- par()$xpd
+     par(xpd=TRUE)
 
      # Not very elegant solution but works:
      if (special==TRUE){
@@ -331,7 +331,7 @@ if(legend==TRUE && !add && !is.null(names(x$models)[models])){
      
       else
         do.call("legend",smartA$legend)
-     graphics::par(xpd=save.xpd)
+     par(xpd=save.xpd)
    }
 
 

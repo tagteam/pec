@@ -226,7 +226,7 @@ predictSurvProb.cox.aalen <- function(object,newdata,times,...){
 pecRpart <- function(formula,data,...){
     robj <- rpart::rpart(formula=formula,data=data,...)
     nclass <- length(unique(robj$where))
-    data$rpartFactor <- factor(stats::predict(robj,newdata=data,...))
+    data$rpartFactor <- factor(predict(robj,newdata=data,...))
     form <- update(formula,paste(".~","rpartFactor",sep=""))
     survfit <- prodlim::prodlim(form,data=data)
     out <- list(rpart=robj,survfit=survfit,levels=levels(data$rpartFactor))
@@ -236,7 +236,7 @@ pecRpart <- function(formula,data,...){
 
 ##' @export
 predictSurvProb.pecRpart <- function(object,newdata,times,...){
-    newdata$rpartFactor <- factor(stats::predict(object$rpart,newdata=newdata),
+    newdata$rpartFactor <- factor(predict(object$rpart,newdata=newdata),
                                   levels=object$levels)
     p <- predictSurvProb(object$survfit,newdata=newdata,times=times)
     p
@@ -280,7 +280,7 @@ predictSurvProb.coxph.penal <- function(object,newdata,times,...){
   frailhistory <- object$history$'frailty(cluster)'$history
   frailVar <- frailhistory[NROW(frailhistory),1]
   ## survfit.object <- survival.survfit.coxph(object,newdata=newdata,se.fit=FALSE,conf.int=FALSE)
-  linearPred <- stats::predict(object,newdata=newdata,se.fit=FALSE,conf.int=FALSE)
+  linearPred <- predict(object,newdata=newdata,se.fit=FALSE,conf.int=FALSE)
   basehaz <- basehaz(object)
   bhTimes <- basehaz[,2]
   bhValues <- basehaz[,1]
@@ -316,7 +316,7 @@ predictSurvProb.selectCox <- function(object,newdata,times,...){
 ##' @export
 predictSurvProb.prodlim <- function(object,newdata,times,...){
     ## require(prodlim)
-    p <- stats::predict(object=object,
+    p <- predict(object=object,
                  type="surv",
                  newdata=newdata,
                  times=times,
@@ -433,7 +433,7 @@ predictSurvProb.psm <- function(object,newdata,times,...){
 ##' @export
 predictSurvProb.riskRegression <- function(object,newdata,times,...){
     if (missing(times))stop("Argument times is missing")
-    temp <- stats::predict(object,newdata=newdata)
+    temp <- predict(object,newdata=newdata)
     pos <- prodlim::sindex(jump.times=temp$time,eval.times=times)
     p <- cbind(1,1-temp$cuminc)[,pos+1,drop=FALSE]
     if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
@@ -443,7 +443,7 @@ predictSurvProb.riskRegression <- function(object,newdata,times,...){
 
 ##' @export
 predictSurvProb.rfsrc <- function(object, newdata, times, ...){
-    ptemp <- stats::predict(object,newdata=newdata,importance="none",...)$survival
+    ptemp <- predict(object,newdata=newdata,importance="none",...)$survival
     pos <- prodlim::sindex(jump.times=object$time.interest,eval.times=times)
     p <- cbind(1,ptemp)[,pos+1,drop=FALSE]
     if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
@@ -466,7 +466,7 @@ predictProb.glm <- function(object,newdata,times,...){
   NT <- length(times)
   if (!(unclass(family(object))$family=="gaussian"))
     stop("Currently only gaussian family implemented for glm.")
-  betax <- stats::predict(object,newdata=newdata,se.fit=FALSE)
+  betax <- predict(object,newdata=newdata,se.fit=FALSE)
   ##   print(betax[1:10])
   pred.matrix <- matrix(rep(times,N),byrow=TRUE,ncol=NT,nrow=N)
   p <- 1-pnorm(pred.matrix - betax,mean=0,sd=sqrt(var(object$y)))
@@ -483,7 +483,7 @@ predictProb.ols <- function(object,newdata,times,...){
     NT <- length(times)
     if (!(unclass(family(object))$family=="gaussian"))
         stop("Currently only gaussian family implemented.")
-    betax <- stats::predict(object,newdata=newdata,type="lp",se.fit=FALSE)
+    betax <- predict(object,newdata=newdata,type="lp",se.fit=FALSE)
     ##   print(betax[1:10])
     pred.matrix <- matrix(rep(times,N),byrow=TRUE,ncol=NT,nrow=N)
     p <- 1-pnorm(pred.matrix - betax,mean=0,sd=sqrt(var(object$y)))
@@ -497,7 +497,7 @@ predictProb.randomForest <- function(object,newdata,times,...){
   ## no censoring -- only normal family with mu=0 and sd=sd(y)
   N <- NROW(newdata)
   NT <- length(times)
-  predMean <- stats::predict(object,newdata=newdata,se.fit=FALSE)
+  predMean <- predict(object,newdata=newdata,se.fit=FALSE)
   pred.matrix <- matrix(rep(times,N),byrow=TRUE,ncol=NT,nrow=N)
   p <- 1-pnorm(pred.matrix - predMean,mean=0,sd=sqrt(var(object$y)))
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))

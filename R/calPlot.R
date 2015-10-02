@@ -224,8 +224,8 @@ calPlot <- function(object,
           }
     }
     
-    m <- stats::model.frame(formula,data,na.action=na.action)
-    response <- stats::model.response(m)
+    m <- model.frame(formula,data,na.action=na.action)
+    response <- model.response(m)
     if (match("Surv",class(response),nomatch=FALSE))
         model.type <- "survival"
     else
@@ -517,7 +517,7 @@ calPlot <- function(object,
                            pdata <- cbind(data[,all.vars(update(formula,".~1")),drop=FALSE,with=FALSE],pcut=pcut)
                        else
                            pdata <- cbind(data[,all.vars(update(formula,".~1")),drop=FALSE],pcut=pcut)
-                       y <- unlist(stats::predict(prodlim::prodlim(form.pcut,data=pdata),
+                       y <- unlist(predict(prodlim::prodlim(form.pcut,data=pdata),
                                                   cause=cause,
                                                   newdata=data.frame(pcut=levels(pcut)),
                                                   times=time,
@@ -568,7 +568,7 @@ calPlot <- function(object,
                             pdata <- cbind(data[,all.vars(update(formula,".~1")),drop=FALSE,with=FALSE],p=p)
                         else
                             pdata <- cbind(data[,all.vars(update(formula,".~1")),drop=FALSE],p=p)
-                        y <- unlist(stats::predict(prodlim::prodlim(form.p,data=pdata),
+                        y <- unlist(predict(prodlim::prodlim(form.p,data=pdata),
                                                    cause=cause,
                                                    newdata=data.frame(p=sort(p)),
                                                    times=time,

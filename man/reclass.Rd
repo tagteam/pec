@@ -48,7 +48,7 @@ d <- prodlim::SimSurv(400)
 nd <- prodlim::SimSurv(400)
 Models <- list("Cox.X2"=coxph(Surv(time,status)~X2,data=d),
                "Cox.X1.X2"=coxph(Surv(time,status)~X1+X2,data=d))
-rc <- reclass(Models,Surv(time,status)~1,data=nd,time=5)
+rc <- pec:::reclass(Models,Surv(time,status)~1,data=nd,time=5)
 print(rc)
 plot(rc)
 

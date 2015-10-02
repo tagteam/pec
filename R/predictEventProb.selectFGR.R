@@ -95,8 +95,8 @@ selectFGR <- function(formula,
     m <- match.call(expand.dots = FALSE)
     if (match("subset",names(call),nomatch=FALSE))
         stop("Subsetting of data is not possible.")
-    m <- stats::model.frame(formula,data)
-    response <- stats::model.response(m)
+    m <- model.frame(formula,data)
+    response <- model.response(m)
     cens.code <- as.numeric(attr(response,"cens.code"))
     timevar <- colnames(response)[1]
     if (attr(response,"model")=="competing.risks"){

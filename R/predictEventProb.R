@@ -74,7 +74,7 @@ predictEventProb.matrix <- function(object,newdata,times,...){
 ##' @export 
 predictEventProb.prodlim <- function(object,newdata,times,cause,...){
     ## require(prodlim)
-    p <- stats::predict(object=object,cause=cause,type="cuminc",newdata=newdata,times=times,mode="matrix",level.chaos=1)
+    p <- predict(object=object,cause=cause,type="cuminc",newdata=newdata,times=times,mode="matrix",level.chaos=1)
     ## if the model has no covariates
     ## then all cases get the same prediction
     ## in this exceptional case we proceed a vector
@@ -96,7 +96,7 @@ predictEventProb.prodlim <- function(object,newdata,times,cause,...){
 predictEventProb.FGR <- function(object,newdata,times,cause,...){
     ## require(cmprsk)
     ## predict.crr <- cmprsk:::predict.crr
-    p <- stats::predict(object=object,newdata=newdata,times=times)
+    p <- predict(object=object,newdata=newdata,times=times)
     if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
                 stop(paste("\nPrediction matrix has wrong dimension:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
     p
@@ -105,7 +105,7 @@ predictEventProb.FGR <- function(object,newdata,times,cause,...){
 ##' @export
 predictEventProb.riskRegression <- function(object,newdata,times,cause,...){
   if (missing(times))stop("Argument times is missing")
-  temp <- stats::predict(object,newdata=newdata,times=times)
+  temp <- predict(object,newdata=newdata,times=times)
   pos <- prodlim::sindex(jump.times=temp$time,eval.times=times)
   p <- cbind(0,temp$risk)[,pos+1,drop=FALSE]
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
@@ -116,7 +116,7 @@ predictEventProb.riskRegression <- function(object,newdata,times,cause,...){
 ##' @export 
 predictEventProb.ARR <- function(object,newdata,times,cause,...){
   if (missing(times))stop("Argument times is missing")
-  temp <- stats::predict(object,newdata=newdata,times=times)
+  temp <- predict(object,newdata=newdata,times=times)
   pos <- prodlim::sindex(jump.times=temp$time,eval.times=times)
   p <- cbind(0,temp$P1)[,pos+1,drop=FALSE]
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
@@ -185,7 +185,7 @@ predictEventProb.CauseSpecificCox <- function (object, newdata, times, cause, ..
 predictEventProb.rfsrc <- function(object, newdata, times, cause, ...){
   if (missing(cause)) stop("missing cause")
   if (!is.numeric(cause)) stop("cause is not numeric")
-  cif <- stats::predict(object,newdata=newdata,importance="none",...)$cif[,,cause,drop=TRUE]
+  cif <- predict(object,newdata=newdata,importance="none",...)$cif[,,cause,drop=TRUE]
   pos <- prodlim::sindex(jump.times=object$time.interest,eval.times=times)
   p <- cbind(0,cif)[,pos+1,drop=FALSE]
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))

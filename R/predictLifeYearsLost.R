@@ -68,7 +68,7 @@ predictLifeYearsLost.matrix <- function(object,newdata,times,...){
 predictLifeYearsLost.prodlim <- function(object,newdata,times,cause,...){
   ## require(prodlim)
   time.interest <- object$time
-  cif <- stats::predict(object=object,cause=cause,type="cuminc",newdata=newdata,times=time.interest,mode="matrix",level.chaos=1)
+  cif <- predict(object=object,cause=cause,type="cuminc",newdata=newdata,times=time.interest,mode="matrix",level.chaos=1)
   ## if the model has no covariates
   ## then all cases get the same cif
   ## in this exceptional case we proceed a vector
@@ -90,7 +90,7 @@ predictLifeYearsLost.prodlim <- function(object,newdata,times,cause,...){
 predictLifeYearsLost.FGR <- function(object,newdata,times,cause,...){
   if (missing(times))stop("Argument times is missing")
   time.interest <- sort(unique(object$crrFit$uftime))
-  cif <- stats::predict(object,newdata=newdata,times=time.interest)
+  cif <- predict(object,newdata=newdata,times=time.interest)
   pos <- prodlim::sindex(jump.times=time.interest,eval.times=times)
   lyl <- matrix(unlist(lapply(1:length(pos), function(j) {
     pos.j <- 1:(pos[j]+1)
@@ -107,7 +107,7 @@ predictLifeYearsLost.FGR <- function(object,newdata,times,cause,...){
 predictLifeYearsLost.riskRegression <- function(object,newdata,times,cause,...){
   if (missing(times))stop("Argument times is missing")
   time.interest <- object$time
-  cif <- stats::predict(object,newdata=newdata,times=time.interest)
+  cif <- predict(object,newdata=newdata,times=time.interest)
   pos <- prodlim::sindex(jump.times=time.interest,eval.times=times)
   lyl <- matrix(unlist(lapply(1:length(pos), function(j) {
     pos.j <- 1:(pos[j]+1)
@@ -124,7 +124,7 @@ predictLifeYearsLost.riskRegression <- function(object,newdata,times,cause,...){
 predictLifeYearsLost.ARR <- function(object,newdata,times,cause,...){
   if (missing(times))stop("Argument times is missing")
   time.interest <- object$time
-  cif <- stats::predict(object,newdata=newdata,times=time.interest)
+  cif <- predict(object,newdata=newdata,times=time.interest)
   pos <- prodlim::sindex(jump.times=time.interest,eval.times=times)
   lyl <- matrix(unlist(lapply(1:length(pos), function(j) {
     pos.j <- 1:(pos[j]+1)
@@ -186,7 +186,7 @@ predictLifeYearsLost.CauseSpecificCox <- function (object, newdata, times, cause
 ##' @export
 predictLifeYearsLost.rfsrc <- function(object, newdata, times, cause, ...){
     if (missing(cause)) stop("missing cause")
-    cif <- stats::predict(object,newdata=newdata,importance="none",...)$cif[,,cause,drop=TRUE]
+    cif <- predict(object,newdata=newdata,importance="none",...)$cif[,,cause,drop=TRUE]
     pos <- prodlim::sindex(jump.times=object$time.interest,eval.times=times)
     lyl <- matrix(unlist(lapply(1:length(pos), function(j) {
         pos.j <- 1:(pos[j]+1)

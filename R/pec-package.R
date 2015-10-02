@@ -38,7 +38,7 @@
 #' @importFrom prodlim Hist
 #' @importFrom grDevices col2rgb gray
 #' @importFrom graphics abline axis box legend lines mtext par plot points segments text title
-#' @importFrom stats as.formula coef family formula median model.matrix na.fail na.omit pnorm predict quantile rbinom rexp runif sd smooth terms time update update.formula var wilcox.test
+#' @importFrom stats model.frame model.response as.formula coef family formula median model.matrix na.fail na.omit pnorm predict quantile rbinom rexp runif sd smooth terms time update update.formula var wilcox.test
 #' @importFrom utils capture.output head select.list
 #' @keywords datasets
 NULL

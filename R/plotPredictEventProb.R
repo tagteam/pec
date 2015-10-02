@@ -84,8 +84,8 @@ plotPredictEventProb <- function(x,
     # find data
     data <- eval(x$call$data)
     # extract response
-    m <- stats::model.frame(formula,data,na.action=na.fail)
-    response <- stats::model.response(m)
+    m <- model.frame(formula,data,na.action=na.fail)
+    response <- model.response(m)
     # ordering time
     neworder <- order(response[,"time"],-response[,"status"])
     response <- response[neworder,,drop=FALSE]
@@ -210,9 +210,9 @@ plotPredictEventProb <- function(x,
   # {{{ legend
 
   if(legend==TRUE && !add && !is.null(rownames(y))){
-    save.xpd <- graphics::par()$xpd
+    save.xpd <- par()$xpd
     do.call("legend",smartA$legend)
-    graphics::par(xpd=save.xpd)
+    par(xpd=save.xpd)
   }
   
   # }}}
