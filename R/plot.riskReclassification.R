@@ -3,9 +3,9 @@
 ## author: Thomas Alexander Gerds
 ## created: Sep 24 2015 (19:26) 
 ## Version: 
-## last-updated: Sep 29 2015 (07:06) 
+## last-updated: Oct  3 2015 (16:26) 
 ##           By: Thomas Alexander Gerds
-##     Update #: 6
+##     Update #: 7
 #----------------------------------------------------------------------
 ## 
 ### Commentary: 
@@ -18,8 +18,8 @@
 plot.riskReclassification <- function(x,xlim=c(0,100),ylim=c(0,100),xlab,ylab,grid=TRUE,grid.col=gray(0.9),...){
     if (missing(xlab)) xlab <- paste("Risk (%):",names(dimnames(x$reclassification))[[1]])
     if (missing(ylab)) ylab <- paste("Risk (%):",names(dimnames(x$reclassification))[[2]])
-    plot(x$predRisk[[1]],
-         x$predRisk[[2]],
+    plot(x$predictedRisk[[1]],
+         x$predictedRisk[[2]],
          axes=FALSE,
          xlim=xlim,
          ylim=ylim,

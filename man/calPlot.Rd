@@ -5,15 +5,14 @@
 \title{Calibration plots for right censored data}
 \usage{
 calPlot(object, time, formula, data, splitMethod = "none", B = 1, M,
-  outcome = c("pseudo", "prodlim"), type = "risk", showPseudo,
-  pseudo.col = NULL, pseudo.pch = NULL, method = "nne", round = TRUE,
-  bandwidth = NULL, q = 10, bars = FALSE, hanging = FALSE,
-  names = FALSE, showFrequencies = FALSE, jack.density = 55,
-  plot = TRUE, add = FALSE, diag = !add, legend = !add, axes = !add,
-  xlim = c(0, 1), ylim = c(0, 1), xlab, ylab = ifelse(type == "survival",
-  "Pseudo-observed survival status", "Pseudo-observed event status"), col, lwd,
-  lty, pch, cause = 1, percent = TRUE, giveToModel = NULL,
-  na.action = na.fail, cores = 1, verbose = FALSE, cex = 1, ...)
+  outcome = c("pseudo", "prodlim"), type, showPseudo, pseudo.col = NULL,
+  pseudo.pch = NULL, method = "nne", round = TRUE, bandwidth = NULL,
+  q = 10, bars = FALSE, hanging = FALSE, names = "quantiles",
+  showFrequencies = FALSE, jack.density = 55, plot = TRUE, add = FALSE,
+  diag = !add, legend = !add, axes = !add, xlim = c(0, 1), ylim = c(0,
+  1), xlab, ylab, col, lwd, lty, pch, cause = 1, percent = TRUE,
+  giveToModel = NULL, na.action = na.fail, cores = 1, verbose = FALSE,
+  cex = 1, ...)
 }
 \arguments{
 \item{object}{A named list of prediction models, where allowed
@@ -164,6 +163,15 @@ library(prodlim)
 library(lava)
 library(riskRegression)
 library(survival)
+# survival
+dlearn <- SimSurv(40)
+dval <- SimSurv(100)
+f <- coxph(Surv(time,status)~X1+X2,data=dlearn)
+calPlot(f,time=3,data=dval)
+calPlot(f,time=3,data=dval,type="survival")
+calPlot(f,time=3,data=dval,bars=TRUE)
+calPlot(f,time=3,data=dval,bars=TRUE,type="risk")
+
 set.seed(13)
 m <- crModel()
 regression(m, from = "X1", to = "eventtime1") <- 1

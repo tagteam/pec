@@ -3,9 +3,9 @@
 ## author: Thomas Alexander Gerds
 ## created: Sep 28 2015 (17:32) 
 ## Version: 
-## last-updated: Oct  2 2015 (08:16) 
+## last-updated: Oct  3 2015 (17:46) 
 ##           By: Thomas Alexander Gerds
-##     Update #: 80
+##     Update #: 111
 #----------------------------------------------------------------------
 ## 
 ### Commentary: 
@@ -40,45 +40,62 @@ plot.calibrationPlot <- function(x,...){
         pf <- na.omit(plotFrames[[1]])
         Pred <- pf$Pred
         Obs <- pf$Obs
+        if (x$model.type=="survival" && x$type!="survival"){
+            Pred <- 1-Pred
+            Obs <- 1-Obs
+        }
         if(!x$legend){
             control$barplot$legend.text <- NULL
         }else{
              if (is.null(control$barplot$legend.text)){
                  control$barplot$legend.text <- control$legend$legend
-             }else{
-                  control$barplot$args.legend <- control$legend
-              }
+             }
+             ## }else{
+             control$barplot$args.legend <- control$legend
+             ## }
          }
         if (is.null(control$barplot$space))
             control$barplot$space <- rep(c(1,0),length(Pred))
         PredObs <- c(rbind(Pred,Obs))
         control$barplot$height <- PredObs
-        if (x$hanging)
+        if (x$hanging){
             control$barplot$offset <- c(rbind(0,Pred-Obs))
-        if (length(x$names)>0 && (x$names[[1]]!=FALSE) && is.character(x$names)){
-            if (length(x$names)==(length(control$barplot$height)/2)){
-                ## colnames(control$barplot$height) <- x$names
-                control$barplot$names.arg <- c(x$names,rbind(rep("",10)))
-            }else{
-                 if (x$names[[1]]==FALSE){
-                     control$barplot$names.arg <- NULL
-                 }
-             }
+            minval <- min(Pred-Obs)
+            if (minval<0)
+                negY.offset <- 0.05+seq(0,1,0.05)[sindex(jump.times=seq(0,1,0.05),eval.times=abs(minval))]
+            control$barplot$ylim[1] <- min(control$barplot$ylim[1],-negY.offset)
+            control$names$y <- control$names$y-negY.offset
         }
-        ## if (x$legend) print(control$barplot$args.legend)
         coord <- do.call("barplot",control$barplot)
+        if (length(x$names)>0 && (x$names[[1]]!=FALSE) && is.character(x$names)){
+            if (x$names[[1]]!=FALSE && length(x$names)==(length(coord)/2)){
+                mids <- rowMeans(matrix(coord,ncol=2,byrow=TRUE))
+                text(x=mids,
+                     ## x=coord,
+                     y=control$names$y,
+                     ## c(rbind(x$names,rbind(rep("",length(coord)/2)))),
+                     x$names,
+                     xpd=NA,
+                     cex=control$names$cex)
+            }
+        }
+        ## if (x$legend) print(control$barplot$args.legend)n
         ## message(paste0("Bars are located at ",paste(coord,collapse=",")))
         if (x$hanging)
             do.call("abline",control$abline)
         if (x$showFrequencies){
             if(x$hanging){
                 text(x=coord,
-                     y=(as.vector(rbind(Pred,Pred)) + rep(c(0.03,0.05),times=length(as.vector(coord))/2)),
-                     paste(round(100*c(rbind(Pred,Obs)),0),"%",sep=""),xpd=NA)
+                     cex=control$frequencies$cex,
+                     pos=3,
+                     y=(as.vector(rbind(Pred,Pred)) +rep(control$frequencies$offset,times=length(as.vector(coord))/2)),
+                     paste(round(100*c(rbind(Pred,Obs)),0),ifelse(control$frequencies$percent,"%",""),sep=""),xpd=NA)
             }else{
                  text(coord,
-                      c(rbind(Pred,Obs)+0.03),
-                      paste(round(100*c(rbind(Pred,Obs)),0),"%",sep=""),xpd=NA)
+                      pos=3,
+                      c(rbind(Pred,Obs))+control$frequencies$offset,
+                      cex=control$frequencies$cex,
+                      paste(round(100*c(rbind(Pred,Obs)),0),ifelse(control$frequencies$percent,"%",""),sep=""),xpd=NA)
              }
         }
     }
@@ -128,17 +145,17 @@ plot.calibrationPlot <- function(x,...){
         }
         if (!x$bars)
             do.call("axis",control$axis1)
-        mgp2 <- control$axis2$mgp
-        if (length(mgp2)>0){
-            oldmgp <- par()$mgp
-            par(mgp=mgp2)
-            control$axis2 <- control$axis2[-match("mgp",names(control$axis2),nomatch=0)]
-            title(ylab=x$ylab)
-        }
+        ## mgp2 <- control$axis2$mgp
+        ## if (length(mgp2)>0){
+        ## oldmgp <- par()$mgp
+        ## par(mgp=mgp2)
+        ## control$axis2 <- control$axis2[-match("mgp",names(control$axis2),nomatch=0)]
+        ## title(ylab=x$ylab)
+        ## }
         do.call("axis",control$axis2)
-        if (length(mgp2)>0){
-            par(mgp=oldmgp)
-        }
+        ## if (length(mgp2)>0){
+        ## par(mgp=oldmgp)
+        ## }
     }
     invisible(NULL)
     # }}}

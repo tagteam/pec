@@ -104,6 +104,15 @@
 ##' library(lava)
 ##' library(riskRegression)
 ##' library(survival)
+##' # survival
+##' dlearn <- SimSurv(40)
+##' dval <- SimSurv(100)
+##' f <- coxph(Surv(time,status)~X1+X2,data=dlearn)
+##' calPlot(f,time=3,data=dval)
+##' calPlot(f,time=3,data=dval,type="survival")
+##' calPlot(f,time=3,data=dval,bars=TRUE)
+##' calPlot(f,time=3,data=dval,bars=TRUE,type="risk")
+##'
 ##' set.seed(13)
 ##' m <- crModel()
 ##' regression(m, from = "X1", to = "eventtime1") <- 1
@@ -134,7 +143,7 @@ calPlot <- function(object,
                     B=1,
                     M,
                     outcome=c("pseudo","prodlim"),
-                    type="risk",
+                    type,
                     showPseudo,
                     pseudo.col=NULL,
                     pseudo.pch=NULL,
@@ -144,7 +153,7 @@ calPlot <- function(object,
                     q=10,
                     bars=FALSE,
                     hanging=FALSE,
-                    names=FALSE,
+                    names="quantiles",
                     showFrequencies=FALSE,
                     jack.density=55,
                     plot=TRUE,
@@ -155,7 +164,7 @@ calPlot <- function(object,
                     xlim=c(0,1),
                     ylim=c(0,1),
                     xlab,
-                    ylab = ifelse(type=="survival","Pseudo-observed survival status","Pseudo-observed event status"),
+                    ylab,
                     col,
                     lwd,
                     lty,
@@ -232,6 +241,13 @@ calPlot <- function(object,
         model.type <- attr(response,"model")
     if (is.null(model.type) & length(unique(response))==2)
         model.type <- "binary"
+    if (missing(type))
+        type <- ifelse(model.type=="survival","survival","risk")
+    if (missing(ylab))
+        if (bars)
+            ylab=""
+        else
+            ylab <- ifelse(type=="survival","Observed survival frequencies","Observed event frequencies")
     if (type=="survival" && !(model.type %in% c("survival","binary")))
         stop(paste0("Type survival works only in survival or binary outcome models. This is a ",model.type, " model"))
     if (!(model.type=="binary")){
@@ -261,7 +277,7 @@ calPlot <- function(object,
                                 "survival"="predictSurvProb")
     outcome <- match.arg(outcome,c("pseudo","prodlim"))
     if (outcome=="prodlim" && splitMethod!="none")
-        stop(paste0("Method ",splitMethod," is only implemented for outcome method: 'pseudo'."))
+        stop(paste0("Split method ",splitMethod," is only implemented for outcome method: 'pseudo'."))
     if (model.type=="binary")
         if (is.factor(response))
             jack <- as.numeric(response==levels(response)[2])
@@ -277,32 +293,34 @@ calPlot <- function(object,
              jack <- NULL
          }
     }
-    
     # }}}
     # {{{ smartControl
     axis1.DefaultArgs <- list(side=1,las=1,at=seq(0,ylim[2],ylim[2]/4))
     axis2.DefaultArgs <- list(side=2,las=2,at=seq(0,ylim[2],ylim[2]/4),mgp=c(4,1,0))
-    if (bars)
-        legend.DefaultArgs <- list(legend=names(object),
-                                   col=col,
-                                   cex=cex,
-                                   bty="n",
-                                   x="topleft")
-    else
-        legend.DefaultArgs <- list(legend=names(object),
-                                   lwd=lwd,
-                                   col=col,
-                                   lty=lty,
-                                   cex=cex,
-                                   bty="n",
-                                   y.intersp=1.3,
-                                   x="topleft")
-    if(bars)
-        legend.DefaultArgs$legend <- c("Predicted risks","Observed frequencies")
+    if (bars){
+        legend.DefaultArgs <- list(legend=names(object),col=col,cex=cex,bty="n",x="topleft")
+        names.DefaultArgs <- list(cex=0.7,y=-abs(diff(ylim))/15)
+        frequencies.DefaultArgs <- list(cex=.7,percent=FALSE,offset=0)
+    } else{
+          legend.DefaultArgs <- list(legend=names(object),
+                                     lwd=lwd,
+                                     col=col,
+                                     lty=lty,
+                                     cex=cex,
+                                     bty="n",
+                                     y.intersp=1.3,
+                                     x="topleft")
+      }
+    if(bars){
+        if (type=="survival")
+            legend.DefaultArgs$legend <- c("Predicted survival","Observed frequencies")
+        else
+            legend.DefaultArgs$legend <- c("Predicted risks","Observed frequencies")
+    }
     lines.DefaultArgs <- list(type="l")
     abline.DefaultArgs <- list(lwd=1,col="red")
     if (missing(ylim)){
-        if (showPseudo){
+        if (showPseudo && !bars){
             ylim <- c(min(jack),max(jack))
         }
         else
@@ -321,12 +339,12 @@ calPlot <- function(object,
                              type = "n",
                              ylim = ylim,
                              xlim = xlim,
-                             ylab="",
+                             ylab=ylab,
                              xlab=xlab)
     barplot.DefaultArgs <- list(ylim = ylim,
                                 col=col,
                                 axes=FALSE,
-                                ylab="",
+                                ylab=ylab,
                                 xlab=xlab,
                                 beside=TRUE,
                                 legend.text=NULL,
@@ -335,12 +353,14 @@ calPlot <- function(object,
                                 cex.names=cex)
     if (bars)
         control <- prodlim::SmartControl(call= list(...),
-                                         keys=c("barplot","legend","axis2","abline"),
+                                         keys=c("barplot","legend","axis2","abline","names","frequencies"),
                                          ignore=NULL,
                                          ignore.case=TRUE,
                                          defaults=list("barplot"=barplot.DefaultArgs,
                                              "abline"=abline.DefaultArgs,
                                              "legend"=legend.DefaultArgs,
+                                             "names"=names.DefaultArgs,
+                                             "frequencies"=frequencies.DefaultArgs,
                                              "axis2"=axis2.DefaultArgs),
                                          forced=list("abline"=list(h=0)),
                                          verbose=TRUE)
@@ -366,7 +386,6 @@ calPlot <- function(object,
     NF <- length(object) 
     # }}}
     # {{{ ---------------------------Apparent predictions---------------------------
-
     apppred <- do.call("cbind",
                        lapply(1:NF,function(f){
                                   fit <- object[[f]]
@@ -380,7 +399,8 @@ calPlot <- function(object,
                                                     },
                                                     "survival"={
                                                         p <- as.vector(do.call(predictHandlerFun,list(fit,newdata=data,times=time)))
-                                                        if (class(fit)[[1]]%in% c("matrix","numeric")) p <- p[neworder]
+                                                        if (class(fit)[[1]]%in% c("matrix","numeric")) 
+                                                            p <- 1-p[neworder]
                                                         p
                                                     },
                                                     "binary"={
@@ -507,7 +527,7 @@ calPlot <- function(object,
                    xgroups <- (groups[-(length(groups))]+groups[-1])/2
                    pcut <- cut(p,groups,include.lowest=TRUE)
                    if (outcome=="pseudo"){
-                       plotFrame=data.frame(Pred=tapply(p,pcut,mean),Obs=tapply(jackF,pcut,mean))
+                       plotFrame=data.frame(Pred=tapply(p,pcut,mean),Obs=pmin(1,pmax(0,tapply(jackF,pcut,mean))))
                        attr(plotFrame,"quantiles") <- groups
                        plotFrame
                    }
@@ -517,12 +537,16 @@ calPlot <- function(object,
                            pdata <- cbind(data[,all.vars(update(formula,".~1")),drop=FALSE,with=FALSE],pcut=pcut)
                        else
                            pdata <- cbind(data[,all.vars(update(formula,".~1")),drop=FALSE],pcut=pcut)
-                       y <- unlist(predict(prodlim::prodlim(form.pcut,data=pdata),
-                                                  cause=cause,
-                                                  newdata=data.frame(pcut=levels(pcut)),
-                                                  times=time,
-                                                  type=ifelse(type=="survival","surv","cuminc")))
-                       ## y[is.na(y)] <- 0
+                       y <- unlist(predict(f <- prodlim::prodlim(form.pcut,data=pdata),
+                                           cause=cause,
+                                           newdata=data.frame(pcut=levels(pcut)),
+                                           times=time,
+                                           type=ifelse(model.type=="survival","surv","cuminc")))
+                       ## Is it ok to extrapolate into the future??
+                       if (model.type=="survival")
+                           y[is.na(y)] <- min(y,na.rm=TRUE)
+                       else
+                           y[is.na(y)] <- max(y,na.rm=TRUE)
                        plotFrame=data.frame(Pred=tapply(p,pcut,mean),Obs=y)
                        attr(plotFrame,"quantiles") <- groups
                        plotFrame
@@ -569,35 +593,38 @@ calPlot <- function(object,
                         else
                             pdata <- cbind(data[,all.vars(update(formula,".~1")),drop=FALSE],p=p)
                         y <- unlist(predict(prodlim::prodlim(form.p,data=pdata),
-                                                   cause=cause,
-                                                   newdata=data.frame(p=sort(p)),
-                                                   times=time,
-                                                   type=ifelse(type=="survival","surv","cuminc")))
+                                            cause=cause,
+                                            newdata=data.frame(p=sort(p)),
+                                            times=time,
+                                            type=ifelse(type=="survival","surv","cuminc")))
                         plotFrame <- data.frame(Pred=sort(p),Obs=y)
                         plotFrame
                     }
                })
     }
     plotFrames <- lapply(1:NF,function(f){getXY(f)})
-
     # }}}
     # {{{ plot and/or invisibly output the results
     if (bars){
-        if ((is.logical(names[1]) && names[1]==TRUE)|| names[1] %in% c("quantiles.labels","quantiles")){
-            qq <- attr(plotFrames[[1]],"quantiles")
-            if (names[1]=="quantiles.labels"){
-                pp <- seq(0,1,1/q)
-                names <- paste0("(",
-                                sprintf("%1.1f",100*pp[-length(pp)])," - ",
-                                sprintf("%1.1f",100*pp[-1]),
-                                ")\n",
-                                sprintf("%1.1f",100*qq[-length(qq)])," - ",
-                                sprintf("%1.1f",100*qq[-1]))
+        if (model.type=="survival" && type=="risk")
+            plotFrames[[1]] <- plotFrames[[1]][NROW(plotFrames[[1]]):1,]
+            if ((is.logical(names[1]) && names[1]==TRUE)|| names[1] %in% c("quantiles.labels","quantiles")){
+                qq <- attr(plotFrames[[1]],"quantiles")
+                if (model.type=="survival" && type=="risk")
+                    qq <- rev(1-qq)
+                if (names[1]=="quantiles.labels"){
+                    pp <- seq(0,1,1/q)
+                    names <- paste0("(",
+                                    sprintf("%1.0f",100*pp[-length(pp)]),",",
+                                    sprintf("%1.0f",100*pp[-1]),
+                                    ")\n",
+                                    sprintf("%1.1f",100*qq[-length(qq)])," - ",
+                                    sprintf("%1.1f",100*qq[-1]))
+                }
+                else 
+                    names <- paste0(sprintf("%1.1f",100*qq[-length(qq)])," - ",
+                                    sprintf("%1.1f",100*qq[-1]))
             }
-            else 
-                names <- paste0(sprintf("%1.1f",100*qq[-length(qq)])," - ",
-                                sprintf("%1.1f",100*qq[-1]))
-        }
     }
     out <- list(plotFrames=plotFrames,
                 pred=apppred,

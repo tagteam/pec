@@ -34,9 +34,36 @@
 ##' # Survival setting
 ##' library(prodlim)
 ##' library(survival)
-##' d = SimSurv(180)
+##' set.seed(180)
+##' d = SimSurv(1800)
 ##' f = coxph(Surv(time,status)~X1+X2,data=d)
-##' \dontrun{wallyPlot(f,time=2,q=4,data=d,formula=Surv(time,status)~1)}
+##' \dontrun{
+##' wallyPlot(f,
+##'           time=1,
+##'           q=10,
+##'           calPlot.type="risk",
+##'           data=d,
+##'           formula=Surv(time,status)~1,
+##'           calPlot.outcome="prodlim")
+##' }
+##' 
+##' # Competing risks setting
+##' library(prodlim)
+##' library(survival)
+##' library(riskRegression)
+##' set.seed(180)
+##' d2 = SimCompRisk(1800)
+##' d2=d2[d2$cause!=0,]
+##' f2 = CSC(Hist(time,event)~X1+X2,data=d2)
+##' \dontrun{
+##' wallyPlot(f2,
+##'           time=10,
+##'           q=3,
+##'           calPlot.type="risk",
+##'           data=d2,
+##'           formula=Hist(time,event)~1,
+##'           calPlot.outcome="pseudo")
+##' }
 ##' 
 ##' @export 
 ##' @author Paul F. Blanche <paul.blanche@@univ-ubs.fr> and Thomas A. Gerds <tag@@biostat.ku.dk>
@@ -85,8 +112,6 @@ wallyPlot <- function(object,
         model.type <- attr(response,"model")
     if (is.null(model.type) & length(unique(response))==2)
         model.type <- "binary"
-    ## if (type=="survival" && !(model.type %in% c("survival","binary")))
-    ## stop(paste0("Type survival works only in survival or binary outcome models. This is a ",model.type, " model"))
     if (!(model.type=="binary")){
         neworder <- order(response[,"time"],-response[,"status"])
         response <- response[neworder,,drop=FALSE]
@@ -109,12 +134,12 @@ wallyPlot <- function(object,
                                 cause=cause,
                                 time=time,
                                 q=q,
-                                type="risk",
+                                type=ifelse(model.type=="survival","survival","risk"),
                                 na.action=na.fail,
                                 col=c("grey90","grey30"),
-                                ylim=c(0,100),
+                                ylim=c(0,1),
                                 percent=TRUE,
-                                outcome="prodlim",
+                                outcome=ifelse(model.type=="survival","pseudo","prodlim"),
                                 showPseudo=FALSE,
                                 bars=TRUE,
                                 names=FALSE,
@@ -146,7 +171,7 @@ wallyPlot <- function(object,
                    "survival"={
                        p <- as.vector(do.call(predictHandlerFun,list(object,newdata=data,times=time)))
                        if (class(object)[[1]]%in% c("matrix","numeric")) p <- p[neworder]
-                       p
+                       1-p
                    },
                    "binary"={
                        p <- do.call(predictHandlerFun,list(object,newdata=data))
@@ -155,9 +180,11 @@ wallyPlot <- function(object,
                    })
     if (any(is.na(pred))) stop("Missing values in prediction. Maybe time interest needs to be set earlier?")
     quant <- quantile(pred,seq(0,1,1/q))
-    ## quant <- unique(c(0,quantile(pred,quant),1))
     Pred.cut <- cut(pred,breaks =quant ,labels=1:(length(quant)-1),include.lowest=TRUE)
-    ## print(table(Pred.cut))
+    ## Test if time is ok
+    if (any((tooshortFollowup <- tapply(Y,Pred.cut,max))<time))
+        stop(paste0("The following risk groups have too short followup. Nth quantile of predicted risks: ",paste(names(tooshortFollowup),collapse=", "),"\nThe minimum of the maximal followup in the risk groups is: ",
+                    signif(min(tooshortFollowup),2)))
     if ("data.table" %in% class(data))
         MyData <- cbind(data[,all.vars(update(formula,".~1")),drop=FALSE,with=FALSE],Pred.cut=Pred.cut,pred=pred)
     else
@@ -167,7 +194,11 @@ wallyPlot <- function(object,
         # estimate the cumulative incidence of the competing event at time t in each subgroup
         crFit <- prodlim::prodlim(form.pcut,data=MyData)
         # create the vector of prediction for cause 2, based on the sub-group specific cumulative incidence
-        MyData$pred2 <- unlist(predict(crFit,cause=2,times=time,newdata=data.frame(Pred.cut=Pred.cut),type="cuminc"))
+        MyData$pred2 <- unlist(predict(crFit,
+                                       cause=2,
+                                       times=time,
+                                       newdata=data.frame(Pred.cut=Pred.cut),
+                                       type="cuminc"))
     }
     # }}}
     # {{{ functions to draw event times
@@ -178,32 +209,40 @@ wallyPlot <- function(object,
         Ti
     }
     GenCensFromKMfit <- function(times,status,groups=NULL){
-        if (is.null(groups)){
-            # uniform numbers
-            U <- runif(length(times),0,1)
-            # fit marginal KM for censoring
-            fitcens <- prodlim::prodlim(Hist(time,status)~1,data=data.frame(time=times,status=status),reverse=TRUE)
-            # max time in data
-            tau <- max(fitcens$time)
-            c(fitcens$time,tau)[prodlim::sindex(jump.times=c(0,1-fitcens$surv),eval.times=U)]
-        } else{
-              # fit stratified KM for censoring
-              fitcens <- prodlim::prodlim(Hist(time,status)~groups,data=data.frame(time=times,status=status,groups=groups),reverse=TRUE)
-              ## fit.list <- split(data.frame(time=fitcens$time,surv=fitcens$surv,groups=rep(fitcens$X$groups,fitcens$size.strata))
-              n.groups <- table(groups)
-              C <- unlist(lapply(1:length(n.groups),function(g){
-                                             U.g <- runif(n.groups[g],0,1)
-                                             start <- fitcens$first.strata[g]
-                                             size <- fitcens$size.strata[g]
-                                             strata.g <- start:(start+size)
-                                             g.time <- fitcens$time[strata.g]
-                                             tau.g <- max(g.time)
-                                             g.surv <- fitcens$surv[strata.g]
-                                             c(g.time,tau.g)[prodlim::sindex(jump.times=c(0,1-g.surv),eval.times=U.g)]
-                                             ## rep(g,n.groups[g])
-                                         }))
-              C[order(order(groups))]
-          }
+        if (all(status!=0)){
+            rep(1,length(times))
+        }else{
+             if (is.null(groups)){
+                 # uniform numbers
+                 U <- runif(length(times),0,1)
+                 # fit marginal KM for censoring
+                 fitcens <- prodlim::prodlim(Hist(time,status)~1,data=data.frame(time=times,status=status),reverse=TRUE)
+                 # max time in data
+                 tau <- max(fitcens$time)
+                 c(fitcens$time,tau)[prodlim::sindex(jump.times=c(0,1-fitcens$surv),eval.times=U)]
+             } else{
+                   # fit stratified KM for censoring
+                   fitcens <- prodlim::prodlim(Hist(time,status)~groups,data=data.frame(time=times,
+                                                                            status=status,
+                                                                            groups=groups),reverse=TRUE)
+                   n.groups <- table(groups)
+                   C <- unlist(lapply(1:length(n.groups),function(g){
+                                                  U.g <- runif(n.groups[g],0,1)
+                                                  start <- fitcens$first.strata[g]
+                                                  size <- fitcens$size.strata[g]
+                                                  strata.g <- start:(start+size)
+                                                  g.time <- fitcens$time[strata.g]
+                                                  tau.g <- max(g.time,na.rm=TRUE)
+                                                  g.surv <- fitcens$surv[strata.g]
+                                                  isna <- is.na(g.time)
+                                                  g.surv[isna] <- 0
+                                                  g.time[isna] <- tau.g
+                                                  cgroup <- c(g.time,tau.g)[prodlim::sindex(jump.times=c(0,1-g.surv),eval.times=U.g)]
+                                                  cgroup
+                                              }))
+                   C[order(order(groups))]
+               }
+         }
     }
     GetResponseSurv <- function(Y,status,pred,Pred.cut,time){
         C <- GenCensFromKMfit(times=Y,status=status,groups=Pred.cut)
@@ -238,7 +277,7 @@ wallyPlot <- function(object,
     }else{
          DataList <- lapply(1:8,function(i){
                                 GetResponseCR(Y=MyData$time,
-                                              status=MyData$status,
+                                              status=MyData$event,
                                               pred=MyData$pred,
                                               pred2=MyData$pred2,
                                               Pred.cut=MyData$Pred.cut,
@@ -262,47 +301,47 @@ wallyPlot <- function(object,
     TabList <- vector("list",9)
     printleg <- c(rep(FALSE,4),TRUE,rep(FALSE,4))
     for(i in pos){
-        # load data
-        thetimes <- DataList[[i]]$times
-        thestatus <- DataList[[i]]$status
-        thepred <- DataList[[i]]$pred
-        # plot data
         smartA$calPlot$data <- DataList[[i]]
-        smartA$calPlot$object <- DataList[[i]]$pred
+        if (i==9) smartA$calPlot$formula <- formula
+        else smartA$calPlot$formula <- formula("Hist(time,status)~1")
+        if (model.type=="survival")
+            smartA$calPlot$object <- 1- DataList[[i]]$pred
+        else            
+            smartA$calPlot$object <- DataList[[i]]$pred
         smartA$calPlot$plot <- FALSE
         TabList[[i]] <- do.call("calPlot",smartA$calPlot)
         if (any(is.na(TabList[[i]]$plotFrame[[1]]$Obs)))
-            ## print(TabList[[i]]$plotFrame[[1]]$Obs)
             stop("Missing values in expected frequencies. Maybe too many quantiles relative to the number of observations? Or time interest set too late?")
     }
     if (hanging){
         rangeY <- range(sapply(TabList,function(x){
                                    c(min(x$plotFrame[[1]]$Pred-x$plotFrame[[1]]$Obs),max(x$plotFrame[[1]]$Pred))}))
-        minY <- seq(-1,1,0.05)[prodlim::sindex(eval.times=rangeY[1],jump.times=seq(-1,1,0.05))]
+        minY <- min(0,seq(-1,1,0.05)[prodlim::sindex(eval.times=rangeY[1],jump.times=seq(-1,1,0.05))])
     } else{
-          rangeY <- range(sapply(TabList,function(x){range(c(x$plotFrame[[1]]))}))
-          minY <- seq(0,1,0.05)[prodlim::sindex(eval.times=rangeY[1],jump.times=seq(0,1,0.05))]}
+          if (smartA$calPlot$type=="risk") 
+              rangeY <- range(sapply(TabList,function(x){range(c(1-x$plotFrame[[1]]))}))
+          else
+              rangeY <- range(sapply(TabList,function(x){range(c(x$plotFrame[[1]]))}))
+          minY <- 0
+      }
     maxY <- c(seq(0,1,0.05),1)[1+prodlim::sindex(eval.times=rangeY[2],jump.times=seq(0,1,0.05))]
     if (!missing(ylim)){
-        minY <- min(ylim,minY)
-        maxY <- max(ylim,maxY)
+        if (minY<0) minY <- min(ylim,minY)
+        maxY <- ylim[2]
     }
     for (j in 1:9){
         i = pos[j]
         px <- TabList[[i]]
         px$control$barplot$ylim <- c(minY,maxY)
-        ## px$control$barplot$main <- i
         px$control$axis2$at <- seq(minY,maxY,maxY/4)
         if (j==5) {
-            ## legend(x="top",xpd=NA,c("Predicted risk","Observed frequency"),col=c("grey90","grey30"),cex=8)
             px$legend=TRUE
             px$control$barplot$legend.text=c("Predicted risk","Observed frequency")
-            ## px$control$barplot$args.legend <- list(x="top",cex=2)
             px$control$legend$x <- "top"
             px$control$legend$cex <- 1
             px$control$legend$legend <- c("Predicted risk","Observed frequency")
-            ## px$control$barplot$args.legend$cex <- 2
         }
+        ## add the plot to the grid
         plot(px)
         if (identify!="click"){
             upleft <- par("usr")[c(1,4)]
@@ -324,7 +363,7 @@ wallyPlot <- function(object,
         }else{
              xx <-  select.list(1:9,
                                 multiple=FALSE,
-                                title="Where are the real data? Select an orange number: ")
+                                title="Where is Wally? I.e., where are the real data? Select an orange number: ")
          }
     }else xx <- smartA$superuser$choice
     par(mfg = c(xx%/%3.1 + 1, xx - (xx%/%3.1) * 3))
@@ -366,7 +405,7 @@ wallyPlot <- function(object,
         plot(px)
     }
     # }}}
-    invisible(list(tableList=TabList[order(pos)]))
+    invisible(TabList[order(pos)])
     ## invisible(DataList)
 }
 # }}}

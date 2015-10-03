@@ -57,9 +57,36 @@ Wally plots to assess calibration of a risk or survival prediction
 # Survival setting
 library(prodlim)
 library(survival)
-d = SimSurv(180)
+set.seed(180)
+d = SimSurv(1800)
 f = coxph(Surv(time,status)~X1+X2,data=d)
-\dontrun{wallyPlot(f,time=2,q=4,data=d,formula=Surv(time,status)~1)}
+\dontrun{
+wallyPlot(f,
+          time=1,
+          q=10,
+          calPlot.type="risk",
+          data=d,
+          formula=Surv(time,status)~1,
+          calPlot.outcome="prodlim")
+}
+
+# Competing risks setting
+library(prodlim)
+library(survival)
+library(riskRegression)
+set.seed(180)
+d2 = SimCompRisk(1800)
+d2=d2[d2$cause!=0,]
+f2 = CSC(Hist(time,event)~X1+X2,data=d2)
+\dontrun{
+wallyPlot(f2,
+          time=10,
+          q=3,
+          calPlot.type="risk",
+          data=d2,
+          formula=Hist(time,event)~1,
+          calPlot.outcome="pseudo")
+}
 }
 \author{
 Paul F. Blanche <paul.blanche@univ-ubs.fr> and Thomas A. Gerds <tag@biostat.ku.dk>

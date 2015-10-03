@@ -21,13 +21,14 @@
 ##' @return reclassification tables: overall table and one conditional table for each cause and for subjects event free at time interest.
 ##' @seealso predictStatusProb
 ##' @examples
-##' \dontrun{library(survival)
+##' \dontrun{
+##' library(survival)
 #' set.seed(40)
 #' d <- prodlim::SimSurv(400)
 #' nd <- prodlim::SimSurv(400)
 #' Models <- list("Cox.X2"=coxph(Surv(time,status)~X2,data=d),
 #'                "Cox.X1.X2"=coxph(Surv(time,status)~X1+X2,data=d))
-#' rc <- pec:::reclass(Models,Surv(time,status)~1,data=nd,time=5)
+#' rc <- reclass(Models,formula=Surv(time,status)~1,data=nd,time=5)
 #' print(rc)
 #' plot(rc)
 #'
@@ -89,35 +90,37 @@ reclass <- function(object,
     }
     # }}}
     ## for competing risks find the cause of interest.
-    parseObject <- function(x){
+    cutP <- function(P,cuts){
+        if (min(P)<min(cuts))
+            stop("Smallest predicted risk is smaller than first cut.")
+        if (max(P)>max(cuts))
+            stop("Largest predicted risk is larger than last cut.")
+        cut(P,cuts,
+            include.lowest=TRUE,
+            labels=paste(paste(cuts[-NC],cuts[-1],sep="-"),"%",sep=""))
+    }
+    getPredictions <- function(x){
         if (any(is.na(x))) stop("Missing values in object.")
-        cutP <- function(P,cuts){
-            if (min(P)<min(cuts))
-                stop("Smallest predicted risk is smaller than first cut.")
-            if (max(P)>max(cuts))
-                stop("Largest predicted risk is larger than last cut.")
-            cut(P,cuts,
-                include.lowest=TRUE,
-                labels=paste(paste(cuts[-NC],cuts[-1],sep="-"),"%",sep=""))
-        }
         P <- switch(class(x)[[1]],
                     "factor"={x},
                     "numeric"={
                         if (all(x<1)){
                             warning("Assumed that predictions are given on the scale [0,1] and multiplied by 100.")
-                            cutP(x*100,cuts=cuts)
+                            x*100
                         } else{
-                              cutP(x,cuts=cuts)
+                              x
                           }
-                    },{
-                    if (predictHandlerFun=="predictEventProb"){
-                        P <- 100*do.call(predictHandlerFun,list(x,newdata=data,times=time,cause=cause))
-                    } else {
-                          P <- 100*do.call(predictHandlerFun,list(x,newdata=data,times=time))
-                      }
-                    cutP(P,cuts=cuts)})
+                    },
+                    {if (predictHandlerFun=="predictEventProb"){
+                         P <- 100*do.call(predictHandlerFun,list(x,newdata=data,times=time,cause=cause))
+                     } else {
+                           P <- 100*do.call(predictHandlerFun,list(x,newdata=data,times=time))
+                       }
+                     P})
     }
-    predriskCut <- lapply(object,parseObject)
+    predrisk <- lapply(object,getPredictions)
+    names(predrisk) <- names(object)
+    predriskCut <- lapply(predrisk,function(P){if (is.factor(P)) P else cutP(P,cuts)})
     ## overall reclassification table
     retab <- table(predriskCut[[1]],predriskCut[[2]])
     ## reclassification frequencies conditional on outcome
@@ -257,7 +260,7 @@ reclass <- function(object,
                               "eventfree"=matrix(surv.x * Hx / surv,ncol=NR,dimnames=dimnames(retab)))
       }
     out <- list(time=time,
-                ## predRisk=predrisk,
+                predictedRisk=predrisk,
                 reclassification=retab,
                 event.reclassification=event.retab,
                 cuts=cuts,
@@ -266,29 +269,6 @@ reclass <- function(object,
     out
 }
 
-print.riskReclassification <- function(x,percent=TRUE,digits=ifelse(percent,1,2),...){
-    cat("Observed overall re-classification table:\n\n")
-    print(x$reclassification)
-    cat("\nExpected re-classification probabilities (%) among subjects with event until time ",x$time,"\n\n",sep="")
-    fmt <- paste0("%1.", digits[[1]], "f")
-    dnames <- dimnames(x$reclassification)
-    dim <- dim(x$reclassification)
-    if (percent==TRUE){
-        rlist <- lapply(x$event.reclassification,function(x){
-                            matrix(sprintf(fmt=fmt,100*c(x)),nrow=dim[1],ncol=dim[2],dimnames=dnames)
-                        })
-    }else{
-         rlist <- lapply(x$event.reclassification,function(x){
-                             matrix(sprintf(fmt=fmt,c(x)),nrow=dim[1],ncol=dim[2],dimnames=dnames)
-                         })
-     }
-    if (x$model=="competing.risks"){
-        print.listof(rlist[-length(rlist)],quote=FALSE)
-    } else{
-          print.listof(rlist[1],quote=FALSE)
-      }
-    cat("\nExpected re-classification probabilities (%) among subjects event-free until time ",x$time,"\n\n",sep="")
-    print.listof(rlist[length(rlist)],quote=FALSE)
-}
+
 
 
