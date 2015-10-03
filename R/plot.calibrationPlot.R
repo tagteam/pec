@@ -3,9 +3,9 @@
 ## author: Thomas Alexander Gerds
 ## created: Sep 28 2015 (17:32) 
 ## Version: 
-## last-updated: Oct  3 2015 (17:46) 
+## last-updated: Oct  3 2015 (18:14) 
 ##           By: Thomas Alexander Gerds
-##     Update #: 111
+##     Update #: 116
 #----------------------------------------------------------------------
 ## 
 ### Commentary: 
@@ -152,6 +152,7 @@ plot.calibrationPlot <- function(x,...){
         ## control$axis2 <- control$axis2[-match("mgp",names(control$axis2),nomatch=0)]
         ## title(ylab=x$ylab)
         ## }
+        ## print(control$axis2)
         do.call("axis",control$axis2)
         ## if (length(mgp2)>0){
         ## par(mgp=oldmgp)

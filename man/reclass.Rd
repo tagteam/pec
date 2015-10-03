@@ -42,13 +42,14 @@ Retrospective table of risks predicted by two different methods, models, algorit
 All risks are multiplied by 100 before
 }
 \examples{
-\dontrun{library(survival)
+\dontrun{
+library(survival)
 set.seed(40)
 d <- prodlim::SimSurv(400)
 nd <- prodlim::SimSurv(400)
 Models <- list("Cox.X2"=coxph(Surv(time,status)~X2,data=d),
                "Cox.X1.X2"=coxph(Surv(time,status)~X1+X2,data=d))
-rc <- pec:::reclass(Models,Surv(time,status)~1,data=nd,time=5)
+rc <- reclass(Models,formula=Surv(time,status)~1,data=nd,time=5)
 print(rc)
 plot(rc)
 

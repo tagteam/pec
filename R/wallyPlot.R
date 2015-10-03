@@ -25,6 +25,7 @@
 ##' @param mar Plot margins passed to par.
 ##' @param colbox Color of the box which identifies the real data
 ##' calibration plot.
+##' @param type For survival models only: show either "risk" or "survival".
 ##' @param verbose If \code{TRUE} warn about missing formula and data.
 ##' @param ... Further arguments passed to \code{calPlot}.
 ##' @return List of simulated and real data.
@@ -78,9 +79,11 @@ wallyPlot <- function(object,
                       seed=NULL,
                       mar=c(4.1,4.1, 2, 2),
                       colbox="red",
+                      type="risk",
                       ## identify="select from list",
                       verbose=TRUE,...){
     identify="select from list"
+    type <- match.arg(type,c("risk","survival"))
     # {{{ data & formula
     if (missing(data)){
         trydata <- try(data <- eval(object$call$data),silent=TRUE)
@@ -134,7 +137,7 @@ wallyPlot <- function(object,
                                 cause=cause,
                                 time=time,
                                 q=q,
-                                type=ifelse(model.type=="survival","survival","risk"),
+                                type=type,
                                 na.action=na.fail,
                                 col=c("grey90","grey30"),
                                 ylim=c(0,1),
@@ -171,7 +174,9 @@ wallyPlot <- function(object,
                    "survival"={
                        p <- as.vector(do.call(predictHandlerFun,list(object,newdata=data,times=time)))
                        if (class(object)[[1]]%in% c("matrix","numeric")) p <- p[neworder]
-                       1-p
+                       ## if (smartA$calPlot$type=="risk")
+                       ## p else 1-p
+                       p
                    },
                    "binary"={
                        p <- do.call(predictHandlerFun,list(object,newdata=data))
@@ -304,10 +309,10 @@ wallyPlot <- function(object,
         smartA$calPlot$data <- DataList[[i]]
         if (i==9) smartA$calPlot$formula <- formula
         else smartA$calPlot$formula <- formula("Hist(time,status)~1")
-        if (model.type=="survival")
-            smartA$calPlot$object <- 1- DataList[[i]]$pred
-        else            
-            smartA$calPlot$object <- DataList[[i]]$pred
+        ## if (model.type=="survival")
+        ## smartA$calPlot$object <- 1- DataList[[i]]$pred
+        ## else            
+        smartA$calPlot$object <- DataList[[i]]$pred
         smartA$calPlot$plot <- FALSE
         TabList[[i]] <- do.call("calPlot",smartA$calPlot)
         if (any(is.na(TabList[[i]]$plotFrame[[1]]$Obs)))
@@ -318,7 +323,7 @@ wallyPlot <- function(object,
                                    c(min(x$plotFrame[[1]]$Pred-x$plotFrame[[1]]$Obs),max(x$plotFrame[[1]]$Pred))}))
         minY <- min(0,seq(-1,1,0.05)[prodlim::sindex(eval.times=rangeY[1],jump.times=seq(-1,1,0.05))])
     } else{
-          if (smartA$calPlot$type=="risk") 
+          if (model.type=="survival" && smartA$calPlot$type=="risk") 
               rangeY <- range(sapply(TabList,function(x){range(c(1-x$plotFrame[[1]]))}))
           else
               rangeY <- range(sapply(TabList,function(x){range(c(x$plotFrame[[1]]))}))
@@ -336,10 +341,21 @@ wallyPlot <- function(object,
         px$control$axis2$at <- seq(minY,maxY,maxY/4)
         if (j==5) {
             px$legend=TRUE
-            px$control$barplot$legend.text=c("Predicted risk","Observed frequency")
+            if (model.type=="survival" && type=="survival"){
+                px$control$barplot$legend.text=c("Predicted survival","Observed frequency")
+                px$control$legend$legend <- c("Predicted survival","Observed frequency")
+            }
+            else{
+                px$control$barplot$legend.text=c("Predicted risk","Observed frequency")
+                px$control$legend$legend <- c("Predicted risk","Observed frequency")
+            }
+            px$control$legend$xpd <- NA
+            ## px$control$legend$x <- "top"
             px$control$legend$x <- "top"
+            px$control$legend$x <- 0
+            px$control$legend$col=2
+            px$control$legend$y <- maxY+0.3*maxY
             px$control$legend$cex <- 1
-            px$control$legend$legend <- c("Predicted risk","Observed frequency")
         }
         ## add the plot to the grid
         plot(px)
@@ -363,7 +379,7 @@ wallyPlot <- function(object,
         }else{
              xx <-  select.list(1:9,
                                 multiple=FALSE,
-                                title="Where is Wally? I.e., where are the real data? Select an orange number: ")
+                                title="\nWhere is Wally? Can you find the plot which is based on the real data?\nSelect an orange number: ")
          }
     }else xx <- smartA$superuser$choice
     par(mfg = c(xx%/%3.1 + 1, xx - (xx%/%3.1) * 3))
@@ -393,10 +409,16 @@ wallyPlot <- function(object,
         px$control$barplot$ylim <- c(minY,maxY)
         px$control$axis2$at <- seq(minY,maxY,maxY/4)
         px$legend=TRUE
-        px$control$barplot$legend.text=c("Predicted risk","Observed frequency")
+        if (model.type=="survival" && type=="survival"){
+            px$control$barplot$legend.text=c("Predicted survival","Observed frequency")
+            px$control$legend$legend <- c("Predicted survival","Observed frequency")
+        }else{
+             px$control$barplot$legend.text=c("Predicted risk","Observed frequency")
+             px$control$legend$legend <- c("Predicted risk","Observed frequency")
+         }
+        print(px$control$barplot$legend.text)
         px$control$legend$x <- "top"
         px$control$legend$cex <- 2
-        px$control$legend$legend <- c("Predicted risk","Observed frequency")
         px$showFrequencies <- TRUE
         qq <- attr(px$plotFrames[[1]],"quantiles")
         px$names <- paste0(sprintf("%1.1f",100*qq[-length(qq)])," - ",

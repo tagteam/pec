@@ -6,7 +6,7 @@
 \usage{
 wallyPlot(object, time, formula, data, cause = 1, q = 10, ylim,
   hanging = FALSE, seed = NULL, mar = c(4.1, 4.1, 2, 2), colbox = "red",
-  verbose = TRUE, ...)
+  type = "risk", verbose = TRUE, ...)
 }
 \arguments{
 \item{object}{Risk or survival prediction. Either a numeric vector
@@ -42,6 +42,8 @@ frequencies at the value of the corresponding prediction.}
 
 \item{colbox}{Color of the box which identifies the real data
 calibration plot.}
+
+\item{type}{For survival models only: show either "risk" or "survival".}
 
 \item{verbose}{If \code{TRUE} warn about missing formula and data.}
 
