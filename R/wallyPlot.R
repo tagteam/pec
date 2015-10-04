@@ -2,10 +2,12 @@
 ##' Wally plots to assess calibration of a risk or survival prediction
 ##'
 ##' @title Wally plots to assess calibration of a risk or survival prediction
-##' @param object Risk or survival prediction. Either a numeric vector
-##' of predictions or an object which in the simple survival setting
-##' has a \code{predictSurvProb} method and in the competing risks
-##' setting has a \code{predictEventProb} method.
+##' @param object Probabilistic survival predictions or probabilistic event risk predictions
+##' evaluated at \code{time} for the subjects in \code{data}. Either
+##' given in form of a numeric vector of probabilistic predictions or
+##' as an object which in the survival setting has a
+##' \code{predictSurvProb} method and in the competing risks setting
+##' has a \code{predictEventProb} method.
 ##' @param time Time interest for evaluating calibration of the
 ##' predictions.
 ##' @param formula A survival or event history formula. The left hand
@@ -25,7 +27,9 @@
 ##' @param mar Plot margins passed to par.
 ##' @param colbox Color of the box which identifies the real data
 ##' calibration plot.
-##' @param type For survival models only: show either "risk" or "survival".
+##' @param type For survival models only: show either "risk" or
+##' "survival".
+##' @param pseudo Logical. Determines the method for estimating expected event frequencies. See \code{calPlot}. Default is \code{FALSE}.
 ##' @param verbose If \code{TRUE} warn about missing formula and data.
 ##' @param ... Further arguments passed to \code{calPlot}.
 ##' @return List of simulated and real data.
@@ -36,16 +40,22 @@
 ##' library(prodlim)
 ##' library(survival)
 ##' set.seed(180)
-##' d = SimSurv(1800)
+##' d = SimSurv(180)
 ##' f = coxph(Surv(time,status)~X1+X2,data=d)
 ##' \dontrun{
 ##' wallyPlot(f,
-##'           time=1,
+##'           time=4,
 ##'           q=10,
-##'           calPlot.type="risk",
+##'           type="risk",
 ##'           data=d,
-##'           formula=Surv(time,status)~1,
-##'           calPlot.outcome="prodlim")
+##'           formula=Surv(time,status)~1)
+##'  wallyPlot(f,
+##'           time=4,
+##'           q=10,
+##'           hanging=TRUE,
+##'           type="survival",
+##'           data=d,
+##'           formula=Surv(time,status)~1)
 ##' }
 ##' 
 ##' # Competing risks setting
@@ -53,17 +63,17 @@
 ##' library(survival)
 ##' library(riskRegression)
 ##' set.seed(180)
-##' d2 = SimCompRisk(1800)
+##' d2 = SimCompRisk(180)
 ##' d2=d2[d2$cause!=0,]
 ##' f2 = CSC(Hist(time,event)~X1+X2,data=d2)
 ##' \dontrun{
 ##' wallyPlot(f2,
-##'           time=10,
+##'           time=5,
 ##'           q=3,
-##'           calPlot.type="risk",
+##'           hanging=TRUE,
 ##'           data=d2,
-##'           formula=Hist(time,event)~1,
-##'           calPlot.outcome="pseudo")
+##'           formula=Hist(time,event)~1)
+##'           
 ##' }
 ##' 
 ##' @export 
@@ -80,6 +90,7 @@ wallyPlot <- function(object,
                       mar=c(4.1,4.1, 2, 2),
                       colbox="red",
                       type="risk",
+                      pseudo=FALSE,
                       ## identify="select from list",
                       verbose=TRUE,...){
     identify="select from list"
@@ -120,6 +131,12 @@ wallyPlot <- function(object,
         response <- response[neworder,,drop=FALSE]
         Y <- response[,"time"]
         status <- response[,"status"]
+        if (model.type=="competing.risks"){
+            event <- as.numeric(response[,"event"])
+            event[status==0] <- 0
+            status <- event
+            rm(event)
+        }
         data <- data[neworder,]
         if (missing(time))
             time <- median(Y)
@@ -142,7 +159,7 @@ wallyPlot <- function(object,
                                 col=c("grey90","grey30"),
                                 ylim=c(0,1),
                                 percent=TRUE,
-                                outcome=ifelse(model.type=="survival","pseudo","prodlim"),
+                                pseudo=pseudo,
                                 showPseudo=FALSE,
                                 bars=TRUE,
                                 names=FALSE,
@@ -174,9 +191,7 @@ wallyPlot <- function(object,
                    "survival"={
                        p <- as.vector(do.call(predictHandlerFun,list(object,newdata=data,times=time)))
                        if (class(object)[[1]]%in% c("matrix","numeric")) p <- p[neworder]
-                       ## if (smartA$calPlot$type=="risk")
-                       ## p else 1-p
-                       p
+                       p ## the prediction has to be a survival probability!
                    },
                    "binary"={
                        p <- do.call(predictHandlerFun,list(object,newdata=data))
@@ -194,16 +209,17 @@ wallyPlot <- function(object,
         MyData <- cbind(data[,all.vars(update(formula,".~1")),drop=FALSE,with=FALSE],Pred.cut=Pred.cut,pred=pred)
     else
         MyData <- cbind(data[,all.vars(update(formula,".~1")),drop=FALSE],Pred.cut=Pred.cut,pred=pred)
+    ## MyData <- data.frame(time=Y,status=status,Pred.cut=Pred.cut,pred=pred)
     form.pcut <- update(formula,paste(".~Pred.cut"))
     if (model.type=="competing.risks"){
         # estimate the cumulative incidence of the competing event at time t in each subgroup
         crFit <- prodlim::prodlim(form.pcut,data=MyData)
         # create the vector of prediction for cause 2, based on the sub-group specific cumulative incidence
-        MyData$pred2 <- unlist(predict(crFit,
-                                       cause=2,
-                                       times=time,
-                                       newdata=data.frame(Pred.cut=Pred.cut),
-                                       type="cuminc"))
+        pred2 <- unlist(predict(crFit,
+                                cause=2,
+                                times=time,
+                                newdata=data.frame(Pred.cut=Pred.cut),
+                                type="cuminc"))
     }
     # }}}
     # {{{ functions to draw event times
@@ -215,7 +231,7 @@ wallyPlot <- function(object,
     }
     GenCensFromKMfit <- function(times,status,groups=NULL){
         if (all(status!=0)){
-            rep(1,length(times))
+            rep(Inf,length(times))
         }else{
              if (is.null(groups)){
                  # uniform numbers
@@ -251,7 +267,9 @@ wallyPlot <- function(object,
     }
     GetResponseSurv <- function(Y,status,pred,Pred.cut,time){
         C <- GenCensFromKMfit(times=Y,status=status,groups=Pred.cut)
-        T <- GenTimesFromPred(pi=pred,t=time)
+        ## Note: predictions pred are survival probabilities
+        ##       we simulate event times based on 1-pred
+        T <- GenTimesFromPred(pi=1-pred,t=time)
         Tcens <- pmin(T,C)
         delta <- as.numeric(T<=C)
         data.frame(time=Tcens,status=delta,pred=pred,Pred.cut=Pred.cut)
@@ -273,19 +291,19 @@ wallyPlot <- function(object,
     # {{{ loop creates the simulated data sets
     if(model.type!="competing.risks"){
         DataList <- lapply(1:8,function(i){
-                               GetResponseSurv(Y=MyData$time,
-                                               status=MyData$status,
-                                               pred=MyData$pred,
-                                               Pred.cut=MyData$Pred.cut,
+                               GetResponseSurv(Y=Y,
+                                               status=status,
+                                               pred=pred, 
+                                               Pred.cut=Pred.cut,
                                                time=time)
                            })
     }else{
          DataList <- lapply(1:8,function(i){
-                                GetResponseCR(Y=MyData$time,
-                                              status=MyData$event,
-                                              pred=MyData$pred,
-                                              pred2=MyData$pred2,
-                                              Pred.cut=MyData$Pred.cut,
+                                GetResponseCR(Y=Y,
+                                              status=status,
+                                              pred=pred,
+                                              pred2=pred2,
+                                              Pred.cut=Pred.cut,
                                               time=time)
                             })
      }
@@ -323,7 +341,7 @@ wallyPlot <- function(object,
                                    c(min(x$plotFrame[[1]]$Pred-x$plotFrame[[1]]$Obs),max(x$plotFrame[[1]]$Pred))}))
         minY <- min(0,seq(-1,1,0.05)[prodlim::sindex(eval.times=rangeY[1],jump.times=seq(-1,1,0.05))])
     } else{
-          if (model.type=="survival" && smartA$calPlot$type=="risk") 
+          if (model.type=="survival" && type=="risk") 
               rangeY <- range(sapply(TabList,function(x){range(c(1-x$plotFrame[[1]]))}))
           else
               rangeY <- range(sapply(TabList,function(x){range(c(x$plotFrame[[1]]))}))
@@ -338,8 +356,10 @@ wallyPlot <- function(object,
         i = pos[j]
         px <- TabList[[i]]
         px$control$barplot$ylim <- c(minY,maxY)
-        px$control$axis2$at <- seq(minY,maxY,maxY/4)
-        if (j==5) {
+        ## need to round to avoid strange results like in
+        ## paste(100*seq(-0.15,0.7,0.7/4),"%")
+        px$control$axis2$at <- sort(c(0,round(seq(minY,maxY,(maxY-minY)/4),3)))
+        if (j==8) {
             px$legend=TRUE
             if (model.type=="survival" && type=="survival"){
                 px$control$barplot$legend.text=c("Predicted survival","Observed frequency")
@@ -354,7 +374,7 @@ wallyPlot <- function(object,
             px$control$legend$x <- "top"
             px$control$legend$x <- 0
             px$control$legend$col=2
-            px$control$legend$y <- maxY+0.3*maxY
+            px$control$legend$y <- minY - (par()$mai[1]/par()$mar[1])/2
             px$control$legend$cex <- 1
         }
         ## add the plot to the grid
@@ -365,6 +385,7 @@ wallyPlot <- function(object,
             text(j,x=upleft[1],y=upleft[2],xpd=NA,col="black",cex=1.2)
         }
     }
+    ## mtext(side=1,line=1,"Can you find wally?",cex=1.5*par()$cex)
     # }}}
     # {{{ ask to show the actual plot
     if (smartA$superuser$hide!=FALSE){
@@ -399,31 +420,36 @@ wallyPlot <- function(object,
     ## readline("Hit <Enter> to better show the original plot. ")
     if (smartA$superuser$zoom==FALSE && smartA$superuser$hide!=FALSE){
         zoom <- select.list(c("yes","no"),title="Zoom in on real data calibration plot? ")
-        par(oldpar)
     }else zoom <- "no"
     # }}}
+    par(oldpar)
     # {{{ show the actual plot
     if((smartA$superuser$zoom==TRUE) || (zoom=="yes")){
         par(mfrow=c(1,1))
         px <- TabList[[9]]
         px$control$barplot$ylim <- c(minY,maxY)
-        px$control$axis2$at <- seq(minY,maxY,maxY/4)
+        ## need to round to avoid strange results like in
+        ## paste(100*seq(-0.15,0.7,0.7/4),"%")
+        px$control$axis2$at <- sort(c(0,round(seq(minY,maxY,(maxY-minY)/4),3)))
         px$legend=TRUE
         if (model.type=="survival" && type=="survival"){
             px$control$barplot$legend.text=c("Predicted survival","Observed frequency")
             px$control$legend$legend <- c("Predicted survival","Observed frequency")
+            px$control$barplot$xlab <- "Survival groups"
         }else{
              px$control$barplot$legend.text=c("Predicted risk","Observed frequency")
              px$control$legend$legend <- c("Predicted risk","Observed frequency")
+             px$control$barplot$xlab <- "Risk groups"
          }
-        print(px$control$barplot$legend.text)
+        ## print(px$control$barplot$legend.text)
         px$control$legend$x <- "top"
-        px$control$legend$cex <- 2
+        ## px$control$legend$cex <- 1.3*par()$cex
+        ## px$control$names$cex <- par()$cex
+        ## px$control$frequencies$cex <- par()$cex
         px$showFrequencies <- TRUE
         qq <- attr(px$plotFrames[[1]],"quantiles")
         px$names <- paste0(sprintf("%1.1f",100*qq[-length(qq)])," - ",
                            sprintf("%1.1f",100*qq[-1]))
-        px$control$barplot$xlab <- "Risk groups"
         plot(px)
     }
     # }}}

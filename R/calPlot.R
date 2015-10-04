@@ -35,15 +35,15 @@
 #' assessed in the observations that are NOT in the bootstrap sample.
 #' @param B The number of cross-validation steps.
 #' @param M The size of the subsamples for cross-validation.
-#' @param outcome The method for estimating expected event status:
+#' @param pseudo Logical. Determines the method for estimating expected event status:
 #' 
-#' \code{"pseudo"}: Use average pseudo-values.  \code{"prodlim"}: Use
+#' \code{TRUE}: Use average pseudo-values.  \code{FALSE}: Use
 #' the product-limit estimate, i.e., apply the Kaplan-Meier method for
 #' right censored survival and the Aalen-Johansen method for right
-#' censored competing risks data.
+#' censored competing risks data. 
 #' @param type Either "risk" or "survival". 
-#' @param showPseudo If \code{TRUE} and \code{outcome=="pseudo"} the
-#' pseudo-values are shown as dots on the plot.
+#' @param showPseudo If \code{TRUE} the
+#' pseudo-values are shown as dots on the plot (only when \code{pseudo=TRUE}).
 #' @param pseudo.col Colour for pseudo-values.
 #' @param pseudo.pch Dot type (see par) for pseudo-values.
 #' @param method The method for estimating the calibration curve(s):
@@ -108,11 +108,23 @@
 ##' dlearn <- SimSurv(40)
 ##' dval <- SimSurv(100)
 ##' f <- coxph(Surv(time,status)~X1+X2,data=dlearn)
-##' calPlot(f,time=3,data=dval)
+##' cf=calPlot(f,time=3,data=dval)
+##' print(cf)
+##' plot(cf)
+##' 
+##' g <- coxph(Surv(time,status)~X2,data=dlearn)
+##' cf2=calPlot(list("Cox regression X1+X2"=f,"Cox regression X2"=g),
+##'     time=3,
+##'     data=dval)
+##' print(cf2)
+##' plot(cf2)
 ##' calPlot(f,time=3,data=dval,type="survival")
-##' calPlot(f,time=3,data=dval,bars=TRUE)
-##' calPlot(f,time=3,data=dval,bars=TRUE,type="risk")
-##'
+##' calPlot(f,time=3,data=dval,bars=TRUE,pseudo=FALSE)
+##' calPlot(f,time=3,data=dval,bars=TRUE,type="risk",pseudo=FALSE)
+##' 
+##' calPlot(f,time=3,data=dval,bars=TRUE,hanging=TRUE)
+##' calPlot(f,time=3,data=dval,bars=TRUE,type="risk",hanging=TRUE)
+##' 
 ##' set.seed(13)
 ##' m <- crModel()
 ##' regression(m, from = "X1", to = "eventtime1") <- 1
@@ -125,14 +137,23 @@
 ##' csc <- CSC(Hist(time,event)~X1+X2+X3+X4+X5,data=d1)
 ##' fgr <- FGR(Hist(time,event)~X1+X2+X3+X4+X5,data=d1,cause=1)
 ##' predict.crr <- cmprsk:::predict.crr
-##' par(mar=c(5,5,5,5),cex=1.3)
-##' calPlot(list(csc,fgr),
+##' cf3=calPlot(list("Cause-specific Cox"=csc,"Fine-Gray"=fgr),
 ##'         time=5,
 ##'         legend.x=-0.3,
 ##'         legend.y=1.35,
 ##'         ylab="Observed event status",
 ##'         legend.legend=c("Cause-specific Cox regression","Fine-Gray regression"),
 ##'         legend.xpd=NA)
+##' print(cf3)
+##' plot(cf3)
+##' 
+##' b1 <- calPlot(list("Fine-Gray"=fgr),time=5,bars=TRUE,hanging=FALSE)
+##' print(b1)
+##' plot(b1)
+##' 
+##' calPlot(fgr,time=5,bars=TRUE,hanging=TRUE)
+##' 
+##' 
 #' @author Thomas Alexander Gerds \email{tag@@biostat.ku.dk}
 #' @export 
 calPlot <- function(object,
@@ -142,7 +163,7 @@ calPlot <- function(object,
                     splitMethod="none",
                     B=1,
                     M,
-                    outcome=c("pseudo","prodlim"),
+                    pseudo,
                     type,
                     showPseudo,
                     pseudo.col=NULL,
@@ -177,13 +198,19 @@ calPlot <- function(object,
                     verbose=FALSE,
                     cex=1,
                     ...){
+    if (missing(pseudo)){
+        if(method=="quantiles"||bars==TRUE) 
+            pseudo <- FALSE
+        else pseudo <- TRUE
+    }
     if (missing(showPseudo))
-        showPseudo <- ifelse(add||(outcome!="pseudo"),FALSE,TRUE)
+        showPseudo <- ifelse(add||(pseudo!=FALSE),FALSE,TRUE)
     # {{{ find number of objects and lines
     cobj=class(object)[[1]]
     if (cobj!="list"){
         object <- list(object)
     }
+    if (is.null(names(object))) names(object) <- paste0("Model.",1:length(object))
     if (bars){
         method="quantile"
         if (!(length(object)==1)) stop(paste0("Barplots work only for one prediction at a time. Provided are ",length(object), "predictions"))
@@ -240,7 +267,8 @@ calPlot <- function(object,
     else
         model.type <- attr(response,"model")
     if (is.null(model.type) & length(unique(response))==2)
-        model.type <- "binary"
+        stop("This function works only for survival and competing risks models.")
+    ## model.type <- "binary"
     if (missing(type))
         type <- ifelse(model.type=="survival","survival","risk")
     if (missing(ylab))
@@ -257,7 +285,7 @@ calPlot <- function(object,
         ## status <- response[,"status"]
         data <- data[neworder,]
         # }}}
-    # {{{ prediction timepoint 
+        # {{{ prediction timepoint 
 
         if (missing(time))
             time <- median(Y)
@@ -275,9 +303,8 @@ calPlot <- function(object,
                                 "binary"="predictStatusProb",
                                 "competing.risks"="predictEventProb",
                                 "survival"="predictSurvProb")
-    outcome <- match.arg(outcome,c("pseudo","prodlim"))
-    if (outcome=="prodlim" && splitMethod!="none")
-        stop(paste0("Split method ",splitMethod," is only implemented for outcome method: 'pseudo'."))
+    if (pseudo==FALSE && splitMethod!="none")
+        stop(paste0("Split method ",splitMethod," is only implemented for : 'pseudo=TRUE'."))
     if (model.type=="binary")
         if (is.factor(response))
             jack <- as.numeric(response==levels(response)[2])
@@ -285,7 +312,7 @@ calPlot <- function(object,
             jack <- as.numeric(response)
     ## ==levels(response)[1])
     else{
-        if (outcome=="pseudo"){
+        if (pseudo==TRUE){
             margForm <- update(formula,paste(".~1"))
             margFit <- prodlim::prodlim(margForm,data=data)
             jack <- prodlim::jackknife(margFit,cause=cause,times=time)
@@ -299,8 +326,8 @@ calPlot <- function(object,
     axis2.DefaultArgs <- list(side=2,las=2,at=seq(0,ylim[2],ylim[2]/4),mgp=c(4,1,0))
     if (bars){
         legend.DefaultArgs <- list(legend=names(object),col=col,cex=cex,bty="n",x="topleft")
-        names.DefaultArgs <- list(cex=0.7,y=-abs(diff(ylim))/15)
-        frequencies.DefaultArgs <- list(cex=.7,percent=FALSE,offset=0)
+        names.DefaultArgs <- list(cex=.7*par()$cex,y=c(-abs(diff(ylim))/15,-abs(diff(ylim))/25))
+        frequencies.DefaultArgs <- list(cex=.7*par()$cex,percent=FALSE,offset=0)
     } else{
           legend.DefaultArgs <- list(legend=names(object),
                                      lwd=lwd,
@@ -400,7 +427,7 @@ calPlot <- function(object,
                                                     "survival"={
                                                         p <- as.vector(do.call(predictHandlerFun,list(fit,newdata=data,times=time)))
                                                         if (class(fit)[[1]]%in% c("matrix","numeric")) 
-                                                            p <- 1-p[neworder]
+                                                            p <- p[neworder]
                                                         p
                                                     },
                                                     "binary"={
@@ -410,7 +437,7 @@ calPlot <- function(object,
                                                     })
                               }))
     colnames(apppred) <- names(object)
-    if(outcome=="pseudo")
+    if(pseudo==TRUE)
         apppred <- data.frame(jack=jack,apppred)
     else
         apppred <- data.frame(apppred)
@@ -452,7 +479,7 @@ calPlot <- function(object,
                                                 pred
                                             }))
         colnames(predframe) <- names(object)
-        if(outcome=="pseudo")
+        if(pseudo==TRUE)
             predframe <- cbind(data.frame(jack=jack),predframe)
         ## predframe <- na.omit(predframe)
     }
@@ -511,7 +538,7 @@ calPlot <- function(object,
 
     method <- match.arg(method,c("quantile","nne"))
     getXY <- function(f){
-        if(outcome=="pseudo"){
+        if(pseudo==TRUE){
             p <- predframe[,f+1]
             jackF <- predframe[,1]
         }else{
@@ -526,7 +553,7 @@ calPlot <- function(object,
                    }
                    xgroups <- (groups[-(length(groups))]+groups[-1])/2
                    pcut <- cut(p,groups,include.lowest=TRUE)
-                   if (outcome=="pseudo"){
+                   if (pseudo==TRUE){
                        plotFrame=data.frame(Pred=tapply(p,pcut,mean),Obs=pmin(1,pmax(0,tapply(jackF,pcut,mean))))
                        attr(plotFrame,"quantiles") <- groups
                        plotFrame
@@ -553,14 +580,14 @@ calPlot <- function(object,
                    }
                },
                "nne"={
-                   if (outcome=="pseudo"){
+                   if (pseudo==TRUE){
                        ## Round probabilities to 2 digits
                        ## to avoid memory explosion ...
                        ## a difference in the 3 digit should
                        ## not play a role for the patient.
                        if (round==TRUE){
                            if (!is.null(bandwidth) && bandwidth>=1){
-                               message("No need to round predicted probabilities to calculate calibration in the large")
+                               ## message("No need to round predicted probabilities to calculate calibration in the large")
                            } else{
                                  p <- round(p,2)
                              }
@@ -603,32 +630,43 @@ calPlot <- function(object,
                })
     }
     plotFrames <- lapply(1:NF,function(f){getXY(f)})
+    names(plotFrames) <- names(object)
     # }}}
     # {{{ plot and/or invisibly output the results
     if (bars){
         if (model.type=="survival" && type=="risk")
             plotFrames[[1]] <- plotFrames[[1]][NROW(plotFrames[[1]]):1,]
-            if ((is.logical(names[1]) && names[1]==TRUE)|| names[1] %in% c("quantiles.labels","quantiles")){
-                qq <- attr(plotFrames[[1]],"quantiles")
-                if (model.type=="survival" && type=="risk")
-                    qq <- rev(1-qq)
-                if (names[1]=="quantiles.labels"){
-                    pp <- seq(0,1,1/q)
-                    names <- paste0("(",
-                                    sprintf("%1.0f",100*pp[-length(pp)]),",",
-                                    sprintf("%1.0f",100*pp[-1]),
-                                    ")\n",
-                                    sprintf("%1.1f",100*qq[-length(qq)])," - ",
-                                    sprintf("%1.1f",100*qq[-1]))
-                }
-                else 
-                    names <- paste0(sprintf("%1.1f",100*qq[-length(qq)])," - ",
-                                    sprintf("%1.1f",100*qq[-1]))
+        if ((is.logical(names[1]) && names[1]==TRUE)|| names[1] %in% c("quantiles.labels","quantiles")){
+            qq <- attr(plotFrames[[1]],"quantiles")
+            if (model.type=="survival" && type=="risk")
+                qq <- rev(1-qq)
+            if (names[1]=="quantiles.labels"){
+                pp <- seq(0,1,1/q)
+                names <- paste0("(",
+                                sprintf("%1.0f",100*pp[-length(pp)]),",",
+                                sprintf("%1.0f",100*pp[-1]),
+                                ")\n",
+                                sprintf("%1.1f",100*qq[-length(qq)])," - ",
+                                sprintf("%1.1f",100*qq[-1]))
             }
+            else 
+                names <- paste0(sprintf("%1.1f",100*qq[-length(qq)])," - ",
+                                sprintf("%1.1f",100*qq[-1]))
+        }
     }
+    summary <- list(n=NROW(data))
+    if (model.type%in%c("survival","competing.risks"))
+        summary <- c(summary,list("Event"=table(response[response[,"status"]!=0 && response[,"time"]<=time,ifelse(model.type=="survival","status","event")]),
+                                  "Lost"=sum(response[,"status"]==0 && response[,"time"]<=time),
+                                  "Event.free"=NROW(response[response[,"time"]>time,])))
     out <- list(plotFrames=plotFrames,
-                pred=apppred,
+                predictions=apppred,
+                time=time,
+                cause=cause,
+                pseudo=pseudo,
+                summary=summary,
                 control=control,
+                legend=legend,
                 bars=bars,
                 diag=diag,
                 add=add,
@@ -650,13 +688,11 @@ calPlot <- function(object,
                 lty=lty,
                 pch=pch,
                 lty=lty,
-                NF=NF)
-    if (model.type!="binary")
-        out <- c(out,list(time=time,
-                          pseudo.col=pseudo.col,
-                          pseudo.pch=pseudo.pch,
-                          showPseudo=showPseudo,
-                          jack.density=jack.density))
+                NF=NF,
+                pseudo.col=pseudo.col,
+                pseudo.pch=pseudo.pch,
+                showPseudo=showPseudo,
+                jack.density=jack.density)
     if (method=="nne")
         out <- c(out,list(bandwidth=sapply(plotFrames,function(x)attr(x,"bandwidth"))))
     class(out) <- "calibrationPlot"

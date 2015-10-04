@@ -4,15 +4,14 @@
 \alias{calPlot}
 \title{Calibration plots for right censored data}
 \usage{
-calPlot(object, time, formula, data, splitMethod = "none", B = 1, M,
-  outcome = c("pseudo", "prodlim"), type, showPseudo, pseudo.col = NULL,
-  pseudo.pch = NULL, method = "nne", round = TRUE, bandwidth = NULL,
-  q = 10, bars = FALSE, hanging = FALSE, names = "quantiles",
-  showFrequencies = FALSE, jack.density = 55, plot = TRUE, add = FALSE,
-  diag = !add, legend = !add, axes = !add, xlim = c(0, 1), ylim = c(0,
-  1), xlab, ylab, col, lwd, lty, pch, cause = 1, percent = TRUE,
-  giveToModel = NULL, na.action = na.fail, cores = 1, verbose = FALSE,
-  cex = 1, ...)
+calPlot(object, time, formula, data, splitMethod = "none", B = 1, M, pseudo,
+  type, showPseudo, pseudo.col = NULL, pseudo.pch = NULL, method = "nne",
+  round = TRUE, bandwidth = NULL, q = 10, bars = FALSE,
+  hanging = FALSE, names = "quantiles", showFrequencies = FALSE,
+  jack.density = 55, plot = TRUE, add = FALSE, diag = !add,
+  legend = !add, axes = !add, xlim = c(0, 1), ylim = c(0, 1), xlab,
+  ylab, col, lwd, lty, pch, cause = 1, percent = TRUE, giveToModel = NULL,
+  na.action = na.fail, cores = 1, verbose = FALSE, cex = 1, ...)
 }
 \arguments{
 \item{object}{A named list of prediction models, where allowed
@@ -50,17 +49,17 @@ assessed in the observations that are NOT in the bootstrap sample.}
 
 \item{M}{The size of the subsamples for cross-validation.}
 
-\item{outcome}{The method for estimating expected event status:
+\item{pseudo}{Logical. Determines the method for estimating expected event status:
 
-\code{"pseudo"}: Use average pseudo-values.  \code{"prodlim"}: Use
+\code{TRUE}: Use average pseudo-values.  \code{FALSE}: Use
 the product-limit estimate, i.e., apply the Kaplan-Meier method for
 right censored survival and the Aalen-Johansen method for right
 censored competing risks data.}
 
 \item{type}{Either "risk" or "survival".}
 
-\item{showPseudo}{If \code{TRUE} and \code{outcome=="pseudo"} the
-pseudo-values are shown as dots on the plot.}
+\item{showPseudo}{If \code{TRUE} the
+pseudo-values are shown as dots on the plot (only when \code{pseudo=TRUE}).}
 
 \item{pseudo.col}{Colour for pseudo-values.}
 
@@ -167,10 +166,22 @@ library(survival)
 dlearn <- SimSurv(40)
 dval <- SimSurv(100)
 f <- coxph(Surv(time,status)~X1+X2,data=dlearn)
-calPlot(f,time=3,data=dval)
+cf=calPlot(f,time=3,data=dval)
+print(cf)
+plot(cf)
+
+g <- coxph(Surv(time,status)~X2,data=dlearn)
+cf2=calPlot(list("Cox regression X1+X2"=f,"Cox regression X2"=g),
+    time=3,
+    data=dval)
+print(cf2)
+plot(cf2)
 calPlot(f,time=3,data=dval,type="survival")
-calPlot(f,time=3,data=dval,bars=TRUE)
-calPlot(f,time=3,data=dval,bars=TRUE,type="risk")
+calPlot(f,time=3,data=dval,bars=TRUE,pseudo=FALSE)
+calPlot(f,time=3,data=dval,bars=TRUE,type="risk",pseudo=FALSE)
+
+calPlot(f,time=3,data=dval,bars=TRUE,hanging=TRUE)
+calPlot(f,time=3,data=dval,bars=TRUE,type="risk",hanging=TRUE)
 
 set.seed(13)
 m <- crModel()
@@ -184,14 +195,21 @@ d2 <- sim(m,100)
 csc <- CSC(Hist(time,event)~X1+X2+X3+X4+X5,data=d1)
 fgr <- FGR(Hist(time,event)~X1+X2+X3+X4+X5,data=d1,cause=1)
 predict.crr <- cmprsk:::predict.crr
-par(mar=c(5,5,5,5),cex=1.3)
-calPlot(list(csc,fgr),
+cf3=calPlot(list("Cause-specific Cox"=csc,"Fine-Gray"=fgr),
         time=5,
         legend.x=-0.3,
         legend.y=1.35,
         ylab="Observed event status",
         legend.legend=c("Cause-specific Cox regression","Fine-Gray regression"),
         legend.xpd=NA)
+print(cf3)
+plot(cf3)
+
+b1 <- calPlot(list("Fine-Gray"=fgr),time=5,bars=TRUE,hanging=FALSE)
+print(b1)
+plot(b1)
+
+calPlot(fgr,time=5,bars=TRUE,hanging=TRUE)
 }
 \author{
 Thomas Alexander Gerds \email{tag@biostat.ku.dk}

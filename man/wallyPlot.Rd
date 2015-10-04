@@ -6,13 +6,15 @@
 \usage{
 wallyPlot(object, time, formula, data, cause = 1, q = 10, ylim,
   hanging = FALSE, seed = NULL, mar = c(4.1, 4.1, 2, 2), colbox = "red",
-  type = "risk", verbose = TRUE, ...)
+  type = "risk", pseudo = FALSE, verbose = TRUE, ...)
 }
 \arguments{
-\item{object}{Risk or survival prediction. Either a numeric vector
-of predictions or an object which in the simple survival setting
-has a \code{predictSurvProb} method and in the competing risks
-setting has a \code{predictEventProb} method.}
+\item{object}{Probabilistic survival predictions or probabilistic event risk predictions
+evaluated at \code{time} for the subjects in \code{data}. Either
+given in form of a numeric vector of probabilistic predictions or
+as an object which in the survival setting has a
+\code{predictSurvProb} method and in the competing risks setting
+has a \code{predictEventProb} method.}
 
 \item{time}{Time interest for evaluating calibration of the
 predictions.}
@@ -43,7 +45,10 @@ frequencies at the value of the corresponding prediction.}
 \item{colbox}{Color of the box which identifies the real data
 calibration plot.}
 
-\item{type}{For survival models only: show either "risk" or "survival".}
+\item{type}{For survival models only: show either "risk" or
+"survival".}
+
+\item{pseudo}{Logical. Determines the method for estimating expected event frequencies. See \code{calPlot}. Default is \code{FALSE}.}
 
 \item{verbose}{If \code{TRUE} warn about missing formula and data.}
 
@@ -60,16 +65,22 @@ Wally plots to assess calibration of a risk or survival prediction
 library(prodlim)
 library(survival)
 set.seed(180)
-d = SimSurv(1800)
+d = SimSurv(180)
 f = coxph(Surv(time,status)~X1+X2,data=d)
 \dontrun{
 wallyPlot(f,
-          time=1,
+          time=4,
           q=10,
-          calPlot.type="risk",
+          type="risk",
           data=d,
-          formula=Surv(time,status)~1,
-          calPlot.outcome="prodlim")
+          formula=Surv(time,status)~1)
+ wallyPlot(f,
+          time=4,
+          q=10,
+          hanging=TRUE,
+          type="survival",
+          data=d,
+          formula=Surv(time,status)~1)
 }
 
 # Competing risks setting
@@ -77,17 +88,17 @@ library(prodlim)
 library(survival)
 library(riskRegression)
 set.seed(180)
-d2 = SimCompRisk(1800)
+d2 = SimCompRisk(180)
 d2=d2[d2$cause!=0,]
 f2 = CSC(Hist(time,event)~X1+X2,data=d2)
 \dontrun{
 wallyPlot(f2,
-          time=10,
+          time=5,
           q=3,
-          calPlot.type="risk",
+          hanging=TRUE,
           data=d2,
-          formula=Hist(time,event)~1,
-          calPlot.outcome="pseudo")
+          formula=Hist(time,event)~1)
+
 }
 }
 \author{

@@ -3,9 +3,9 @@
 ## author: Thomas Alexander Gerds
 ## created: Sep 28 2015 (17:32) 
 ## Version: 
-## last-updated: Oct  3 2015 (18:14) 
+## last-updated: Oct  4 2015 (13:11) 
 ##           By: Thomas Alexander Gerds
-##     Update #: 116
+##     Update #: 131
 #----------------------------------------------------------------------
 ## 
 ### Commentary: 
@@ -44,7 +44,7 @@ plot.calibrationPlot <- function(x,...){
             Pred <- 1-Pred
             Obs <- 1-Obs
         }
-        if(!x$legend){
+        if(is.logical(x$legend[1]) && x$legend[1]==FALSE){
             control$barplot$legend.text <- NULL
         }else{
              if (is.null(control$barplot$legend.text)){
@@ -62,7 +62,9 @@ plot.calibrationPlot <- function(x,...){
             control$barplot$offset <- c(rbind(0,Pred-Obs))
             minval <- min(Pred-Obs)
             if (minval<0)
-                negY.offset <- 0.05+seq(0,1,0.05)[sindex(jump.times=seq(0,1,0.05),eval.times=abs(minval))]
+                negY.offset <- 0.05+seq(0,1,0.05)[prodlim::sindex(jump.times=seq(0,1,0.05),eval.times=abs(minval))]
+            else
+                negY.offset <- 0
             control$barplot$ylim[1] <- min(control$barplot$ylim[1],-negY.offset)
             control$names$y <- control$names$y-negY.offset
         }
@@ -110,7 +112,7 @@ plot.calibrationPlot <- function(x,...){
             jack.col <- x$pseudo.col
         if (is.null(x$pseudo.pch)) x$pseudo.pch <- 1
         if (x$showPseudo) {
-            points(x$pred[,f+1],x$pred[,1],col=jack.col,pch=x$pseudo.pch)
+            points(x$predictions[,f+1],x$predictions[,1],col=jack.col,pch=x$pseudo.pch)
         }
         pf <- x$plotFrames[[f]]
         if(NROW(pf)==1){
@@ -134,7 +136,9 @@ plot.calibrationPlot <- function(x,...){
         showBars()
     }else{
          nix <- lapply(1:NF,function(f)showCal(f))
-         do.call("legend",control$legend)
+         if (!(is.logical(x$legend[1]) && x$legend[1]==FALSE)){
+             do.call("legend",control$legend)
+         }
      }
     # }}}
     # {{{ axes
