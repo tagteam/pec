@@ -89,7 +89,6 @@ library(survival)
 library(riskRegression)
 set.seed(180)
 d2 = SimCompRisk(180)
-d2=d2[d2$cause!=0,]
 f2 = CSC(Hist(time,event)~X1+X2,data=d2)
 \dontrun{
 wallyPlot(f2,

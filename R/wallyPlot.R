@@ -64,7 +64,6 @@
 ##' library(riskRegression)
 ##' set.seed(180)
 ##' d2 = SimCompRisk(180)
-##' d2=d2[d2$cause!=0,]
 ##' f2 = CSC(Hist(time,event)~X1+X2,data=d2)
 ##' \dontrun{
 ##' wallyPlot(f2,
@@ -389,76 +388,81 @@ wallyPlot <- function(object,
     ## mtext(side=1,line=1,"Can you find wally?",cex=1.5*par()$cex)
     # }}}
     # {{{ ask to show the actual plot
-    if (smartA$superuser$hide!=FALSE){
-        if (identify=="click"){
-            stop("Does not work yet")
-            ## par(mfg = c(1,1))
-            ## ans <- identify(x=c(0,1),y=NULL)
-            ## usr <- par("usr")
-            ## xx <- 1
-            ## number <- par$
-            ## identify(x
-        }else{
-             xx <-  select.list(1:9,
-                                multiple=FALSE,
-                                title="\nWhere is Wally? Can you find the plot which is based on the real data?\nSelect an orange number: ")
-         }
-    }else xx <- smartA$superuser$choice
-    par(mfg = c(xx%/%3.1 + 1, xx - (xx%/%3.1) * 3))
-    box(col = "green", lwd = 3)
-    # }}}
-    # {{{ show the actual plot by adding a red box
-    if (xx==figpos) {
-        mtext("Correct: real data!",col="green",cex=1.2,line=-3,xpd=NA)
+    if (is.null(smartA$superuser$choice)){
+        par(oldpar)
+        invisible(TabList[order(pos)])
     }else{
-         mtext("Not correct!",col="red",cex=1.2,line=-3,xpd=NA)
-         par(mfg = c(figpos%/%3.1 + 1, figpos - (figpos%/%3.1) * 3))
-         mtext("Real data",col="red",cex=1.2,line=-3,side=3,xpd=NA)
-         box(col = colbox, lwd = 5)
-     }
-    # }}}
-    # {{{ ask to press a key to zoom in on the actual plot
-    ## readline("Hit <Enter> to better show the original plot. ")
-    if (smartA$superuser$zoom==FALSE && smartA$superuser$hide!=FALSE){
-        zoom <- select.list(c("yes","no"),title="Zoom in on real data calibration plot? ")
-    }else zoom <- "no"
-    # }}}
-    # {{{ show the actual plot
-    if((smartA$superuser$zoom==TRUE) || (zoom=="yes")){
-        par(mfrow=c(1,1),oma=c(2,2,2,2),mar=c(4.1,4.1, 4.1, 4.1))
-        px <- TabList[[9]]
-        px$control$barplot$ylim <- c(minY,maxY)
-        ## need to round to avoid strange results like in
-        ## paste(100*seq(-0.15,0.7,0.7/4),"%")
-        ## px$control$axis2$at <- sort(c(0,round(seq(minY,maxY,(maxY-minY)/4),3)))
-        px$control$axis2$at <- sort(round(seq(minY,maxY,(maxY-minY)/4),3))
-        px$legend=TRUE
-        if (model.type=="survival" && type=="survival"){
-            px$control$barplot$legend.text=c("Predicted survival","Observed frequency")
-            px$control$legend$legend <- c("Predicted survival","Observed frequency")
-            px$control$barplot$xlab <- "Survival groups"
-        }else{
-             px$control$barplot$legend.text=c("Predicted risk","Observed frequency")
-             px$control$legend$legend <- c("Predicted risk","Observed frequency")
-             px$control$barplot$xlab <- "Risk groups"
+         if (smartA$superuser$hide!=FALSE){
+             if (identify=="click"){
+                 stop("Does not work yet")
+                 ## par(mfg = c(1,1))
+                 ## ans <- identify(x=c(0,1),y=NULL)
+                 ## usr <- par("usr")
+                 ## xx <- 1
+                 ## number <- par$
+                 ## identify(x
+             }else{
+                  xx <-  select.list(1:9,
+                                     multiple=FALSE,
+                                     title="\nWhere is Wally? Can you find the plot which is based on the real data?\nSelect an orange number: ")
+              }
+         }else xx <- smartA$superuser$choice
+         par(mfg = c(xx%/%3.1 + 1, xx - (xx%/%3.1) * 3))
+         box(col = "green", lwd = 3)
+         # }}}
+         # {{{ show the actual plot by adding a red box
+         if (xx==figpos) {
+             mtext("Correct: real data!",col="green",cex=1.2,line=-3,xpd=NA)
+         }else{
+              mtext("Not correct!",col="red",cex=1.2,line=-3,xpd=NA)
+              par(mfg = c(figpos%/%3.1 + 1, figpos - (figpos%/%3.1) * 3))
+              mtext("Real data",col="red",cex=1.2,line=-3,side=3,xpd=NA)
+              box(col = colbox, lwd = 5)
+          }
+         # }}}
+         # {{{ ask to press a key to zoom in on the actual plot
+         ## readline("Hit <Enter> to better show the original plot. ")
+         if (smartA$superuser$zoom==FALSE && smartA$superuser$hide!=FALSE){
+             zoom <- select.list(c("yes","no"),title="Zoom in on real data calibration plot? ")
+         }else zoom <- "no"
+         # }}}
+         # {{{ show the actual plot
+         if((smartA$superuser$zoom==TRUE) || (zoom=="yes")){
+             par(mfrow=c(1,1),oma=c(2,2,2,2),mar=c(4.1,4.1, 4.1, 4.1))
+             px <- TabList[[9]]
+             px$control$barplot$ylim <- c(minY,maxY)
+             ## need to round to avoid strange results like in
+             ## paste(100*seq(-0.15,0.7,0.7/4),"%")
+             ## px$control$axis2$at <- sort(c(0,round(seq(minY,maxY,(maxY-minY)/4),3)))
+             px$control$axis2$at <- sort(round(seq(minY,maxY,(maxY-minY)/4),3))
+             px$legend=TRUE
+             if (model.type=="survival" && type=="survival"){
+                 px$control$barplot$legend.text=c("Predicted survival","Observed frequency")
+                 px$control$legend$legend <- c("Predicted survival","Observed frequency")
+                 px$control$barplot$xlab <- "Survival groups"
+             }else{
+                  px$control$barplot$legend.text=c("Predicted risk","Observed frequency")
+                  px$control$legend$legend <- c("Predicted risk","Observed frequency")
+                  px$control$barplot$xlab <- "Risk groups"
+              }
+             ## print(px$control$barplot$legend.text)
+             px$control$legend$xpd <- NA
+             px$control$legend$x <- "top"
+             px$control$legend$ncol <- 2
+             px$control$legend$inset <- c(0,-0.2)
+             ## px$control$legend$cex <- 1.3*par()$cex
+             ## px$control$names$cex <- par()$cex
+             ## px$control$frequencies$cex <- par()$cex
+             px$showFrequencies <- TRUE
+             qq <- attr(px$plotFrames[[1]],"quantiles")
+             px$names <- paste0(sprintf("%1.1f",100*qq[-length(qq)])," - ",
+                                sprintf("%1.1f",100*qq[-1]))
+             plot(px)
          }
-        ## print(px$control$barplot$legend.text)
-        px$control$legend$xpd <- NA
-        px$control$legend$x <- "top"
-        px$control$legend$ncol <- 2
-        px$control$legend$inset <- c(0,-0.2)
-        ## px$control$legend$cex <- 1.3*par()$cex
-        ## px$control$names$cex <- par()$cex
-        ## px$control$frequencies$cex <- par()$cex
-        px$showFrequencies <- TRUE
-        qq <- attr(px$plotFrames[[1]],"quantiles")
-        px$names <- paste0(sprintf("%1.1f",100*qq[-length(qq)])," - ",
-                           sprintf("%1.1f",100*qq[-1]))
-        plot(px)
-    }
-    # }}}
-    par(oldpar)
-    invisible(TabList[order(pos)])
-    ## invisible(DataList)
+         # }}}
+         par(oldpar)
+         invisible(TabList[order(pos)])
+         ## invisible(DataList)
+     }
 }
 # }}}

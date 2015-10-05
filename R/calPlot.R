@@ -657,8 +657,8 @@ calPlot <- function(object,
     }
     summary <- list(n=NROW(data))
     if (model.type%in%c("survival","competing.risks"))
-        summary <- c(summary,list("Event"=table(response[response[,"status"]!=0 && response[,"time"]<=time,ifelse(model.type=="survival","status","event")]),
-                                  "Lost"=sum(response[,"status"]==0 && response[,"time"]<=time),
+        summary <- c(summary,list("Event"=table(response[response[,"status"]!=0 & response[,"time"]<=time,ifelse(model.type=="survival","status","event")]),
+                                  "Lost"=sum(response[,"status"]==0 & response[,"time"]<=time),
                                   "Event.free"=NROW(response[response[,"time"]>time,])))
     out <- list(plotFrames=plotFrames,
                 predictions=apppred,
