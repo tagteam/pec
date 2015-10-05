@@ -3,9 +3,9 @@
 ## author: Thomas Alexander Gerds
 ## created: Oct  4 2015 (09:49) 
 ## Version: 
-## last-updated: Oct  4 2015 (10:41) 
+## last-updated: Oct  5 2015 (10:32) 
 ##           By: Thomas Alexander Gerds
-##     Update #: 26
+##     Update #: 28
 #----------------------------------------------------------------------
 ## 
 ### Commentary: 
@@ -31,7 +31,7 @@ print.calibrationPlot <- function(x,...){
                            " had a competing risk ",
                            " \n - a total of ",
                            x$summary$Lost,
-                           " were lost to follow-up,")
+                           " were lost to follow-up.")
      }
     cat("\nCalibration of ",ifelse(x$model.type=="survival" && x$type=="survival","survival","risk")," predictions for ",
         x$summary$n,
@@ -39,9 +39,7 @@ print.calibrationPlot <- function(x,...){
         " a total of ",x$summary$Event.free,
         " were observed event-free, ",
         estring,
-        " \n - a total of ",
-        x$summary$Event.free,
-        " were observed event-free at time ",x$time,".\n",
+        "\n",
         sep="")
     if (x$method=="quantile"){
         cat("\nAverage predictions and outcome in prediction quantiles:\n\n")
