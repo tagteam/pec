@@ -115,6 +115,7 @@
 ##' g <- coxph(Surv(time,status)~X2,data=dlearn)
 ##' cf2=calPlot(list("Cox regression X1+X2"=f,"Cox regression X2"=g),
 ##'     time=3,
+##'     type="risk",
 ##'     data=dval)
 ##' print(cf2)
 ##' plot(cf2)

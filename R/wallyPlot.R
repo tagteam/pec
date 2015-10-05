@@ -318,7 +318,7 @@ wallyPlot <- function(object,
     # {{{ prepare graphics output
     oldpar <- par(no.readonly = TRUE)
     par(mar = mar)
-    par(mfrow=c(3,3))
+    par(mfrow=c(3,3),oma=c(3,0,0,0))
     # }}}
     # {{{ loop to create the 9 plots
     TabList <- vector("list",9)
@@ -358,7 +358,8 @@ wallyPlot <- function(object,
         px$control$barplot$ylim <- c(minY,maxY)
         ## need to round to avoid strange results like in
         ## paste(100*seq(-0.15,0.7,0.7/4),"%")
-        px$control$axis2$at <- sort(c(0,round(seq(minY,maxY,(maxY-minY)/4),3)))
+        ## px$control$axis2$at <- sort(c(0,round(seq(minY,maxY,(maxY-minY)/4),3)))
+        px$control$axis2$at <- sort(round(seq(minY,maxY,(maxY-minY)/4),3))
         if (j==8) {
             px$legend=TRUE
             if (model.type=="survival" && type=="survival"){
@@ -370,12 +371,12 @@ wallyPlot <- function(object,
                 px$control$legend$legend <- c("Predicted risk","Observed frequency")
             }
             px$control$legend$xpd <- NA
-            ## px$control$legend$x <- "top"
-            px$control$legend$x <- "top"
-            px$control$legend$x <- 0
-            px$control$legend$col=2
-            px$control$legend$y <- minY - (par()$mai[1]/par()$mar[1])/2
-            px$control$legend$cex <- 1
+            px$control$legend$x <- "bottom"
+            ## px$control$legend$x <- 0
+            px$control$legend$ncol=2
+            px$control$legend$inset=c(0,-0.4)
+            ## px$control$legend$y <- minY - (par()$mai[1]/par()$mar[1])/2
+            px$control$legend$cex <- 1.3
         }
         ## add the plot to the grid
         plot(px)
@@ -422,15 +423,15 @@ wallyPlot <- function(object,
         zoom <- select.list(c("yes","no"),title="Zoom in on real data calibration plot? ")
     }else zoom <- "no"
     # }}}
-    par(oldpar)
     # {{{ show the actual plot
     if((smartA$superuser$zoom==TRUE) || (zoom=="yes")){
-        par(mfrow=c(1,1))
+        par(mfrow=c(1,1),oma=c(2,2,2,2),mar=c(4.1,4.1, 4.1, 4.1))
         px <- TabList[[9]]
         px$control$barplot$ylim <- c(minY,maxY)
         ## need to round to avoid strange results like in
         ## paste(100*seq(-0.15,0.7,0.7/4),"%")
-        px$control$axis2$at <- sort(c(0,round(seq(minY,maxY,(maxY-minY)/4),3)))
+        ## px$control$axis2$at <- sort(c(0,round(seq(minY,maxY,(maxY-minY)/4),3)))
+        px$control$axis2$at <- sort(round(seq(minY,maxY,(maxY-minY)/4),3))
         px$legend=TRUE
         if (model.type=="survival" && type=="survival"){
             px$control$barplot$legend.text=c("Predicted survival","Observed frequency")
@@ -442,7 +443,10 @@ wallyPlot <- function(object,
              px$control$barplot$xlab <- "Risk groups"
          }
         ## print(px$control$barplot$legend.text)
+        px$control$legend$xpd <- NA
         px$control$legend$x <- "top"
+        px$control$legend$ncol <- 2
+        px$control$legend$inset <- c(0,-0.2)
         ## px$control$legend$cex <- 1.3*par()$cex
         ## px$control$names$cex <- par()$cex
         ## px$control$frequencies$cex <- par()$cex
@@ -453,6 +457,7 @@ wallyPlot <- function(object,
         plot(px)
     }
     # }}}
+    par(oldpar)
     invisible(TabList[order(pos)])
     ## invisible(DataList)
 }
