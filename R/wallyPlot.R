@@ -237,9 +237,16 @@ wallyPlot <- function(object,
                  U <- runif(length(times),0,1)
                  # fit marginal KM for censoring
                  fitcens <- prodlim::prodlim(Hist(time,status)~1,data=data.frame(time=times,status=status),reverse=TRUE)
+                 plot(fitcens)
                  # max time in data
-                 tau <- max(fitcens$time)
-                 c(fitcens$time,tau)[prodlim::sindex(jump.times=c(0,1-fitcens$surv),eval.times=U)]
+                 time <- fitcens$time
+                 tau <- max(fitcens$time,na.rm=TRUE)
+                 surv <- fitcens$surv
+                 isna <- is.na(time)
+                 surv[isna] <- 0
+                 time[isna] <- tau
+                 c <- c(0,time,tau)[1+prodlim::sindex(jump.times=c(0,1-surv),eval.times=U)]
+                 c
              } else{
                    # fit stratified KM for censoring
                    fitcens <- prodlim::prodlim(Hist(time,status)~groups,data=data.frame(time=times,
@@ -250,14 +257,14 @@ wallyPlot <- function(object,
                                                   U.g <- runif(n.groups[g],0,1)
                                                   start <- fitcens$first.strata[g]
                                                   size <- fitcens$size.strata[g]
-                                                  strata.g <- start:(start+size)
+                                                  strata.g <- start:(start+(size-1))
                                                   g.time <- fitcens$time[strata.g]
                                                   tau.g <- max(g.time,na.rm=TRUE)
                                                   g.surv <- fitcens$surv[strata.g]
                                                   isna <- is.na(g.time)
                                                   g.surv[isna] <- 0
                                                   g.time[isna] <- tau.g
-                                                  cgroup <- c(g.time,tau.g)[prodlim::sindex(jump.times=c(0,1-g.surv),eval.times=U.g)]
+                                                  cgroup <- c(0,g.time,tau.g)[1+prodlim::sindex(jump.times=c(0,1-g.surv),eval.times=U.g)]
                                                   cgroup
                                               }))
                    C[order(order(groups))]
