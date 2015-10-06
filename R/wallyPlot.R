@@ -237,7 +237,6 @@ wallyPlot <- function(object,
                  U <- runif(length(times),0,1)
                  # fit marginal KM for censoring
                  fitcens <- prodlim::prodlim(Hist(time,status)~1,data=data.frame(time=times,status=status),reverse=TRUE)
-                 plot(fitcens)
                  # max time in data
                  time <- fitcens$time
                  tau <- max(fitcens$time,na.rm=TRUE)
