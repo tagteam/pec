@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>R-code illustration: Wally calibration plot</title>
-<!-- 2015-10-12 Mon 18:49 -->
+<!-- 2015-10-13 Tue 16:27 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Thomas Alexander Gerds" />
@@ -174,20 +174,18 @@ install_github(<span style="color: #8b2252;">"tagteam/pec"</span>)
 
 <pre class="src src-R"><span style="color: #008b8b;">library</span>(pec)
 data(threecity)
-set.seed(29021988)
-threecity <span style="color: #008b8b;">&lt;-</span> threecity[sample(1:nrow(threecity),size=2000,replace=<span style="color: #228b22;">FALSE</span>),]
 head(threecity)
 </pre>
 </div>
 
 <pre class="example">
-         time status         pi
-409  5.100000      0 0.18365422
-1393 2.631075      0 0.05914116
-1025 5.100000      0 0.02726414
-2479 4.777550      2 0.10505747
-2835 5.100000      0 0.01770303
-567  5.100000      0 0.09268762
+      time status         pi
+1 5.100000      0 0.18365422
+2 2.631075      0 0.05914116
+3 5.100000      0 0.02726414
+4 4.777550      2 0.10505747
+5 5.100000      0 0.01770303
+6 5.100000      0 0.09268762
 </pre>
 </div>
 </div>
@@ -276,7 +274,7 @@ Selection:
 </div>
 </div>
 <div id="postamble" class="status">
-Last update: 12 Oct 2015 by Thomas Alexander Gerds.
+Last update: 13 Oct 2015 by Thomas Alexander Gerds.
 </div>
 </body>
 </html>
