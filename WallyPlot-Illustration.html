@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>R-code illustration: Wally calibration plot</title>
-<!-- 2015-10-13 Tue 16:27 -->
+<!-- 2015-10-14 Wed 11:51 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Thomas Alexander Gerds" />
@@ -179,6 +179,9 @@ head(threecity)
 </div>
 
 <pre class="example">
+Loading required package: prodlim
+Warning message:
+package ‘prodlim’ was built under R version 3.3.0
       time status         pi
 1 5.100000      0 0.18365422
 2 2.631075      0 0.05914116
@@ -196,9 +199,7 @@ head(threecity)
 <div class="outline-text-2" id="text-3">
 <div class="org-src-container">
 
-<pre class="src src-R"><span style="color: #008b8b;">library</span>(prodlim)
-<span style="color: #008b8b;">library</span>(pec)
-mywall <span style="color: #008b8b;">&lt;-</span> wallyPlot(threecity$pi,
+<pre class="src src-R">mywall <span style="color: #008b8b;">&lt;-</span> wallyPlot(threecity$pi,
                     time=5,
                     formula=Hist(time,status)~1,
                     data=threecity,
@@ -274,7 +275,7 @@ Selection:
 </div>
 </div>
 <div id="postamble" class="status">
-Last update: 13 Oct 2015 by Thomas Alexander Gerds.
+Last update: 14 Oct 2015 by Thomas Alexander Gerds.
 </div>
 </body>
 </html>

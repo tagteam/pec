@@ -1,0 +1,173 @@
+* Install development version of pec
+
+#+BEGIN_SRC R :exports code :results output raw  :session *R* :cache yes :eval never
+library(devtools)
+install_github("tagteam/pec")
+#+END_SRC  
+
+* Read three city data
+  
+#+BEGIN_SRC R  :results output :exports both  :session *R* :cache yes 
+library(pec)
+data(threecity)
+head(threecity)
+#+END_SRC
+
+#+RESULTS[<2015-10-12 18:49:13> 3b4bf2e55ec631c8e611becefae812d2c8d4a561]:
+:          time status         pi
+: 409  5.100000      0 0.18365422
+: 1393 2.631075      0 0.05914116
+: 1025 5.100000      0 0.02726414
+: 2479 4.777550      2 0.10505747
+: 2835 5.100000      0 0.01770303
+: 567  5.100000      0 0.09268762
+
+
+* Wally plot
+
+#+BEGIN_SRC R :results output raw  :exports none :session *R* :cache no
+setwd("~/research/SoftWare/pec/")
+#+END_SRC
+
+  
+#+BEGIN_SRC R :exports code :session *R* :cache yes :eval never
+mywall <- wallyPlot(threecity$pi,
+                    time=5,
+                    formula=Hist(time,status)~1,
+                    data=threecity,
+                    seed= 123459, 
+                    hanging=TRUE,
+                    ylim=c(-.10,.3),
+                    calPlot.names.y=c(0,0.01),
+                    calPlot.frequencies.cex=0.65,
+                    type="risk",
+                    mar=c(2.3, 4.1, 1.5, 2))
+#+END_SRC
+
+
+#+BEGIN_SRC R :results graphics  :file "./wally3city-0.png" :exports results :session *R* :cache yes 
+library(prodlim)
+library(pec)
+mywall <- wallyPlot(threecity$pi,
+                    time=5,
+                    formula=Hist(time,status)~1,
+                    data=threecity,
+                    ylim=c(-.10,.3),
+                    calPlot.names.y=c(0,0.01),
+                    calPlot.frequencies.cex=0.65,
+                    type="risk",
+                    seed= 123459, 
+                    hanging=TRUE,
+                    superuser.hide=FALSE,
+                    superuser.choice=NULL,
+                    mar=c(2.3, 4.1, 1.5, 2))
+#+END_SRC
+
+#+RESULTS[<2015-10-12 18:49:14> dc48aed5f0d55325c136ca1e73d9ff43911102b9]:
+[[file:./wally3city-0.png]]
+
+
+
+#+BEGIN_EXAMPLE
+Where is Wally? Can you find the plot which is based on the real data?
+Select an orange number:  
+
+1: 1
+2: 2
+3: 3
+4: 4
+5: 5
+6: 6
+7: 7
+8: 8
+9: 9
+
+Selection:
+#+END_EXAMPLE
+
+** When the user chooses panel 4
+
+#+BEGIN_SRC R :results graphics :file "./wally3city-hanging-wrong.png" :exports results :session *R* :cache yes 
+mywall <- wallyPlot(threecity$pi,
+                    time=5,
+                    formula=Hist(time,status)~1,
+                    data=threecity,
+                    ylim=c(-.10,.3),
+                    calPlot.names.y=c(0,0.01),
+                    calPlot.frequencies.cex=0.65,
+                    type="risk",
+                    superuser.hide=FALSE,
+                    superuser.choice=4,
+                    seed= 123459, 
+                    hanging=TRUE,
+                    mar=c(2.3, 4.1, 1.5, 2))
+#+END_SRC
+
+#+RESULTS[<2015-10-12 18:49:15> a169a8657fb46978bb63fa4eeb28310a0f8004ed]:
+[[file:./wally3city-hanging-wrong.png]]
+
+#+LABEL: fig:1
+#+ATTR_LATEX: :width 0.7\textwidth
+#+CAPTION:
+
+** When the user chooses panel 8
+
+#+BEGIN_SRC R :results graphics :file "./wally3city-correct.png" :exports results :session *R* :cache yes 
+mywall <- wallyPlot(threecity$pi,
+                    time=5,
+                    formula=Hist(time,status)~1,
+                    data=threecity,
+                    ylim=c(-.10,.3),
+                    calPlot.names.y=c(0,0.01),
+                    calPlot.frequencies.cex=0.65,
+                    type="risk",
+                    superuser.hide=FALSE,
+                    superuser.choice=8,
+                    seed= 123459, 
+                    hanging=TRUE,
+                    mar=c(2.3, 4.1, 1.5, 2))
+#+END_SRC
+
+#+RESULTS[<2015-10-12 18:49:16> 8e358632538b172f760c274aca082d10729cec6f]:
+[[file:./wally3city-correct.png]]
+
+** When the user chooses to zoom in 
+
+#+BEGIN_SRC R :results graphics :file "./wally3city-zoom.png" :exports results :session *R* :cache yes 
+# mywall <- wallyPlot(threecity$pi,
+# time=5,
+# formula=Hist(time,status)~1,
+# data=threecity,
+# ylim=c(-.10,.3),
+# type="risk",
+# superuser.hide=FALSE,
+# superuser.choice=8,
+# seed= 123459, 
+# hanging=TRUE,
+# superuser.zoom=TRUE)
+mywall <- wallyPlot(threecity$pi, 
+                    time=5,
+                    formula=Hist(time,status)~1,
+                    data=threecity,
+                    ylim=c(-.10,.3),
+                    calPlot.names.y=c(0,0.01),
+                    calPlot.frequencies.cex=0.65,
+                    type="risk", 
+                    superuser.hide=FALSE,
+                    superuser.choice=8, 
+                    seed= 123459, 
+                    hanging=TRUE, 
+                    superuser.zoom=TRUE)
+#+END_SRC
+
+#+RESULTS[<2015-10-12 18:49:17> bd6f2de6720279a74584c9b980a025aeb3fa8579]:
+[[file:./wally3city-zoom.png]]
+
+
+* COMMENT Header  
+#+Title: R-code illustration: Wally calibration plot 
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="http://192.38.117.59/~tag/styles/practicals.css" />
+# #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="~/public_html/styles/practicals.css" />
+#+OPTIONS: H:3 num:nil toc:t :nil @:t ::t |:t ^:t -:t f:t *:t <:t
+#+PROPERTY: cache yes
+#+PROPERTY: session *R*
