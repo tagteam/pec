@@ -94,5 +94,20 @@ graphics::plot(b632a$NoInfErr[[2]],b632$NoInfErr[[2]])
 # }}}
 
 
+# {{{ Parallel computing
+library(pec)
+library(doParallel)
+library(prodlim) 
+library(survival)
+set.seed(130971) 
+dat <- SimSurv(100) 
+Models <-list("Cox.X1"=coxph(Surv(time,status)~X1,data=dat,y=TRUE))
+## ,"Cox.X2"=coxph(Surv(time,status)~X2,data=dat,y=TRUE),"Cox.X1.X2"=coxph(Surv(time,status)~X1+X2,data=dat,y=TRUE))
+cl <- makeCluster(2) 
+registerDoParallel(cl)
+PredError.632plus <- pec(object=Models,formula=Surv(time,status)~X1+X2,data=dat,exact=TRUE,cens.model="marginal",splitMethod="bootcv",B=2,verbose=TRUE)
+PredError.632plus <- pec(object=Models,formula=Surv(time,status)~X1+X2,data=dat,exact=TRUE,cens.model="marginal",splitMethod="Boot632plus",B=2,verbose=TRUE,cause=1)
+stopCluster(cl) #####################################
 
+# }}}
          
