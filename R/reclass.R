@@ -105,7 +105,6 @@ reclass <- function(object,
         ## overall reclassification table
         retab <- table(object[[1]],object[[2]])
     }else{
-         ## for competing risks find the cause of interest.
          cutP <- function(P,cuts){
              if (min(P)<min(cuts))
                  stop("Smallest predicted risk is smaller than first cut.")

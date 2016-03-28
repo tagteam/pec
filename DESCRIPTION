@@ -22,7 +22,7 @@ Suggests:
     CoxBoost,
     crrstep,
     riskRegression (>= 1.0.8),
-    lava,
+    lava (>= 1.4.1),
     Hmisc (>= 3.14-4)
 Maintainer: Thomas A. Gerds <tag@biostat.ku.dk>
 License: GPL (>= 2)
