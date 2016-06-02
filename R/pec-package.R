@@ -36,6 +36,7 @@
 #' @importFrom foreach %dopar%
 #' @importFrom survival Surv
 #' @importFrom prodlim Hist
+#' @importFrom timereg aalen
 #' @importFrom grDevices col2rgb gray
 #' @importFrom graphics abline axis box legend lines mtext par plot points segments text title
 #' @importFrom stats model.frame model.response as.formula coef family formula median model.matrix na.fail na.omit pnorm predict quantile rbinom rexp runif sd smooth terms time update update.formula var wilcox.test
@@ -135,10 +136,10 @@ NULL
 #' \item{time}{time to event (i.e., time to
 #' either dementia, death dementia free or loss of follow-up)}}
 #' @references
-#' Blanche, P., Proust‐Lima, C., Loubère, L., Berr, C., Dartigues, J. F., Jacqmin‐Gadda, H. (2015).
+#' Blanche, P., Proust-Lima, C., Loubere, L., Berr, C., Dartigues, J. F., Jacqmin-Gadda, H. (2015).
 #' Quantifying and comparing dynamic
 #' predictive accuracy of joint models for longitudinal marker and
-#' time‐to‐event in presence of censoring and competing risks. 
+#' time-to-event in presence of censoring and competing risks. 
 #' Biometrics, 71(1), 102-113.
 #' 
 #' @source

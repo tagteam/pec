@@ -695,7 +695,8 @@ calPlot <- function(object,
                 showPseudo=showPseudo,
                 jack.density=jack.density)
     if (method=="nne")
-        out <- c(out,list(bandwidth=sapply(plotFrames,function(x)attr(x,"bandwidth"))))
+        out <- c(out,list(bandwidth=sapply(plotFrames,
+                                           function(x)attr(x,"bandwidth"))))
     class(out) <- "calibrationPlot"
     if (plot){
         plot.calibrationPlot(out)
