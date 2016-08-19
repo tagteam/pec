@@ -5,7 +5,7 @@
 \alias{summary.pec}
 \title{Printing a `pec' (prediction error curve) object.}
 \usage{
-\method{print}{pec}(x, times, digits = 3, what = NULL, ...)
+print.pec(x, times, digits = 3, what = NULL, ...)
 }
 \arguments{
 \item{x}{Object of class \code{pec}}

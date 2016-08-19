@@ -127,7 +127,9 @@
 ##' ## show a red line which follows the hanging bars
 ##' calPlot(f,time=3,data=dval,bars=TRUE,hanging=TRUE)
 ##' a <- calPlot(f,time=3,data=dval,bars=TRUE,hanging=TRUE,abline.col=NULL)
-##' lines(c(0,1,ceiling(a$xcoord)),c(a$offset[1],a$offset,a$offset[length(a$offset)]),col=2,lwd=5,type="s")
+##' lines(c(0,1,ceiling(a$xcoord)),
+##'       c(a$offset[1],a$offset,a$offset[length(a$offset)]),
+##'       col=2,lwd=5,type="s")
 ##' 
 ##' calPlot(f,time=3,data=dval,bars=TRUE,type="risk",hanging=TRUE)
 ##' 
@@ -712,12 +714,11 @@ calPlot <- function(object,
     if (method=="nne")
         out <- c(out,list(bandwidth=sapply(plotFrames,
                                            function(x)attr(x,"bandwidth"))))
-    class(out) <- "calibrationPlot"
     if (plot){
         coords <- plot.calibrationPlot(out)
         out <- c(out,coords)
     }
+    class(out) <- "calibrationPlot"
     invisible(out)
-
     # }}}
 }
