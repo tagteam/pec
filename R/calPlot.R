@@ -59,7 +59,8 @@
 #' @param bandwidth The bandwidth for \code{method="nne"}
 #' @param q The number of quantiles for \code{method="quantile"} and \code{bars=TRUE}.
 #' @param bars If \code{TRUE}, use barplots to show calibration.
-#' @param hanging  Barplots only. If \code{TRUE}, hang bars corresponding to observed frequencies at the value of the corresponding prediction.
+#' @param hanging  Barplots only. If \code{TRUE}, hang bars corresponding to observed frequencies
+#'        at the value of the corresponding prediction.
 #' @param names Barplots only. Names argument passed to \code{names.arg} of \code{barplot}.
 #' @param showFrequencies Barplots only. If \code{TRUE}, show frequencies above the bars.
 #' @param jack.density Gray scale for pseudo-observations.
@@ -122,8 +123,12 @@
 ##' calPlot(f,time=3,data=dval,type="survival")
 ##' calPlot(f,time=3,data=dval,bars=TRUE,pseudo=FALSE)
 ##' calPlot(f,time=3,data=dval,bars=TRUE,type="risk",pseudo=FALSE)
-##' 
+##'
+##' ## show a red line which follows the hanging bars
 ##' calPlot(f,time=3,data=dval,bars=TRUE,hanging=TRUE)
+##' a <- calPlot(f,time=3,data=dval,bars=TRUE,hanging=TRUE,abline.col=NULL)
+##' lines(c(0,1,ceiling(a$xcoord)),c(a$offset[1],a$offset,a$offset[length(a$offset)]),col=2,lwd=5,type="s")
+##' 
 ##' calPlot(f,time=3,data=dval,bars=TRUE,type="risk",hanging=TRUE)
 ##' 
 ##' set.seed(13)
@@ -153,7 +158,7 @@
 ##' plot(b1)
 ##' 
 ##' calPlot(fgr,time=5,bars=TRUE,hanging=TRUE)
-##' 
+##'
 ##' 
 #' @author Thomas Alexander Gerds \email{tag@@biostat.ku.dk}
 #' @export 
@@ -207,6 +212,7 @@ calPlot <- function(object,
     if (missing(showPseudo))
         showPseudo <- ifelse(add||(pseudo!=FALSE),FALSE,TRUE)
     # {{{ find number of objects and lines
+
     cobj=class(object)[[1]]
     if (cobj!="list"){
         object <- list(object)
@@ -224,8 +230,10 @@ calPlot <- function(object,
         names(object)[(names(object)=="")] <- sapply(object[(names(object)=="")],function(o)class(o)[1])
     }
     NF <- length(object)
+
     # }}}
     # {{{ lines types
+
     if (missing(lwd)) lwd <- rep(3,NF)
     if (missing(col)) {
         if (bars)
@@ -239,8 +247,10 @@ calPlot <- function(object,
     if (length(lty) < NF) lty <- rep(lty, NF)
     if (length(col) < NF) col <- rep(col, NF)
     if (length(pch) < NF) pch <- rep(pch, NF)
+
     # }}}
     # {{{ data & formula
+
     if (missing(data)){
         data <- eval(object[[1]]$call$data)
         if (match("data.frame",class(data),nomatch=0)==0)
@@ -285,6 +295,7 @@ calPlot <- function(object,
         Y <- response[,"time"]
         ## status <- response[,"status"]
         data <- data[neworder,]
+
         # }}}
         # {{{ prediction timepoint 
 
@@ -321,8 +332,10 @@ calPlot <- function(object,
              jack <- NULL
          }
     }
+
     # }}}
     # {{{ smartControl
+
     axis1.DefaultArgs <- list(side=1,las=1,at=seq(0,ylim[2],ylim[2]/4))
     axis2.DefaultArgs <- list(side=2,las=2,at=seq(0,ylim[2],ylim[2]/4),mgp=c(4,1,0))
     if (bars){
@@ -405,6 +418,7 @@ calPlot <- function(object,
                                          forced=list("plot"=list(axes=FALSE),
                                              "axis1"=list(side=1)),
                                          verbose=TRUE)
+
     # }}}
     # {{{ splitmethod
     splitMethod <- resolvesplitMethod(splitMethod=splitMethod,B=B,N=NROW(data),M=M)
@@ -634,6 +648,7 @@ calPlot <- function(object,
     names(plotFrames) <- names(object)
     # }}}
     # {{{ plot and/or invisibly output the results
+
     if (bars){
         if (model.type=="survival" && type=="risk")
             plotFrames[[1]] <- plotFrames[[1]][NROW(plotFrames[[1]]):1,]
@@ -699,8 +714,10 @@ calPlot <- function(object,
                                            function(x)attr(x,"bandwidth"))))
     class(out) <- "calibrationPlot"
     if (plot){
-        plot.calibrationPlot(out)
+        coords <- plot.calibrationPlot(out)
+        out <- c(out,coords)
     }
     invisible(out)
+
     # }}}
 }

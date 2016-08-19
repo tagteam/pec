@@ -245,10 +245,12 @@ reclass <- function(object,
         ## --------------------------------------------------------------------------------------
         ## Survival
         ##
+        ## event:
         ## P(X=x|T<=t) = P(X=x,T<=t) /P(T<=t)
         ##             = P(T<=t|X=x) P(X=x) /P(T<=t)
         ##             = cuminc.x * Hx / cuminc
         ##
+        ## event-free:
         ## P(X=x|T>t)  = P(X=x,T>t) /P(T>t)
         ##             = surv.x * Hx / surv
         ## 
