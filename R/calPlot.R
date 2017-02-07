@@ -559,8 +559,8 @@ calPlot <- function(object,
             p <- predframe[,f+1]
             jackF <- predframe[,1]
         }else{
-             p <- predframe[,f]
-         }
+            p <- predframe[,f]
+        }
         switch(method,
                "quantile"={
                    if (length(q)==1)
@@ -606,8 +606,8 @@ calPlot <- function(object,
                            if (!is.null(bandwidth) && bandwidth>=1){
                                ## message("No need to round predicted probabilities to calculate calibration in the large")
                            } else{
-                                 p <- round(p,2)
-                             }
+                               p <- round(p,2)
+                           }
                        }
                        p <- na.omit(p)
                        if (no <- length(attr(p,"na.action")))
@@ -616,34 +616,34 @@ calPlot <- function(object,
                            if (length(p)>length(apppred[,f+1])){
                                bw <- prodlim::neighborhood(apppred[,f+1])$bandwidth
                            }else{
-                                bw <- prodlim::neighborhood(p)$bandwidth
-                            }
+                               bw <- prodlim::neighborhood(p)$bandwidth
+                           }
                        } else{
-                             bw <- bandwidth
-                         }
+                           bw <- bandwidth
+                       }
                        if (bw>=1){
                            ## calibration in the large
                            plotFrame <- data.frame(Pred=mean(p),Obs=mean(jackF))
                        } else{
-                             nbh <- prodlim::meanNeighbors(x=p,y=jackF,bandwidth=bw)
-                             plotFrame <- data.frame(Pred=nbh$uniqueX,Obs=nbh$averageY)
-                         }
+                           nbh <- prodlim::meanNeighbors(x=p,y=jackF,bandwidth=bw)
+                           plotFrame <- data.frame(Pred=nbh$uniqueX,Obs=nbh$averageY)
+                       }
                        attr(plotFrame,"bandwidth") <- bw
                        plotFrame
                    }else{
-                        form.p <- update(formula,paste(".~p"))
-                        if ("data.table" %in% class(data))
-                            pdata <- cbind(data[,all.vars(update(formula,".~1")),drop=FALSE,with=FALSE],p=p)
-                        else
-                            pdata <- cbind(data[,all.vars(update(formula,".~1")),drop=FALSE],p=p)
-                        y <- unlist(predict(prodlim::prodlim(form.p,data=pdata),
-                                            cause=cause,
-                                            newdata=data.frame(p=sort(p)),
-                                            times=time,
-                                            type=ifelse(type=="survival","surv","cuminc")))
-                        plotFrame <- data.frame(Pred=sort(p),Obs=y)
-                        plotFrame
-                    }
+                       form.p <- update(formula,paste(".~p"))
+                       if ("data.table" %in% class(data))
+                           pdata <- cbind(data[,all.vars(update(formula,".~1")),drop=FALSE,with=FALSE],p=p)
+                       else
+                           pdata <- cbind(data[,all.vars(update(formula,".~1")),drop=FALSE],p=p)
+                       y <- unlist(predict(prodlim::prodlim(form.p,data=pdata),
+                                           cause=cause,
+                                           newdata=data.frame(p=sort(p)),
+                                           times=time,
+                                           type=ifelse(type=="survival","surv","cuminc")))
+                       plotFrame <- data.frame(Pred=sort(p),Obs=y)
+                       plotFrame
+                   }
                })
     }
     plotFrames <- lapply(1:NF,function(f){getXY(f)})

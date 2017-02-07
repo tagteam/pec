@@ -4,7 +4,7 @@
 \alias{plot.calibrationPlot}
 \title{Plot objects obtained with \code{calPlot}}
 \usage{
-plot.calibrationPlot(x, ...)
+\method{plot}{calibrationPlot}(x, ...)
 }
 \arguments{
 \item{x}{Object obtained with \code{calPlot}}
