@@ -347,8 +347,8 @@ summary(PredError.632plus)
 plot(PredError.632plus,xlim=c(0,30))
 # do the same again but now in parallel
 \dontrun{set.seed(17100)
-library(doMC)
-registerDoMC()
+# library(doMC)
+# registerDoMC()
 PredError.632plus <- pec(object=Models,
                   formula=Surv(time,status)~X1+X2,
                   data=dat,
@@ -386,9 +386,6 @@ f4  <- FGR(Hist(time,event)~X1+X2,cause=2,data=cdat)
 p1 <- pec(list(f1,f1a,f2,f3,f4),formula=Hist(time,event)~1,data=cdat,cause=2)
 
 }
-\author{
-Thomas Alexander Gerds \email{tag@biostat.ku.dk}
-}
 \references{
 Ulla B. Mogensen, Hemant Ishwaran, Thomas A. Gerds (2012).
 Evaluating Random Forests for Survival Analysis Using Prediction Error
@@ -422,5 +419,7 @@ the prediction error difference between 2 predictors Biostatistics (2009)
 \code{\link{plot.pec}}, \code{\link{summary.pec}},
 \code{\link{R2}}, \code{\link{crps}}
 }
+\author{
+Thomas Alexander Gerds \email{tag@biostat.ku.dk}
+}
 \keyword{survival}
-

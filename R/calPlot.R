@@ -721,4 +721,5 @@ calPlot <- function(object,
     class(out) <- "calibrationPlot"
     invisible(out)
     # }}}
+
 }

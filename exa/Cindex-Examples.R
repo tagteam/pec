@@ -22,11 +22,11 @@ risk <- matrix(c(2,1,3,4))
 ## id3 vs id1 out: Y[3]>Y[1] & D[1]=1
 ## id3 vs id2 in, concordant: Y[3]>=Y[2] & D[2]=2
 
-cindex(risk,formula=Hist(time,status)~1,data=d)
+pec::cindex(risk,formula=Hist(time,status)~1,data=d)
 concordance.CR(risk,d$time,d$status,failcode=1,cencode=0)
 concordance.simple.CR(risk,d$time,d$status,failcode=1,cencode=0)
 
-x <-  cindex(list(risk,risk1,risk2),formula=Hist(time,status)~1,data=d)
+x <-  pec::cindex(list(risk,risk1,risk2),formula=Hist(time,status)~1,data=d)
 
 N <- 4
 dd <- SimCompRisk(N)
@@ -39,8 +39,8 @@ dd <- data.frame(time=c(3,2,4,1),status=c(1,1,1,1),cause=c(2,1,1,1),r1=c(1,2,3,4
 r1 <- matrix(c(1,3,2,4))
 sdd <- dd[order(dd$time),]
 
-cindex(matrix(dd$r1),formula=Hist(time,cause)~1,data=dd)
-cindex(matrix(sdd$r1),formula=Hist(time,cause)~1,data=sdd)
+pec::cindex(matrix(dd$r1),formula=Hist(time,cause)~1,data=dd)
+pec::cindex(matrix(sdd$r1),formula=Hist(time,cause)~1,data=sdd)
 
 concordance.CR(sdd$r1,sdd$time,sdd$cause,failcode=1,cencode=0)
 concordance.CR(dd$r1,dd$time,dd$cause,failcode=1,cencode=0)
@@ -53,11 +53,11 @@ data(Melanoma)
 f <- FGR(Hist(time,status)~age+thick+ulcer,data=Melanoma)
 f2 <- FGR(Hist(time,status)~age+ulcer,data=Melanoma)
 f3 <- FGR(Hist(time,status)~age,data=Melanoma)
-cindex(list(f,f2,f3),formula=Hist(time,status)~1,data=Melanoma)
+pec::cindex(list(f,f2,f3),formula=Hist(time,status)~1,data=Melanoma)
 
-cindex(list(f,f2,f3),formula=Hist(time,status)~1,data=Melanoma,splitMethod="bootcv",B=10)
+pec::cindex(list(f,f2,f3),formula=Hist(time,status)~1,data=Melanoma,splitMethod="bootcv",B=10)
 
-cindex(list(f,f2,f3),formula=Hist(time,status)~age+thick+ulcer,data=Melanoma,cens.model="cox",splitMethod="bootcv",B=10)
+pec::cindex(list(f,f2,f3),formula=Hist(time,status)~age+thick+ulcer,data=Melanoma,cens.model="cox",splitMethod="bootcv",B=10)
 
 library(riskRegression)
 library(cmprsk)
@@ -67,18 +67,18 @@ f <- FGR(Hist(time,status)~age+thick+ulcer,data=d)
 p <- predictEventProb(f,newdata=Melanoma,times=1500)
 concordance.CR(p,Melanoma$time,Melanoma$status,failcode=1,cencode=0)
 concordance.simple.CR(p,Melanoma$time,Melanoma$status,failcode=1,cencode=0)
-u <- cindex(list(f),formula=Hist(time,status)~1,data=Melanoma)
+u <- pec::cindex(list(f),formula=Hist(time,status)~1,data=Melanoma)
 
-u <- cindex(list(f),formula=Hist(time,status)~1,data=Melanoma,splitMethod="bootcv",B=3,M=NROW(Melanoma))
-u <- cindex(list(f),formula=Hist(time,status)~1,data=Melanoma,splitMethod="bootcv",B=3,M=NROW(Melanoma),verbose=FALSE)
+u <- pec::cindex(list(f),formula=Hist(time,status)~1,data=Melanoma,splitMethod="bootcv",B=3,M=NROW(Melanoma))
+u <- pec::cindex(list(f),formula=Hist(time,status)~1,data=Melanoma,splitMethod="bootcv",B=3,M=NROW(Melanoma),verbose=FALSE)
 
 M1 <- Melanoma[Melanoma$status!=0,]
 p <- predictEventProb(f,newdata=M1,times=1500)
-cindex(list(f),formula=Hist(time,status)~1,data=M1)
+pec::cindex(list(f),formula=Hist(time,status)~1,data=M1)
 concordance.CR(p,M1$time,M1$status,failcode=1,cencode=0)
 concordance.simple.CR(p,M1$time,M1$status,failcode=1,cencode=0)
 
 
-cindex(list(f2,f),formula=Hist(time,status)~1,data=Melanoma)
-cindex(list(f,f2),formula=Hist(time,status)~1,data=Melanoma)
-cindex(list(f,f2,f3),formula=Hist(time,status)~1,data=Melanoma,eval.time=1500)
+pec::cindex(list(f2,f),formula=Hist(time,status)~1,data=Melanoma)
+pec::cindex(list(f,f2),formula=Hist(time,status)~1,data=Melanoma)
+pec::cindex(list(f,f2,f3),formula=Hist(time,status)~1,data=Melanoma,eval.time=1500)

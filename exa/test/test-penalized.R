@@ -31,10 +31,10 @@ data(nki70)
 penLopt <- penalizedOpt(Surv(time, event)~ER+Age+Diam+N+Grade + pen(8:77),data = nki70,optL1.trace=FALSE,optL1.minlambda1=0,optL1.minlambda1=15,optL1.model="cox",optL1.fold=50,optL1.standardize=TRUE,penalized.standardize=TRUE)
 penL1 <- penalizedS3(Surv(time, event)~pen(8:77) + ER+Age+Diam+N+Grade, data = nki70,lambda1=1)
 cox <- coxph(Surv(time, event)~ER+Age+Diam+N+Grade, data = nki70)
-apparrentC <- cindex(list(optLambda1=penLopt,fixedLambda1=penL1,cox=cox),formula=Surv(time, event)~ER+Age+Diam+N+Grade,data=nki70)
+apparrentC <- pec::cindex(list(optLambda1=penLopt,fixedLambda1=penL1,cox=cox),formula=Surv(time, event)~ER+Age+Diam+N+Grade,data=nki70)
 ## need to set B up and adjust M to your data set
 set.seed(17)
-internalValC <- cindex(list(optLambda1=penLopt,fixedLambda1=penL1,cox=cox),formula=Surv(time, event)~ER+Age+Diam+N+Grade,data=nki70,splitMethod="bootcv",B=3,M=round(.632*NROW(nki70)))
+internalValC <- pec::cindex(list(optLambda1=penLopt,fixedLambda1=penL1,cox=cox),formula=Surv(time, event)~ER+Age+Diam+N+Grade,data=nki70,splitMethod="bootcv",B=3,M=round(.632*NROW(nki70)))
 
 # ------------------------predicting survival------------------------
 
@@ -60,19 +60,19 @@ plot(bootcv)
 
 ## a single evaluation time
 
-apparentC13 <- cindex(list(penalized=penS3),
+apparentC13 <- pec::cindex(list(penalized=penS3),
                     formula=Surv(time,event)~1,
                     data=nki70,eval.times=13)
 
 ## discrimination curve over time
-apparentC <- cindex(list(penalized=penS3),
+apparentC <- pec::cindex(list(penalized=penS3),
                     formula=Surv(time,event)~1,
                     data=nki70,eval.times=1:13)
 plot(apparentC)
 
 # bootstrap-crossvalidation (subsampling training size M=100)
 set.seed(13)
-bootcvC <- cindex(list(penalized=penS3),
+bootcvC <- pec::cindex(list(penalized=penS3),
                     formula=Surv(time,event)~1,
                     data=nki70,splitMethod="bootcv",B=10,M=100,eval.times=1:13)
 plot(bootcvC)

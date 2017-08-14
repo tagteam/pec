@@ -168,7 +168,6 @@ predictEventProb.CauseSpecificCox <- function (object, newdata, times, cause, ..
             cumHaz.c
         })
         lagsurv <- exp(-cumHaz1 - Reduce("+",cumHazOther))
-        ## browser()
         cuminc1 <- t(apply(lagsurv*Haz1,1,cumsum))
     }
     else{

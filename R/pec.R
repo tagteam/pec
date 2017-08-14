@@ -324,8 +324,8 @@
 #' plot(PredError.632plus,xlim=c(0,30))
 #' # do the same again but now in parallel
 #' \dontrun{set.seed(17100)
-#' library(doMC)
-#' registerDoMC()
+#' # library(doMC)
+#' # registerDoMC()
 #' PredError.632plus <- pec(object=Models,
 #'                   formula=Surv(time,status)~X1+X2,
 #'                   data=dat,
@@ -678,7 +678,7 @@ if (missing(maxtime) || is.null(maxtime))
             if (class(fit)[[1]]%in% c("matrix","numeric")) pred <- pred[neworder,,drop=FALSE]
             ## u <- list(as.double(Y),as.double(status),as.double(times),as.double(pred),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(is.null(dim(pred))))
             ## if (f==2) browser(skipCalls=1)
-            .C("pec",pec=double(NT),as.double(Y),as.double(status),as.double(times),as.double(pred),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(is.null(dim(pred))),NAOK=TRUE,PACKAGE="pec")$pec
+            .C("pecSRC",pec=double(NT),as.double(Y),as.double(status),as.double(times),as.double(pred),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(is.null(dim(pred))),NAOK=TRUE,PACKAGE="pec")$pec
         }
     })
     names(AppErr) <- names(object)
@@ -758,7 +758,7 @@ if (missing(maxtime) || is.null(maxtime))
           }
           else{
             pred.b <- do.call(predictHandlerFun,c(list(object=fit.b,newdata=noinf.b,times=times),extraArgs))
-            .C("pec",pec=double(NT),as.double(Y),as.double(status),as.double(times),as.double(pred.b),as.double(ipcw.b$IPCW.times),as.double(ipcw.b$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(is.null(dim(pred.b))),NAOK=TRUE,PACKAGE="pec")$pec
+            .C("pecSRC",pec=double(NT),as.double(Y),as.double(status),as.double(times),as.double(pred.b),as.double(ipcw.b$IPCW.times),as.double(ipcw.b$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(is.null(dim(pred.b))),NAOK=TRUE,PACKAGE="pec")$pec
           }
         })
         noinfPredErr

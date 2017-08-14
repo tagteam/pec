@@ -32,7 +32,7 @@
 #' Mogensen UB, Ishwaran H, and Gerds TA. Evaluating random forests for
 #' survival analysis using prediction error curves. Technical Report 8,
 #' University of Copenhagen, Department of Biostatistics, 2010.
-#' @useDynLib pec
+#' @useDynLib pec, .registration=TRUE
 #' @importFrom foreach %dopar%
 #' @importFrom survival Surv
 #' @importFrom prodlim Hist
@@ -43,8 +43,6 @@
 #' @importFrom utils capture.output head select.list
 #' @keywords datasets
 NULL
-
-
 #' German Breast Cancer Study Group 2
 #' 
 #' A data frame containing the observations from the GBSG2 study.

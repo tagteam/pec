@@ -174,7 +174,7 @@
 #'  #
 #'  # compute the apparent estimate of the C-index at different time points
 #'  #
-#' ApparrentCindex  <- cindex(list("Cox X1"=cox1,
+#' ApparrentCindex  <- pec::cindex(list("Cox X1"=cox1,
 #' 		       "Cox X2"=cox2,
 #' 		       "Cox X1+X2"=cox12,
 #'                        "RSF"=rsf1),
@@ -188,7 +188,7 @@
 #'  # the C-index at different time points
 #'  #
 #' set.seed(142)
-#' bcvCindex  <- cindex(list("Cox X1"=cox1,
+#' bcvCindex  <- pec::cindex(list("Cox X1"=cox1,
 #' 		       "Cox X2"=cox2,
 #' 		       "Cox X1+X2"=cox12,
 #'                        "RSF"=rsf1),
@@ -207,7 +207,7 @@
 #' fit12 <- coxph(Surv(time,status)~X1+X2,data=dat)
 #' fit1 <- coxph(Surv(time,status)~X1,data=dat)
 #' fit2 <- coxph(Surv(time,status)~X2,data=dat)
-#' Cpec <- cindex(list("Cox X1+X2"=fit12,"Cox X1"=fit1,"Cox X2"=fit2),
+#' Cpec <- pec::cindex(list("Cox X1+X2"=fit12,"Cox X1"=fit1,"Cox X2"=fit2),
 #' 	       formula=Surv(time,status)~1,
 #' 	       data=dat,
 #' 	       eval.times=Inf)
@@ -228,7 +228,7 @@
 #' set.seed(30)
 #' dcr.learn <- SimCompRisk(30)
 #' dcr.val <- SimCompRisk(30)
-#' cindex(CSC(Hist(time,event)~X1+X2,data=dcr.learn),data=dcr.val)
+#' pec::cindex(CSC(Hist(time,event)~X1+X2,data=dcr.learn),data=dcr.val)
 #'
 #' @export 
 # {{{ header cindex.list
@@ -547,7 +547,7 @@ cindex <- function(object,
                                   as.integer(tiedMatchIn),
                                   as.integer(!is.null(dim(weight.j))),
                                   NAOK=TRUE,
-                                  package="pec")
+                                  PACKAGE="pec")
             AppCindex <- AppCindexResult$cindex
             AppPairsA <- AppCindexResult$pairsA
             AppConcordantA <- AppCindexResult$concA
@@ -566,7 +566,7 @@ cindex <- function(object,
                 pred <- rep(pred,length(eval.times))
             if (length(pred)!=N*NT) stop(paste0("Prediction of model ",names(object)[f]," has wrong dimension: ",NROW(pred)," rows and ",NCOL(pred), " columns. Should have ",N, "rows and ",NT," columns."))
             ## if (any(is.na(pred))) stop(paste0("Missing values in prediction of model: ", names(object)[f]))
-            AppCindexResult <- .C("cindex",cindex=double(NT),conc=double(NT),pairs=double(NT),as.integer(tindex),as.double(Y),as.integer(status),as.double(eval.times),as.double(weight.i),as.double(weight.j),as.double(pred),as.integer(N),as.integer(NT),as.integer(tiedPredictionsIn),as.integer(tiedOutcomeIn),as.integer(tiedMatchIn),as.integer(!is.null(dim(weight.j))),NAOK=TRUE,package="pec")
+            AppCindexResult <- .C("cindexSRC",cindex=double(NT),conc=double(NT),pairs=double(NT),as.integer(tindex),as.double(Y),as.integer(status),as.double(eval.times),as.double(weight.i),as.double(weight.j),as.double(pred),as.integer(N),as.integer(NT),as.integer(tiedPredictionsIn),as.integer(tiedOutcomeIn),as.integer(tiedMatchIn),as.integer(!is.null(dim(weight.j))),NAOK=TRUE,PACKAGE="pec")
             AppCindex <- AppCindexResult$cindex
             AppPairs <- AppCindexResult$pairs
             AppConcordant <- AppCindexResult$conc
