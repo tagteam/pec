@@ -9,10 +9,10 @@ pec(object, formula, data, traindata, times, cause, start, maxtime,
   ipcw.refit = FALSE, ipcw.args = NULL, splitMethod = "none", B, M,
   reference = TRUE, model.args = NULL, model.parms = NULL,
   keep.index = FALSE, keep.matrix = FALSE, keep.models = FALSE,
-  keep.residuals = FALSE, keep.pvalues = FALSE, noinf.permute = FALSE,
-  multiSplitTest = FALSE, testIBS, testTimes, confInt = FALSE,
-  confLevel = 0.95, verbose = TRUE, savePath = NULL, slaveseed = NULL,
-  na.action = na.fail, ...)
+  keep.residuals = FALSE, keep.pvalues = FALSE,
+  noinf.permute = FALSE, multiSplitTest = FALSE, testIBS, testTimes,
+  confInt = FALSE, confLevel = 0.95, verbose = TRUE,
+  savePath = NULL, slaveseed = NULL, na.action = na.fail, ...)
 }
 \arguments{
 \item{object}{A named list of prediction models, where allowed entries are
@@ -296,9 +296,9 @@ dat <- SimSurv(100)
 
 # fit some candidate Cox models and compute the Kaplan-Meier estimate 
 
-Models <- list("Cox.X1"=coxph(Surv(time,status)~X1,data=dat,y=TRUE),
-              "Cox.X2"=coxph(Surv(time,status)~X2,data=dat,y=TRUE),
-              "Cox.X1.X2"=coxph(Surv(time,status)~X1+X2,data=dat,y=TRUE))
+Models <- list("Cox.X1"=coxph(Surv(time,status)~X1,data=dat,x=TRUE,y=TRUE),
+              "Cox.X2"=coxph(Surv(time,status)~X2,data=dat,x=TRUE,y=TRUE),
+              "Cox.X1.X2"=coxph(Surv(time,status)~X1+X2,data=dat,x=TRUE,y=TRUE))
 
 # compute the apparent prediction error 
 PredError <- pec(object=Models,
@@ -321,7 +321,7 @@ library(pec)
 data(pbc)
 pbc <- pbc[sample(1:NROW(pbc),size=100),]
 f1 <- psm(Surv(time,status!=0)~edema+log(bili)+age+sex+albumin,data=pbc)
-f2 <- coxph(Surv(time,status!=0)~edema+log(bili)+age+sex+albumin,data=pbc)
+f2 <- coxph(Surv(time,status!=0)~edema+log(bili)+age+sex+albumin,data=pbc,x=TRUE,y=TRUE)
 f3 <- cph(Surv(time,status!=0)~edema+log(bili)+age+sex+albumin,data=pbc,surv=TRUE)
 brier <- pec(list("Weibull"=f1,"CoxPH"=f2,"CPH"=f3),data=pbc,formula=Surv(time,status!=0)~1)
 print(brier)
@@ -375,15 +375,13 @@ library(riskRegression)
 library(cmprsk)
 library(pec)
 cdat <- SimCompRisk(100)
-data(cdat)
 f1  <- CSC(Hist(time,event)~X1+X2,cause=2,data=cdat)
-f1a  <- CSC(Hist(time,event)~X1+X2,cause=2,data=cdat,survtype="surv")
 f2  <- CSC(Hist(time,event)~X1,data=cdat,cause=2)
 require(cmprsk)
 ## predict.crr <- cmprsk:::predict.crr
 f3  <- FGR(Hist(time,event)~X1+X2,cause=2,data=cdat)
 f4  <- FGR(Hist(time,event)~X1+X2,cause=2,data=cdat)
-p1 <- pec(list(f1,f1a,f2,f3,f4),formula=Hist(time,event)~1,data=cdat,cause=2)
+p1 <- pec(list(f1,f2,f3,f4),formula=Hist(time,event)~1,data=cdat,cause=2)
 
 }
 \references{

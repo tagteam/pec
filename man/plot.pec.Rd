@@ -5,9 +5,9 @@
 \title{Plotting prediction error curves}
 \usage{
 \method{plot}{pec}(x, what, models, xlim = c(x$start, x$minmaxtime),
-  ylim = c(0, 0.3), xlab = "Time", ylab, axes = TRUE, col, lty, lwd, type,
-  smooth = FALSE, add.refline = FALSE, add = FALSE, legend = ifelse(add,
-  FALSE, TRUE), special = FALSE, ...)
+  ylim = c(0, 0.3), xlab = "Time", ylab, axes = TRUE, col, lty, lwd,
+  type, smooth = FALSE, add.refline = FALSE, add = FALSE,
+  legend = ifelse(add, FALSE, TRUE), special = FALSE, ...)
 }
 \arguments{
 \item{x}{Object of class \code{pec} obtained with function
@@ -100,12 +100,12 @@ dat <- SimSurv(100)
 # compute the Kaplan-Meier estimate 
 
 Models <- list("Kaplan.Meier"=survfit(Surv(time,status)~1,data=dat),
-               "Cox.X1"=coxph(Surv(time,status)~X1,data=dat),
-               "Cox.X2"=coxph(Surv(time,status)~X2,data=dat),
-               "Cox.X1.X2"=coxph(Surv(time,status)~X1+X2,data=dat))
-Models <- list("Cox.X1"=coxph(Surv(time,status)~X1,data=dat),
-               "Cox.X2"=coxph(Surv(time,status)~X2,data=dat),
-               "Cox.X1.X2"=coxph(Surv(time,status)~X1+X2,data=dat))
+               "Cox.X1"=coxph(Surv(time,status)~X1,data=dat,x=TRUE,y=TRUE),
+               "Cox.X2"=coxph(Surv(time,status)~X2,data=dat,x=TRUE,y=TRUE),
+               "Cox.X1.X2"=coxph(Surv(time,status)~X1+X2,data=dat,x=TRUE,y=TRUE))
+Models <- list("Cox.X1"=coxph(Surv(time,status)~X1,data=dat,x=TRUE,y=TRUE),
+               "Cox.X2"=coxph(Surv(time,status)~X2,data=dat,x=TRUE,y=TRUE),
+               "Cox.X1.X2"=coxph(Surv(time,status)~X1+X2,data=dat,x=TRUE,y=TRUE))
 
 
 # compute the .632+ estimate of the generalization error 

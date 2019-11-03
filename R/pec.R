@@ -273,9 +273,9 @@
 #' 
 #' # fit some candidate Cox models and compute the Kaplan-Meier estimate 
 #' 
-#' Models <- list("Cox.X1"=coxph(Surv(time,status)~X1,data=dat,y=TRUE),
-#'               "Cox.X2"=coxph(Surv(time,status)~X2,data=dat,y=TRUE),
-#'               "Cox.X1.X2"=coxph(Surv(time,status)~X1+X2,data=dat,y=TRUE))
+#' Models <- list("Cox.X1"=coxph(Surv(time,status)~X1,data=dat,x=TRUE,y=TRUE),
+#'               "Cox.X2"=coxph(Surv(time,status)~X2,data=dat,x=TRUE,y=TRUE),
+#'               "Cox.X1.X2"=coxph(Surv(time,status)~X1+X2,data=dat,x=TRUE,y=TRUE))
 #' 
 #' # compute the apparent prediction error 
 #' PredError <- pec(object=Models,
@@ -298,7 +298,7 @@
 #' data(pbc)
 #' pbc <- pbc[sample(1:NROW(pbc),size=100),]
 #' f1 <- psm(Surv(time,status!=0)~edema+log(bili)+age+sex+albumin,data=pbc)
-#' f2 <- coxph(Surv(time,status!=0)~edema+log(bili)+age+sex+albumin,data=pbc)
+#' f2 <- coxph(Surv(time,status!=0)~edema+log(bili)+age+sex+albumin,data=pbc,x=TRUE,y=TRUE)
 #' f3 <- cph(Surv(time,status!=0)~edema+log(bili)+age+sex+albumin,data=pbc,surv=TRUE)
 #' brier <- pec(list("Weibull"=f1,"CoxPH"=f2,"CPH"=f3),data=pbc,formula=Surv(time,status!=0)~1)
 #' print(brier)
@@ -352,15 +352,13 @@
 #' library(cmprsk)
 #' library(pec)
 #' cdat <- SimCompRisk(100)
-#' data(cdat)
 #' f1  <- CSC(Hist(time,event)~X1+X2,cause=2,data=cdat)
-#' f1a  <- CSC(Hist(time,event)~X1+X2,cause=2,data=cdat,survtype="surv")
 #' f2  <- CSC(Hist(time,event)~X1,data=cdat,cause=2)
 #' require(cmprsk)
 #' ## predict.crr <- cmprsk:::predict.crr
 #' f3  <- FGR(Hist(time,event)~X1+X2,cause=2,data=cdat)
 #' f4  <- FGR(Hist(time,event)~X1+X2,cause=2,data=cdat)
-#' p1 <- pec(list(f1,f1a,f2,f3,f4),formula=Hist(time,event)~1,data=cdat,cause=2)
+#' p1 <- pec(list(f1,f2,f3,f4),formula=Hist(time,event)~1,data=cdat,cause=2)
 #' 
 #' @export 
 # {{{ header pec.list
@@ -433,7 +431,7 @@ pec <- function(object,
           stop(paste("Argument formula is missing and first model has no usable formula:",as.character(object[[1]]$call$formula)))
       } else{
           ftry <- try(formula <- eval(object[[1]]$call$formula),silent=TRUE)
-          if ((class(ftry)=="try-error") || match("formula",class(formula),nomatch=0)==0)
+          if ((class(ftry)[1]=="try-error") || match("formula",class(formula),nomatch=0)==0)
               stop("Argument formula is missing and first model has no usable formula.")
           else if (verbose)
               warning("Formula missing. Using formula from first model")

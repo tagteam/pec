@@ -77,7 +77,7 @@
 ##' predictRestrictedMeanTime(coxmodel,newdata=ndat,times=ttt)
 ##' 
 ##' # stratified cox model
-##' sfit <- coxph(Surv(time,status)~strata(X1)+X2,data=d,y=TRUE)
+##' sfit <- coxph(Surv(time,status)~strata(X1)+X2,data=d,x=TRUE,y=TRUE)
 ##' predictRestrictedMeanTime(sfit,newdata=d[1:3,],times=c(1,3,5,10))
 ##' 
 ##' ## simulate some learning and some validation data
@@ -85,7 +85,7 @@
 ##' valdat <- SimSurv(100)
 ##' ## use the learning data to fit a Cox model
 ##' library(survival)
-##' fitCox <- coxph(Surv(time,status)~X1+X2,data=learndat)
+##' fitCox <- coxph(Surv(time,status)~X1+X2,data=learndat,x=TRUE,y=TRUE)
 ##' ## suppose we want to predict the survival probabilities for all patients
 ##' ## in the validation data at the following time points:
 ##' ## 0, 12, 24, 36, 48, 60
@@ -195,15 +195,8 @@ predictRestrictedMeanTime.pecRpart <- function(object,newdata,times,...){
     
 ##' @export
 predictRestrictedMeanTime.coxph <- function(object,newdata,times,...){
-    ## baselineHazard.coxph(object,times)
-    ## require(survival)
-    ## new feature of the survival package requires that the
-    ## original data are included
-    ## survival.survfit.coxph <- getFromNamespace("survfit.coxph",ns="survival")
-    ## survival.summary.survfit <- getFromNamespace("summary.survfit",ns="survival")
-    ## b <- function(x){browser()}
-    ## b()
-    eTimes <- unique(sort(object$y))
+    if (is.null(y <- unclass(object$y)[,1])) stop("Need 'y=TRUE' in call of 'coxph'.")
+    eTimes <- unique(sort(y))
     pos <- prodlim::sindex(jump.times=eTimes,eval.times=times)
     surv <- predictSurvProb(object,newdata=newdata,times=eTimes)
     rmt <- matrix(unlist(lapply(1:length(pos), function(j) {
