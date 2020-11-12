@@ -56,7 +56,7 @@ approaches.
 \details{
 The function predictRestrictedMeanTime is a generic function, meaning that it
 invokes a different function dependent on the 'class' of the
-first argument.
+first argument. 
 
 See also \code{\link{predictSurvProb}}.
 }

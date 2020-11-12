@@ -215,13 +215,14 @@ predictSurvProb.cox.aalen <- function(object,newdata,times,...){
 #' @return list with three elements: ctree and call
 #' @examples
 #' library(prodlim)
-#' library(rpart)
+#' if (!requireNamespace("rpart",quietly=TRUE)){
 #' library(survival)
 #' set.seed(50)
 #' d <- SimSurv(50)
 #' nd <- data.frame(X1=c(0,1,0),X2=c(-1,0,1))
 #' f <- pecRpart(Surv(time,status)~X1+X2,data=d)
 #' predictSurvProb(f,newdata=nd,times=c(3,8))
+#' }
 #' @export 
 pecRpart <- function(formula,data,...){
     robj <- rpart::rpart(formula=formula,data=data,...)

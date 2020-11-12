@@ -9,6 +9,9 @@
 #' based on bootstrap resampling or bootstrap subsampling can be applied to
 #' assess and compare the predictive power of various regression modelling
 #' strategies on the same set of data.
+#'
+#' Note that package riskRegression provides very similar
+#' functionality (and much more) but not yet every feature of pec.
 #' 
 #' Missing data in the response or in the input matrix cause a failure.
 #' 
@@ -233,7 +236,14 @@
 #' @author Thomas Alexander Gerds \email{tag@@biostat.ku.dk}
 #' @seealso \code{\link{plot.pec}}, \code{\link{summary.pec}},
 #' \code{\link{R2}}, \code{\link{crps}}
-#' @references Ulla B. Mogensen, Hemant Ishwaran, Thomas A. Gerds (2012).
+#' @references
+#'
+#' Gerds TA, Kattan MW.
+#' Medical Risk Prediction Models: With Ties to Machine Learning.
+#' Chapman & Hall/CRC
+#' https://www.routledge.com/9781138384477
+#'
+#' Ulla B. Mogensen, Hemant Ishwaran, Thomas A. Gerds (2012).
 #' Evaluating Random Forests for Survival Analysis Using Prediction Error
 #' Curves. Journal of Statistical Software, 50(11), 1-23. URL
 #' http://www.jstatsoft.org/v50/i11/.
@@ -349,16 +359,16 @@
 #' 
 #' library(survival)
 #' library(riskRegression)
-#' library(cmprsk)
+#' if(requireNamespace("cmprsk",quietly=TRUE)){
 #' library(pec)
 #' cdat <- SimCompRisk(100)
 #' f1  <- CSC(Hist(time,event)~X1+X2,cause=2,data=cdat)
 #' f2  <- CSC(Hist(time,event)~X1,data=cdat,cause=2)
-#' require(cmprsk)
 #' ## predict.crr <- cmprsk:::predict.crr
 #' f3  <- FGR(Hist(time,event)~X1+X2,cause=2,data=cdat)
 #' f4  <- FGR(Hist(time,event)~X1+X2,cause=2,data=cdat)
 #' p1 <- pec(list(f1,f2,f3,f4),formula=Hist(time,event)~1,data=cdat,cause=2)
+#' }
 #' 
 #' @export 
 # {{{ header pec.list
@@ -406,9 +416,9 @@ pec <- function(object,
     # }}}
     # {{{ checking integrity some arguments
 
-  theCall=match.call()
-  if (match("replan",names(theCall),nomatch=FALSE))
-    stop("The argument name 'replan' has been replaced by 'splitMethod'.")
+    theCall=match.call()
+    if (match("replan",names(theCall),nomatch=FALSE))
+        stop("The argument name 'replan' has been replaced by 'splitMethod'.")
     if (!missing(testIBS) && (!(is.logical(testIBS) || (length(testIBS)==2 && is.numeric(testIBS)))))
         stop("Argument testIBS can be TRUE/FALSE or a vector of two numeric values.")
     if (missing(testIBS)) testIBS <- FALSE

@@ -5,8 +5,7 @@
 \title{Stepwise variable selection in the Fine & Gray regression competing risk
 model}
 \usage{
-selectFGR(formula, data, cause = 1, rule = "AIC",
-  direction = "backward", ...)
+selectFGR(formula, data, cause = 1, rule = "AIC", direction = "backward", ...)
 }
 \arguments{
 \item{formula}{A formula whose left hand side is a \code{Hist}
@@ -36,7 +35,7 @@ variables.
 library(riskRegression)
 library(prodlim)
 library(lava)
-library(cmprsk)
+if (!requireNamespace("cmprsk",quietly=TRUE)){
 library(pec)
 m <- crModel()
 m <- addvar(m,c('X1','X2','X3','X4','X5','X6','X7','X8','X9','X10'))
@@ -77,6 +76,7 @@ pec(list(full.model=fg,selectedAIC=sfgAIC,selectedBIC=sfgBIC),
     data=d,
     B=5,
     splitMethod="bootcv")
+}
 }
 
 
