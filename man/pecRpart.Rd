@@ -22,6 +22,7 @@ Combines the rpart result with a stratified Kaplan-Meier (prodlim) to predict su
 \examples{
 library(prodlim)
 if (!requireNamespace("rpart",quietly=TRUE)){
+library(rpart)
 library(survival)
 set.seed(50)
 d <- SimSurv(50)

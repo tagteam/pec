@@ -224,6 +224,7 @@
 #' p2 <- predictSurvProb(fit2,newdata=dat,times=10)
 #' p12 <- predictSurvProb(fit12,newdata=dat,times=10)
 #' if (requireNamespace("Hmisc",quietly=TRUE)){
+#' library(Hmisc)
 #' harrelC1 <- rcorr.cens(p1,with(dat,Surv(time,status)))
 #' harrelC2 <- rcorr.cens(p2,with(dat,Surv(time,status)))
 #' harrelC12 <- rcorr.cens(p12,with(dat,Surv(time,status)))

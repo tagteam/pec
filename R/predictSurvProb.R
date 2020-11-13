@@ -216,6 +216,7 @@ predictSurvProb.cox.aalen <- function(object,newdata,times,...){
 #' @examples
 #' library(prodlim)
 #' if (!requireNamespace("rpart",quietly=TRUE)){
+#' library(rpart)
 #' library(survival)
 #' set.seed(50)
 #' d <- SimSurv(50)

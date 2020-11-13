@@ -405,6 +405,7 @@ summary(pf)
 library(survival)
 library(riskRegression)
 if(requireNamespace("cmprsk",quietly=TRUE)){
+library(cmprsk)
 library(pec)
 cdat <- SimCompRisk(100)
 f1  <- CSC(Hist(time,event)~X1+X2,cause=2,data=cdat)
