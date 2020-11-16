@@ -108,7 +108,7 @@ plotPredictSurvProb(rsfmodel,newdata=ndat,times=ttt)
 Ulla B. Mogensen, Hemant Ishwaran, Thomas A. Gerds (2012).
 Evaluating Random Forests for Survival Analysis Using Prediction Error
 Curves. Journal of Statistical Software, 50(11), 1-23. URL
-http://www.jstatsoft.org/v50/i11/.
+https://www.jstatsoft.org/v50/i11.
 }
 \seealso{
 \code{\link{predictSurvProb}}\code{\link{prodlim}}
