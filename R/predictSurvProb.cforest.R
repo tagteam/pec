@@ -17,7 +17,8 @@
 #' @keywords survival
 #' @export pecCforest
 pecCforest <- function(formula,data,...){
-    requireNamespace("party")
+    if (!(requireNamespace("party",quietly=TRUE)))
+        stop("Need package party for this, but is not available here.")
     out <- list(forest=party::cforest(formula,data,...))
     class(out) <- "pecCforest"
     out$call <- match.call()
@@ -27,7 +28,8 @@ pecCforest <- function(formula,data,...){
 
 ##' @export 
 predictSurvProb.pecCforest <- function (object, newdata, times, ...) {
-    requireNamespace("party")
+    if (!(requireNamespace("party",quietly=TRUE)))
+        stop("Need package party for this, but is not available here.")
     survObj <- party::treeresponse(object$forest,newdata=newdata)
     p <- do.call("rbind",lapply(survObj,function(x){
         predictSurvProb(x,newdata=newdata[1,,drop=FALSE],times=times)

@@ -12,15 +12,15 @@ Imports:
     foreach (>= 1.4.2),
     rms (>= 4.2-0),
     survival (>= 2.37-7),
-    timereg (>= 1.8.9)
+    riskRegression (>= 2020.02.05),
+    lava (>= 1.4.1),
+    timereg (>= 1.8.9),
 Suggests:
     randomForestSRC,
     party,
     cmprsk (>= 2.2-7),
     rpart,
     crrstep,
-    riskRegression (>= 1.0.8),
-    lava (>= 1.4.1),
     Hmisc (>= 3.14-4)
 Maintainer: Thomas A. Gerds <tag@biostat.ku.dk>
 License: GPL (>= 2)

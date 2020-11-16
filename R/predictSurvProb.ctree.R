@@ -18,10 +18,12 @@
 ##' @author Thomas A. Gerds <tag@@biostat.ku.dk>
 ##' @export 
 pecCtree <- function(...){
- out <- list(ctree=party::ctree(...))
- class(out) <- "pecCtree"
- out$call <- match.call()
- out  
+    if (!(requireNamespace("party",quietly=TRUE)))
+        stop("Need package party for this, but is not available here.")
+    out <- list(ctree=party::ctree(...))
+    class(out) <- "pecCtree"
+    out$call <- match.call()
+    out  
 }
 
 ##' @export 
