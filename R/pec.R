@@ -365,7 +365,6 @@
 #' cdat <- SimCompRisk(100)
 #' f1  <- CSC(Hist(time,event)~X1+X2,cause=2,data=cdat)
 #' f2  <- CSC(Hist(time,event)~X1,data=cdat,cause=2)
-#' ## predict.crr <- cmprsk:::predict.crr
 #' f3  <- FGR(Hist(time,event)~X1+X2,cause=2,data=cdat)
 #' f4  <- FGR(Hist(time,event)~X1+X2,cause=2,data=cdat)
 #' p1 <- pec(list(f1,f2,f3,f4),formula=Hist(time,event)~1,data=cdat,cause=2)
