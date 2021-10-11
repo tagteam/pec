@@ -1,6 +1,6 @@
 Package: pec
 Title: Prediction Error Curves for Risk Prediction Models in Survival Analysis
-Version: 2020.11.17
+Version: 2021.10.11
 Author: Thomas A. Gerds
 Description: Validation of risk predictions obtained from survival models and
     competing risk models based on censored data using inverse weighting and
