@@ -107,24 +107,24 @@ stopifnot(all(Cbc$BootstrapCrossValCindexMat[[2]]==c(Cbc.1$AppCindex[[2]],Cbc.2$
 ## cindex.pbc <- pec::cindex(list(cox.pbc),formula=Hist(days,status)~1,data=pbc.na,splitMethod="bootcv",B=2,eval.times=seq(0,365.25*10,365.25),keep.matrix=TRUE)
 
 
-
-data(pbc, package = "randomForestSRC")
-pbc.na <- na.omit(pbc)  ##remove NA's
-pbc.na <- pbc.na[200:250,]
-pbc.na <- pbc.na[order(pbc.na$days,-pbc.na$status),]
-cox.pbc <- coxph(Surv(days,status)~bili, data=pbc.na)
-ttt <- 1000
-set.seed(17)
-cindex.pbc <- pec::cindex(list(cox.pbc),formula=Hist(days,status)~1,data=pbc.na,splitMethod="bootcv",B=2,eval.times=ttt,keep.matrix=TRUE,keep.index=TRUE) 
-## cindex.pbc$splitMethod$index[,"Train.1"]
-## match(1:NROW(pbc.na),unique(cindex.pbc$splitMethod$index[,"Train.1"]),nomatch=0)==0
-train1 <- pbc.na[cindex.pbc$splitMethod$index[,"Train.1"],]
-print(train1$days)
-val1 <- pbc.na[match(1:NROW(pbc.na),unique(cindex.pbc$splitMethod$index[,"Train.1"]),nomatch=0)==0,]
-## val1 <- val1[order(val1$days,-val1$status),]
-print(val1$days)
-fit1.1 <- coxph(Surv(days,status)~bili,data=train1)
-predictSurvProb(fit1.1,newdata=val1,times=ttt)
-cindex.pbc.1 <- pec::cindex(list(fit1.1),formula=Surv(days,status)~1,data=val1,eval.times=ttt)
-print(cbind(cindex.pbc$BootstrapCrossValCindexMat[[1]][1,],cindex.pbc.1$AppCindex[[1]]))
-
+if ((requireNamespace("randomForestSRC",quietly=TRUE))){
+    data(pbc, package = "randomForestSRC")
+    pbc.na <- na.omit(pbc)  ##remove NA's
+    pbc.na <- pbc.na[200:250,]
+    pbc.na <- pbc.na[order(pbc.na$days,-pbc.na$status),]
+    cox.pbc <- coxph(Surv(days,status)~bili, data=pbc.na)
+    ttt <- 1000
+    set.seed(17)
+    cindex.pbc <- pec::cindex(list(cox.pbc),formula=Hist(days,status)~1,data=pbc.na,splitMethod="bootcv",B=2,eval.times=ttt,keep.matrix=TRUE,keep.index=TRUE) 
+    ## cindex.pbc$splitMethod$index[,"Train.1"]
+    ## match(1:NROW(pbc.na),unique(cindex.pbc$splitMethod$index[,"Train.1"]),nomatch=0)==0
+    train1 <- pbc.na[cindex.pbc$splitMethod$index[,"Train.1"],]
+    print(train1$days)
+    val1 <- pbc.na[match(1:NROW(pbc.na),unique(cindex.pbc$splitMethod$index[,"Train.1"]),nomatch=0)==0,]
+    ## val1 <- val1[order(val1$days,-val1$status),]
+    print(val1$days)
+    fit1.1 <- coxph(Surv(days,status)~bili,data=train1)
+    predictSurvProb(fit1.1,newdata=val1,times=ttt)
+    cindex.pbc.1 <- pec::cindex(list(fit1.1),formula=Surv(days,status)~1,data=val1,eval.times=ttt)
+    print(cbind(cindex.pbc$BootstrapCrossValCindexMat[[1]][1,],cindex.pbc.1$AppCindex[[1]]))
+}

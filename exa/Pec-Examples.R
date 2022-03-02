@@ -71,28 +71,27 @@ GBSG2 <- GBSG2[order(GBSG2$time,-GBSG2$status),]
 GBSG2$grade.bin <- as.factor(as.numeric(GBSG2$tgrade!="I"))
 levels(GBSG2$grade.bin) <- c("I","II/III")
 
-d <- SimSurv(100)
-library(randomForestSRC)
-
-RSF=rfsrc(Surv(time,status)~age+tsize+grade.bin+pnodes+progrec+estrec,data=GBSG2,forest=TRUE)
-save(RSF,file="~/research/SoftWare/pec/exa/RSF-gbsg2.rda")
-set.seed(17)
-b632 <- pec.list(object=list(RSF),formula=Surv(time,status)~1,data=GBSG2,cens.model="marginal",splitMethod="boot632plus",B=10,M=500)
-set.seed(17)
-b632a <- pec.list(object=list(RSF),noinf.permute=T,formula=Surv(time,status)~1,data=GBSG2,cens.model="marginal",splitMethod="boot632plus",B=10,M=500)
-graphics::plot(b632a$NoInfErr[[2]],b632$NoInfErr[[2]])
-
-f3 <- rfsrc(Surv(time,status)~X1+X2,data=d)
-set.seed(17)
-b632 <- pec.list(object=list(f3),formula=Surv(time,status)~1,data=d,cens.model="marginal",splitMethod="boot632plus",B=10)
-set.seed(17)
-b632a <- pec.list(object=list(f3),noinf.permute=T,formula=Surv(time,status)~1,data=d,cens.model="marginal",splitMethod="boot632plus",B=10)
-graphics::plot(b632a$NoInfErr[[1]],b632$NoInfErr[[1]])
-graphics::plot(b632a$NoInfErr[[2]],b632$NoInfErr[[2]])
-## graphics::plot(b632,xlim=c(0,100))
-## graphics::plot(b632a,add=T,lty=3)
-# }}}
-
+if ((requireNamespace("randomForestSRC",quietly=TRUE))){
+    d <- SimSurv(100)
+    library(randomForestSRC)
+    RSF=rfsrc(Surv(time,status)~age+tsize+grade.bin+pnodes+progrec+estrec,data=GBSG2,forest=TRUE)
+    save(RSF,file="~/research/SoftWare/pec/exa/RSF-gbsg2.rda")
+    set.seed(17)
+    b632 <- pec.list(object=list(RSF),formula=Surv(time,status)~1,data=GBSG2,cens.model="marginal",splitMethod="boot632plus",B=10,M=500)
+    set.seed(17)
+    b632a <- pec.list(object=list(RSF),noinf.permute=T,formula=Surv(time,status)~1,data=GBSG2,cens.model="marginal",splitMethod="boot632plus",B=10,M=500)
+    graphics::plot(b632a$NoInfErr[[2]],b632$NoInfErr[[2]])
+    f3 <- rfsrc(Surv(time,status)~X1+X2,data=d)
+    set.seed(17)
+    b632 <- pec.list(object=list(f3),formula=Surv(time,status)~1,data=d,cens.model="marginal",splitMethod="boot632plus",B=10)
+    set.seed(17)
+    b632a <- pec.list(object=list(f3),noinf.permute=T,formula=Surv(time,status)~1,data=d,cens.model="marginal",splitMethod="boot632plus",B=10)
+    graphics::plot(b632a$NoInfErr[[1]],b632$NoInfErr[[1]])
+    graphics::plot(b632a$NoInfErr[[2]],b632$NoInfErr[[2]])
+    ## graphics::plot(b632,xlim=c(0,100))
+    ## graphics::plot(b632a,add=T,lty=3)
+    # }}}
+}
 
 # {{{ Parallel computing
 library(pec)

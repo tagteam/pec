@@ -1,6 +1,5 @@
 library(pec)
-library(randomForestSRC)
- data(cost)
+data(cost)
 f <- coxph(Surv(time,status)~age+sex,data=cost)
 fitpec <- pec(list("cox" = f),
               data = cost,
