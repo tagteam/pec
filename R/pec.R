@@ -424,7 +424,7 @@ pec <- function(object,
 
   # }}}
   # {{{ check and convert object
-  if (!interits(object,"list")) {
+  if (!inherits(object,"list")) {
       object <- list(object)
   }
   # }}}

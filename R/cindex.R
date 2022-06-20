@@ -296,7 +296,7 @@ cindex <- function(object,
   stopifnot(as.numeric(tiedMatchIn) %in% c(0,1))
   # }}}
   # {{{ check and convert object
-  if (!(inherits(x = object,what = "list")) {
+  if (!(inherits(x = object,what = "list"))) {
       object <- list(object)
   }
   # }}}
@@ -331,7 +331,7 @@ cindex <- function(object,
           stop("Data missing and cannot borrow data from the first object :(")
       }
       data <- eval(object[[1]]$call$data)
-      if (!interits(x = data,what = "data.frame"))
+      if (!inherits(x = data,what = "data.frame"))
           stop("Argument data is missing.")
       else
           if (verbose)
@@ -351,7 +351,7 @@ cindex <- function(object,
   }
   m <- model.frame(histformula,data,na.action=na.action)
   response <- model.response(m)
-  if (intherits(x = response,what = "Surv")){
+  if (inherits(x = response,what = "Surv")){
       attr(response,"model") <- "survival"
       attr(response,"cens.type") <- "rightCensored"
       model.type <- "survival"

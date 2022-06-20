@@ -222,7 +222,7 @@ predictSurvProb.cox.aalen <- function(object,newdata,times,...){
 #' @export 
 pecRpart <- function(formula,data,...){
     if (!requireNamespace("rpart",quietly=TRUE)){stop("Need package rpart.")}
-    robj <- rpart::rpart(formula=formula,data=data,...)
+    robj <- do.call(rpart::rpart,list(formula=formula,data=data,...))
     nclass <- length(unique(robj$where))
     data$rpartFactor <- factor(predict(robj,newdata=data,...))
     form <- update(formula,paste(".~","rpartFactor",sep=""))

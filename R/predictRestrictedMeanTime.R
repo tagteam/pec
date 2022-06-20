@@ -264,7 +264,7 @@ predictRestrictedMeanTime.prodlim <- function(object,newdata,times,...){
                  times=times,
                  mode="matrix",
                  level.chaos=1)
-    if (NROW(newdata)==1 && inheris(x = p,what = "list")){
+    if (NROW(newdata)==1 && inherits(x = p,what = "list")){
         p <- unlist(p)
     }
     if (is.null(dim(p)) && NROW(newdata)>=1){
