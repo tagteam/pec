@@ -35,13 +35,13 @@
 #' the form \code{legend.x=val} where x is the name of the argument and val the
 #' desired value. See also Details.
 #' @param percent Logical. If \code{TRUE} the y-axis is labeled in percent.
-#' @param \dots Parameters that are filtered by \code{\link{SmartControl}} and
-#' then passed to the functions: \code{\link{plot}}, \code{\link{axis}},
-#' \code{\link{legend}}.
+#' @param \dots Parameters that are filtered by \link[prodlim]{SmartControl} and
+#' then passed to the functions: \code{plot}, \code{axis},
+#' \code{legend}.
 #' @return The (invisible) object.
 #' @author Ulla B. Mogensen \email{ulmo@@biostat.ku.dk}, Thomas A. Gerds
 #' \email{tag@@biostat.ku.dk}
-#' @seealso \code{\link{predictEventProb}}\code{\link{prodlim}}
+#' @seealso \link{predictEventProb}, \link[prodlim]{prodlim}
 #' @references Ulla B. Mogensen, Hemant Ishwaran, Thomas A. Gerds (2012).
 #' Evaluating Random Forests for Survival Analysis Using Prediction Error
 #' Curves. Journal of Statistical Software, 50(11), 1-23. DOI

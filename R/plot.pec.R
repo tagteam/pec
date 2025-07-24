@@ -18,7 +18,7 @@
 #' functions.
 #' 
 #' @param x Object of class \code{pec} obtained with function
-#' \code{\link{pec}}.
+#' \link{pec}.
 #' @param what The name of the entry in \code{x}. Defauls to \code{PredErr}
 #' Other choices are \code{AppErr}, \code{BootCvErr}, \code{Boot632},
 #' \code{Boot632plus}.
@@ -52,12 +52,12 @@
 #' function \code{Special}. Optional arguments of the function \code{Special}
 #' can be given in the form \code{special.x=val} as with legend. See also
 #' Details.
-#' @param \dots Extra arguments that are passed to \code{\link{plot}}.
+#' @param \dots Extra arguments that are passed to \code{plot}.
 #' @return The (invisible) object.
 #' @author Ulla B. Mogensen \email{ulmo@@biostat.ku.dk}, Thomas A. Gerds
 #' \email{tag@@biostat.ku.dk}
 #' @seealso
-#' \code{\link{pec}}\code{\link{summary.pec}}\code{\link{Special}}\code{\link{prodlim}}
+#' \link{pec}
 #' @keywords survival
 #' @examples
 #' 

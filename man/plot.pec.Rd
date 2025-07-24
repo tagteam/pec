@@ -27,7 +27,7 @@
 }
 \arguments{
 \item{x}{Object of class \code{pec} obtained with function
-\code{\link{pec}}.}
+\link{pec}.}
 
 \item{what}{The name of the entry in \code{x}. Defauls to \code{PredErr}
 Other choices are \code{AppErr}, \code{BootCvErr}, \code{Boot632},
@@ -78,7 +78,7 @@ function \code{Special}. Optional arguments of the function \code{Special}
 can be given in the form \code{special.x=val} as with legend. See also
 Details.}
 
-\item{\dots}{Extra arguments that are passed to \code{\link{plot}}.}
+\item{\dots}{Extra arguments that are passed to \code{plot}.}
 }
 \value{
 The (invisible) object.
@@ -153,7 +153,7 @@ plot(PredError.632plus,
 
 }
 \seealso{
-\code{\link{pec}}\code{\link{summary.pec}}\code{\link{Special}}\code{\link{prodlim}}
+\link{pec}
 }
 \author{
 Ulla B. Mogensen \email{ulmo@biostat.ku.dk}, Thomas A. Gerds

@@ -9,8 +9,6 @@
 #' invokes a different function dependent on the 'class' of the
 #' first argument. 
 #' 
-#' See also \code{\link{predictSurvProb}}.
-#' 
 #' @aliases predictRestrictedMeanTime predictRestrictedMeanTime.aalen
 #' predictRestrictedMeanTime.riskRegression predictRestrictedMeanTime.cox.aalen
 #' predictRestrictedMeanTime.coxph predictRestrictedMeanTime.cph predictRestrictedMeanTime.default
@@ -52,7 +50,6 @@
 #' probability prediction. For example, \code{se.fit=FALSE} can be set in the
 #' call to \code{cph}.
 #' @author Thomas A. Gerds \email{tag@@biostat.ku.dk}
-#' @seealso \code{\link{predict}},\code{\link{survfit}}
 #' @references Ulla B. Mogensen, Hemant Ishwaran, Thomas A. Gerds (2012).
 #' Evaluating Random Forests for Survival Analysis Using Prediction Error
 #' Curves. Journal of Statistical Software, 50(11), 1-23. DOI
@@ -286,64 +283,64 @@ predictRestrictedMeanTime.prodlim <- function(object,newdata,times,...){
     p
 }
 
-predict.survfit <- function(object,newdata,times,bytimes=TRUE,fill="last",...){
-    if (!inherits(object,what = "survfit") || object$typ !="right")
-        stop("Predictions only available \nfor class 'survfit', possibly stratified Kaplan-Meier fits.\n For class 'cph' Cox models see survest.cph.")
-    if (missing(newdata))
-        npat <- 1
-    else
-        if (is.data.frame(newdata))
-            npat <- nrow(newdata)
-        else stop("If argument `newdata' is supplied it must be a dataframe." )
-    ntimes <- length(times)
-    sfit <- summary(object,times=times)
-    if (is.na(fill))
-        Fill <- function(x,len){x[1:len]}
-    else if (fill=="last")
-        Fill <- function(x,len){
-            y <- x[1:len]
-            y[is.na(y)] <- x[length(x)]
-            y}
-    else stop("Argument fill must be the string 'last' or NA.")
-    if (is.null(object$strata)){
-        pp <- Fill(sfit$surv,ntimes)
-        p <- matrix(rep(pp,npat),
-                    ncol=ifelse(bytimes,ntimes,npat),
-                    nrow=ifelse(bytimes,npat,ntimes),
-                    byrow=bytimes)
-    }
-    else{
-        covars <- attr(terms(eval.parent(object$call$formula)),"term.labels")
-        if (!all(match(covars,names(newdata),nomatch=FALSE)))
-            stop("Not all strata defining variables occur in newdata.")
-        ## FIXME there are different ways to build strata levels
-        ## how can we test which one was used???
-        stratdat <- newdata[,covars,drop=FALSE]
-        names(stratdat) <- covars
-        NewStratVerb <- survival::strata(stratdat)
-        NewStrat <- interaction(stratdat,sep=" ")
-        levs <- levels(sfit$strata)
-        #    print(levs)
-        #    print(levels(NewStrat))
-        #    print(levels(NewStratVerb))
-        if (!all(choose <- match(NewStratVerb,levs,nomatch=F))
-            &&
-            !all(choose <- match(NewStrat,levs,nomatch=F)))
-            stop("Not all strata levels in newdata occur in fit.")
-        survlist <- split(sfit$surv,sfit$strata)
-        pp <- lapply(survlist[choose],Fill,ntimes)
-        p <- matrix(unlist(pp,use.names=FALSE),
-                    ncol=ifelse(bytimes,ntimes,npat),
-                    nrow=ifelse(bytimes,npat,ntimes),
-                    byrow=bytimes)
-    }
-    if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-        stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
-    p
-}
 
 ##' @export
 predictRestrictedMeanTime.survfit <- function(object,newdata,times,...){
+    predict.survfit <- function(object,newdata,times,bytimes=TRUE,fill="last",...){
+        if (!inherits(object,what = "survfit") || object$typ !="right")
+            stop("Predictions only available \nfor class 'survfit', possibly stratified Kaplan-Meier fits.\n For class 'cph' Cox models see survest.cph.")
+        if (missing(newdata))
+            npat <- 1
+        else
+            if (is.data.frame(newdata))
+                npat <- nrow(newdata)
+        else stop("If argument `newdata' is supplied it must be a dataframe." )
+        ntimes <- length(times)
+        sfit <- summary(object,times=times)
+        if (is.na(fill))
+            Fill <- function(x,len){x[1:len]}
+        else if (fill=="last")
+            Fill <- function(x,len){
+                y <- x[1:len]
+                y[is.na(y)] <- x[length(x)]
+                y}
+        else stop("Argument fill must be the string 'last' or NA.")
+        if (is.null(object$strata)){
+            pp <- Fill(sfit$surv,ntimes)
+            p <- matrix(rep(pp,npat),
+                        ncol=ifelse(bytimes,ntimes,npat),
+                        nrow=ifelse(bytimes,npat,ntimes),
+                        byrow=bytimes)
+        }
+        else{
+            covars <- attr(terms(eval.parent(object$call$formula)),"term.labels")
+            if (!all(match(covars,names(newdata),nomatch=FALSE)))
+                stop("Not all strata defining variables occur in newdata.")
+            ## FIXME there are different ways to build strata levels
+            ## how can we test which one was used???
+            stratdat <- newdata[,covars,drop=FALSE]
+            names(stratdat) <- covars
+            NewStratVerb <- survival::strata(stratdat)
+            NewStrat <- interaction(stratdat,sep=" ")
+            levs <- levels(sfit$strata)
+            #    print(levs)
+            #    print(levels(NewStrat))
+            #    print(levels(NewStratVerb))
+            if (!all(choose <- match(NewStratVerb,levs,nomatch=F))
+                &&
+                !all(choose <- match(NewStrat,levs,nomatch=F)))
+                stop("Not all strata levels in newdata occur in fit.")
+            survlist <- split(sfit$surv,sfit$strata)
+            pp <- lapply(survlist[choose],Fill,ntimes)
+            p <- matrix(unlist(pp,use.names=FALSE),
+                        ncol=ifelse(bytimes,ntimes,npat),
+                        nrow=ifelse(bytimes,npat,ntimes),
+                        byrow=bytimes)
+        }
+        if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
+            stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
+        p
+    }
     p <- predict.survfit(object,newdata=newdata,times=times,bytimes=TRUE,fill="last")
     if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
         stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))

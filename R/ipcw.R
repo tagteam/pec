@@ -47,7 +47,7 @@
 #' \item{method}{The method for modelling the censoring distribution}
 #' \item{call}{The call}
 #' @author Thomas A. Gerds \email{tag@@biostat.ku.dk}
-#' @seealso \code{\link{pec}}
+#' @seealso \link{pec}
 #' @keywords survival
 #' @examples
 #' 

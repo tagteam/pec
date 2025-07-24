@@ -445,8 +445,7 @@ the prediction error difference between 2 predictors Biostatistics (2009)
 10(3): 550-560 doi:10.1093/biostatistics/kxp011
 }
 \seealso{
-\code{\link{plot.pec}}, \code{\link{summary.pec}},
-\code{\link{R2}}, \code{\link{crps}}
+\link{plot.pec}, \link{summary.pec}, \link{R2}, \link{crps}
 }
 \author{
 Thomas Alexander Gerds \email{tag@biostat.ku.dk}

@@ -12,8 +12,6 @@
 #' invokes specifically designed functions depending on the 'class' of the
 #' first argument.
 #' 
-#' See \code{\link{predictSurvProb}}.
-#' 
 #' @aliases predictLifeYearsLost predictLifeYearsLost.CauseSpecificCox
 #' predictLifeYearsLost.riskRegression predictLifeYearsLost.FGR
 #' predictLifeYearsLost.prodlim predictLifeYearsLost.rfsrc
@@ -29,7 +27,7 @@
 #' columns as \code{length(times)}. Each entry should be a positive value and
 #' in rows the values should be increasing.
 #' @author Thomas A. Gerds \email{tag@@biostat.ku.dk}
-#' @seealso \code{\link{predictSurvProb}}, \code{\link{predictEventProb}}.
+#' @seealso \link{predictSurvProb}, \link{predictEventProb}.
 #' @keywords survival
 #' @examples
 #' 

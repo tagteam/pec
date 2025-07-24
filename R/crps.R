@@ -21,7 +21,7 @@
 #' @return A matrix with a column for the crps (ibs) at every requested time
 #' point and a row for each model
 #' @author Thomas A. Gerds \email{tag@@biostat.ku.dk}
-#' @seealso \code{\link{pec}}
+#' @seealso \link{pec}
 #' @references E. Graf et al.  (1999), Assessment and comparison of prognostic
 #' classification schemes for survival data. Statistics in Medicine, vol 18,
 #' pp= 2529--2545.

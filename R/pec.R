@@ -227,8 +227,7 @@
 #' in the full data.} \item{splitMethod}{The splitMethod used for estimation of
 #' the overfitting bias.}
 #' @author Thomas Alexander Gerds \email{tag@@biostat.ku.dk}
-#' @seealso \code{\link{plot.pec}}, \code{\link{summary.pec}},
-#' \code{\link{R2}}, \code{\link{crps}}
+#' @seealso \link{plot.pec}, \link{summary.pec}, \link{R2}, \link{crps}
 #' @references
 #'
 #' Gerds TA, Kattan MW.

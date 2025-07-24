@@ -61,9 +61,9 @@ desired value. See also Details.}
 
 \item{percent}{Logical. If \code{TRUE} the y-axis is labeled in percent.}
 
-\item{\dots}{Parameters that are filtered by \code{\link{SmartControl}} and
-then passed to the functions: \code{\link{plot}}, \code{\link{axis}},
-\code{\link{legend}}.}
+\item{\dots}{Parameters that are filtered by \link[prodlim]{SmartControl} and
+then passed to the functions: \code{plot}, \code{axis},
+\code{legend}.}
 }
 \value{
 The (invisible) object.
@@ -107,7 +107,7 @@ Curves. Journal of Statistical Software, 50(11), 1-23. DOI
 10.18637/jss.v050.i11
 }
 \seealso{
-\code{\link{predictSurvProb}}\code{\link{prodlim}}
+\link{predictSurvProb}, \link[prodlim]{prodlim}
 }
 \author{
 Ulla B. Mogensen \email{ulmo@biostat.ku.dk}, Thomas A. Gerds

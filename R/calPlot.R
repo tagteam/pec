@@ -4,7 +4,7 @@
 #' competing risks data
 #' 
 #' For method "nne" the optimal bandwidth with respect to is obtained with the
-#' function \code{\link{dpik}} from the package \code{KernSmooth} for a box
+#' function \link[KernSmooth]{dpik} for a box
 #' kernel function.
 #' 
 #' @param object A named list of prediction models, where allowed
@@ -75,12 +75,12 @@
 #' @param xlab Label for y-axis.
 #' @param ylab Label for x-axis.
 #' @param col Vector with colors, one for each element of
-#' object. Passed to \code{\link{lines}}.
+#' object. Passed to \code{lines}.
 #' @param lwd Vector with line widths, one for each element of
-#' object. Passed to \code{\link{lines}}.
+#' object. Passed to \code{lines}.
 #' @param lty lwd Vector with line style, one for each element of
-#' object.  Passed to \code{\link{lines}}.
-#' @param pch Passed to \code{\link{points}}.
+#' object.  Passed to \code{lines}.
+#' @param pch Passed to \code{points}.
 #' @param cause For competing risks models, the cause of failure or
 #' event of interest
 #' @param percent If TRUE axes labels are multiplied by 100 and thus
@@ -88,14 +88,14 @@
 #' @param giveToModel List of with exactly one entry for each entry in
 #' \code{object}. Each entry names parts of the value of the fitted
 #' models that should be extracted and added to the value.
-#' @param na.action Passed to \code{\link{model.frame}}
+#' @param na.action Passed to \code{model.frame}
 #' @param cores Number of cores for parallel computing.  Passed as
-#' value of argument \code{mc.cores} to \code{\link{mclapply}}.
+#' value of argument \code{mc.cores} to \link[parallel]{mclapply}.
 #' @param verbose if \code{TRUE} report details of the progress,
 #' e.g. count the steps in cross-validation.
 #' @param cex Default cex used for legend and labels.
 #' @param ... Used to control the subroutines: plot, axis, lines, barplot,
-#' legend. See \code{\link{SmartControl}}.
+#' legend. See \link[prodlim]{SmartControl}.
 #' @return list with elements: time, pseudoFrame and bandwidth (NULL for method
 #' quantile).
 #' @keywords survival 

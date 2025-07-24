@@ -62,7 +62,7 @@ Gerds TA, Cai T & Schumacher M (2008) The performance of risk prediction
 models Biometrical Journal, 50(4), 457--479
 }
 \seealso{
-\code{\link{pec}}
+\link{pec}
 }
 \author{
 Thomas A. Gerds \email{tag@biostat.ku.dk}

@@ -41,8 +41,6 @@ from the package \code{compRisk}.
 The function predictLifeYearsLost is a generic function that means it
 invokes specifically designed functions depending on the 'class' of the
 first argument.
-
-See \code{\link{predictSurvProb}}.
 }
 \examples{
 
@@ -57,7 +55,7 @@ predictLifeYearsLost(fit,newdata=test,times=seq(1:10),cv=FALSE,cause=1)
 
 }
 \seealso{
-\code{\link{predictSurvProb}}, \code{\link{predictEventProb}}.
+\link{predictSurvProb}, \link{predictEventProb}.
 }
 \author{
 Thomas A. Gerds \email{tag@biostat.ku.dk}

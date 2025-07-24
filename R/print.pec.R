@@ -15,7 +15,7 @@
 #' @param \dots Not used
 #' @return The first argument in the invisible cloak.
 #' @author Thomas A. Gerds \email{tag@@biostat.ku.dk}
-#' @seealso \code{\link{pec}}
+#' @seealso \link{pec}
 #' @keywords survival
 #' @export
 print.pec <- function(x,

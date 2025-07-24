@@ -148,15 +148,15 @@ plot.}
 \item{ylab}{Label for x-axis.}
 
 \item{col}{Vector with colors, one for each element of
-object. Passed to \code{\link{lines}}.}
+object. Passed to \code{lines}.}
 
 \item{lwd}{Vector with line widths, one for each element of
-object. Passed to \code{\link{lines}}.}
+object. Passed to \code{lines}.}
 
 \item{lty}{lwd Vector with line style, one for each element of
-object.  Passed to \code{\link{lines}}.}
+object.  Passed to \code{lines}.}
 
-\item{pch}{Passed to \code{\link{points}}.}
+\item{pch}{Passed to \code{points}.}
 
 \item{cause}{For competing risks models, the cause of failure or
 event of interest}
@@ -168,10 +168,10 @@ interpretable on a percent scale.}
 \code{object}. Each entry names parts of the value of the fitted
 models that should be extracted and added to the value.}
 
-\item{na.action}{Passed to \code{\link{model.frame}}}
+\item{na.action}{Passed to \code{model.frame}}
 
 \item{cores}{Number of cores for parallel computing.  Passed as
-value of argument \code{mc.cores} to \code{\link{mclapply}}.}
+value of argument \code{mc.cores} to \link[parallel]{mclapply}.}
 
 \item{verbose}{if \code{TRUE} report details of the progress,
 e.g. count the steps in cross-validation.}
@@ -179,7 +179,7 @@ e.g. count the steps in cross-validation.}
 \item{cex}{Default cex used for legend and labels.}
 
 \item{...}{Used to control the subroutines: plot, axis, lines, barplot,
-legend. See \code{\link{SmartControl}}.}
+legend. See \link[prodlim]{SmartControl}.}
 }
 \value{
 list with elements: time, pseudoFrame and bandwidth (NULL for method
@@ -191,7 +191,7 @@ competing risks data
 }
 \details{
 For method "nne" the optimal bandwidth with respect to is obtained with the
-function \code{\link{dpik}} from the package \code{KernSmooth} for a box
+function \link[KernSmooth]{dpik} for a box
 kernel function.
 }
 \examples{

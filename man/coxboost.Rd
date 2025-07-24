@@ -11,7 +11,7 @@ coxboost(formula, data, cv = TRUE, cause = 1, penalty, ...)
 form \code{Hist(time,status)~sex+age} where \code{status} defines
 competing events and right censored data. The code for right
 censored can be controlled with argument \code{cens.code}, see man
-page the function \code{\link{Hist}}.}
+page the function \link[prodlim]{Hist}.}
 
 \item{data}{A data.frame in which the variables of formula are
 defined.}

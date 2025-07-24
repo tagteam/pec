@@ -12,8 +12,6 @@
 #' specifically designed functions depending on the 'class' of the first
 #' argument.
 #' 
-#' See \code{\link{predictSurvProb}}.
-#' 
 #' @aliases predictEventProb predictEventProb.CauseSpecificCox
 #' predictEventProb.riskRegression predictEventProb.FGR
 #' predictEventProb.prodlim predictEventProb.rfsrc
@@ -29,7 +27,7 @@
 #' columns as \code{length(times)}. Each entry should be a probability and in
 #' rows the values should be increasing.
 #' @author Thomas A. Gerds \email{tag@@biostat.ku.dk}
-#' @seealso See \code{\link{predictSurvProb}}.
+#' @seealso See \link{predictSurvProb}.
 #' @keywords survival
 #' @examples
 #' 

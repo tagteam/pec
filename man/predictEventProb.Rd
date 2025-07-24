@@ -41,8 +41,6 @@ from the package \code{compRisk}.
 The function predictEventProb is a generic function that means it invokes
 specifically designed functions depending on the 'class' of the first
 argument.
-
-See \code{\link{predictSurvProb}}.
 }
 \examples{
 
@@ -61,7 +59,7 @@ predictEventProb(cox.fit2,newdata=test,times=seq(1:10),cause=1)
 
 }
 \seealso{
-See \code{\link{predictSurvProb}}.
+See \link{predictSurvProb}.
 }
 \author{
 Thomas A. Gerds \email{tag@biostat.ku.dk}

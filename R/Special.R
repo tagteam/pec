@@ -24,7 +24,7 @@
 #' @param lty Line type of the different error curves for \code{models}.
 #' @param lwd Line width of the different error curves for \code{models}.
 #' @return Invisible object.
-#' @seealso \code{\link{plot.pec}}
+#' @seealso \link{plot.pec}
 Special <-  function(x,
                      y,
                      addprederr,

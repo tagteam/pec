@@ -3,9 +3,9 @@
 ## author: Thomas Alexander Gerds
 ## created: Oct  3 2015 (16:26) 
 ## Version: 
-## last-updated: Oct  3 2015 (16:26) 
+## last-updated: Jul 24 2025 (08:25) 
 ##           By: Thomas Alexander Gerds
-##     Update #: 1
+##     Update #: 2
 #----------------------------------------------------------------------
 ## 
 ### Commentary: 
@@ -14,6 +14,16 @@
 #----------------------------------------------------------------------
 ## 
 ### Code:
+##' Print method for results of reclass
+##'
+##' 
+##' @title Print riskReclassification object
+##' @param x Object obtained with function \link{reclass}
+##' @param percent Logical. If \code{TRUE} multiply risks with 100.
+##' @param digits Rounding digits
+##' @param ... Not used
+##' @author Thomas A. Gerds <tag@@biostat.ku.dk>
+##' @export 
 print.riskReclassification <- function(x,percent=TRUE,digits=ifelse(percent,1,2),...){
     cat("Observed overall re-classification table:\n\n")
     print(x$reclassification)

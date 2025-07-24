@@ -56,9 +56,7 @@ approaches.
 \details{
 The function predictRestrictedMeanTime is a generic function, meaning that it
 invokes a different function dependent on the 'class' of the
-first argument. 
-
-See also \code{\link{predictSurvProb}}.
+first argument.
 }
 \note{
 In order to assess the predictive performance of a new survival model
@@ -114,9 +112,6 @@ Ulla B. Mogensen, Hemant Ishwaran, Thomas A. Gerds (2012).
 Evaluating Random Forests for Survival Analysis Using Prediction Error
 Curves. Journal of Statistical Software, 50(11), 1-23. DOI
 10.18637/jss.v050.i11
-}
-\seealso{
-\code{\link{predict}},\code{\link{survfit}}
 }
 \author{
 Thomas A. Gerds \email{tag@biostat.ku.dk}

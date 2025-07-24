@@ -138,7 +138,7 @@ Curves. Journal of Statistical Software, 50(11), 1-23. DOI
 10.18637/jss.v050.i11
 }
 \seealso{
-\code{\link{predict}},\code{\link{survfit}}
+\link[riskRegression]{predictRisk}
 }
 \author{
 Thomas A. Gerds \email{tag@biostat.ku.dk}

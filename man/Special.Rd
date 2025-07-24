@@ -61,5 +61,5 @@ This function should not be called directly. The arguments can be specified
 as \code{Special.arg} in the call to \code{plot.pec}.
 }
 \seealso{
-\code{\link{plot.pec}}
+\link{plot.pec}
 }

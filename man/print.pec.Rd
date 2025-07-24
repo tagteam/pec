@@ -31,7 +31,7 @@ Print the important arguments of call and the prediction error values at
 selected time points.
 }
 \seealso{
-\code{\link{pec}}
+\link{pec}
 }
 \author{
 Thomas A. Gerds \email{tag@biostat.ku.dk}

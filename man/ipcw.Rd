@@ -132,7 +132,7 @@ plot(WKM2$fit,add=FALSE)
 
 }
 \seealso{
-\code{\link{pec}}
+\link{pec}
 }
 \author{
 Thomas A. Gerds \email{tag@biostat.ku.dk}
